@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -51,7 +52,6 @@ namespace PianoTrainer.Scripts.MIDI
 
         public KeyLightsManager(KeyLights lights)
         {
-            
             LightsState = new(lights);
             tickDisplayed = new();
             StopSignal = new();
@@ -72,6 +72,7 @@ namespace PianoTrainer.Scripts.MIDI
             });
             tickThread.Start();
             DesiredStateUpdate += OnDesiredStateUpdate;
+            ClearKeys();
         }
 
         public static IEnumerable<T> Rotate<T>(IEnumerable<T> list, int offset)
@@ -138,7 +139,10 @@ namespace PianoTrainer.Scripts.MIDI
             LightsState.Reset();
             StopSignal.TrySetResult();
             keyLightsHolder.Dispose();
+            ClearKeys();
         }
+
+        public void ClearKeys() => LightsState.Panic();
 
         public void Reset()
         {

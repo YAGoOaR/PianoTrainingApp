@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Diagnostics;
 
 public partial class ProgressBar : Node2D
 {
@@ -47,7 +48,7 @@ public partial class ProgressBar : Node2D
 
         if (p != null && p.TotalTimeMilis != 0)
         {
-            var progress = p.CurrentTimeMilis / p.TotalTimeMilis;
+            var progress = p.TimelineManager.CurrentTimeMilis / (float)p.TotalTimeMilis;
             SetProgress(progress);
         }
     }

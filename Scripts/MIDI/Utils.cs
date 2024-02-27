@@ -6,6 +6,8 @@ namespace PianoTrainer.Scripts.MIDI
 {
     internal static class Utils
     {
+        public static void DoNothing() { }
+
         public static string SJ<T>(IEnumerable<T> lst)
         {
             return $"[{string.Join(",", lst)}]";

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=8 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scripts/PlayScene.cs" id="1_h8r17"]
 [ext_resource type="Script" path="res://Scripts/GameSettings.cs" id="2_6viva"]
@@ -6,25 +6,29 @@
 [ext_resource type="Script" path="res://Scripts/Piano.cs" id="4_4ebec"]
 [ext_resource type="Script" path="res://Scripts/MusicSheet.cs" id="5_ga1et"]
 [ext_resource type="Script" path="res://Scripts/ProgressBar.cs" id="6_t5trx"]
+[ext_resource type="Script" path="res://Scripts/MIDIPlayer.cs" id="7_tvdah"]
 
 [node name="PlayScene" type="Node2D" node_paths=PackedStringArray("gameSettings", "MIDIManager")]
 script = ExtResource("1_h8r17")
 gameSettings = NodePath("GameSettings")
 MIDIManager = NodePath("MidiManager")
 
-[node name="GameSettings" type="Node2D" parent="."]
-script = ExtResource("2_6viva")
-
-[node name="MidiManager" type="Node2D" parent="."]
+[node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("Player")]
 script = ExtResource("3_ji2ot")
+Player = NodePath("../MidiPlayer")
 
 [node name="Piano" type="Node2D" parent="." node_paths=PackedStringArray("midiManager")]
 script = ExtResource("4_4ebec")
 midiManager = NodePath("../MidiManager")
 
-[node name="MusicSheet" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager")]
+[node name="MusicSheet" type="Node2D" parent="."]
 script = ExtResource("5_ga1et")
-MIDIManager = NodePath("../MidiManager")
+
+[node name="MidiPlayer" type="Node2D" parent="."]
+script = ExtResource("7_tvdah")
+
+[node name="GameSettings" type="Node2D" parent="."]
+script = ExtResource("2_6viva")
 
 [node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager")]
 script = ExtResource("6_t5trx")

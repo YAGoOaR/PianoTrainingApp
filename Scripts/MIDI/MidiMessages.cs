@@ -11,14 +11,16 @@ public record SimpleMsg(byte Key, bool State);
 public record SimpleTimedMsg(byte Key, bool State, int DeltaTime) : SimpleMsg(Key, State);
 public record SimpleTimedKey(byte Key, int DeltaTime);
 
+public record SimpleTimedKeyGroup(int DeltaTime, HashSet<byte> Keys);
+
 public class MidiUtils()
 {
-    public static List<SimpleTimedKey> ChangeStartTime(List<SimpleTimedKey> keyOnMessages, int startOffset)
+    public static List<SimpleTimedMsg> ChangeStartTime(List<SimpleTimedMsg> keyOnMessages, int startOffset)
     {
         if (keyOnMessages.Count > 0)
         {
             var (firstMsg, rest) = (keyOnMessages.First(), keyOnMessages[1..]);
-            return [new(firstMsg.Key, startOffset), .. rest];
+            return [new(firstMsg.Key, firstMsg.State, startOffset), .. rest];
         }
         return keyOnMessages;
     }

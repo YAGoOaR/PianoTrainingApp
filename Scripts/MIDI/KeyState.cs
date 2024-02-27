@@ -2,6 +2,7 @@
 using CoreMidi;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PianoTrainer.Scripts.MIDI
@@ -109,6 +110,12 @@ namespace PianoTrainer.Scripts.MIDI
                     lightQueue = new(lightQueue.Where(x => x != key));
                 }
 
+        }
+
+        public void Panic()
+        {
+            Reset();
+            lights.Panic();
         }
 
         public void Reset()

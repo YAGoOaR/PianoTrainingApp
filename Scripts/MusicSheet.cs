@@ -1,22 +1,19 @@
 using Godot;
+using PianoTrainer.Scripts.MIDI;
 
 public partial class MusicSheet : Node2D
 {
-	[Export]
-	MIDIManager MIDIManager { get; set; }
+	private MIDIManager midiManager;
+	private MIDIPlayer midiPlayer;
 
-	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-
+		midiManager = MIDIManager.Instance;
     }
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		var p = MIDIManager.Player;
-
-        if (p != null && p.TotalTimeMilis != 0)
+        if (midiPlayer != null && midiPlayer.TotalTimeMilis != 0)
 		{
 
 		}
