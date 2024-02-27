@@ -13,13 +13,16 @@ namespace PianoTrainer.Scripts.MIDI;
 
 // TODO: SPLIT CLASS INTO THREE PARTS
 // TODO: MOVE FROM ASYNC TO GODOT UPDATE
+// TODO: REFACTOR NOT TO USE THREAD SLEEP
 
-public struct PlayerSettings
+public struct PlayerSettings // TODO: add constructor
 {
     public int PreBlinkCount;
     public bool ShowNotes;
     public int KeyTimeOffset;
     public int StartOffset;
+    public int BlinkOffset;
+    public int BlinkOutdatedOffset;
 }
 
 public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSettings settings)
@@ -38,8 +41,6 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
     private HashSet<byte> nonreadyKeys = [];
     private MidiMusic music;
 
-    private int currentTempo = 500000;
-
     public int CurrentMessageIndex { get; private set; } = 0;
 
     public DateTime PressTime { get; private set; } = DateTime.MinValue;
@@ -54,7 +55,14 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
         : this(
             piano, 
             lightsManager, 
-            new() { PreBlinkCount = 1, ShowNotes = true, KeyTimeOffset = -400, StartOffset = 3000 }
+            new() { 
+                PreBlinkCount = 1, 
+                ShowNotes = true, 
+                KeyTimeOffset = -400, 
+                StartOffset = 3000, 
+                BlinkOffset = 900, 
+                BlinkOutdatedOffset = 600
+            }
         ) { }
 
     public void Load(string filename)
@@ -63,9 +71,11 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
         Debug.WriteLine($"Tracks count: {music.Tracks.Count}");
     }
 
-    private List<MidiMessage> SetupMetadata(IEnumerable<MidiMessage> messages)
+    // TODO: Add meta settings type
+    private (List<MidiMessage>, int) SetupMetadata(IEnumerable<MidiMessage> messages)
     {
         List<MidiMessage> rest = [];
+        var currentTempo = 500000;
 
         foreach (var m in messages)
         {
@@ -79,7 +89,7 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
                 rest.Add(m);
             }
         }
-        return rest;
+        return (rest, currentTempo);
     }
 
     public void KeyUpdater(byte key, bool state) => nonreadyKeys = nonreadyKeys.Intersect(piano.State).ToHashSet();
@@ -100,8 +110,10 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
 
         var allMessages = MergeTracks(music.Tracks);
 
+        var (keyMIDIMessages, currentTempo) = SetupMetadata(allMessages);
+
         var keyMessages = 
-            SetupMetadata(allMessages)
+            keyMIDIMessages
             .Select(m => MIDIMsgToSimpleMsg(m, currentTempo, music.DeltaTimeSpec))
             .ToList();
 
@@ -121,7 +133,6 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
             var selectedCount = selected.Count();
 
             var newKeys = selected.Select(x => x.Key).ToList();
-
             var messageDelta = selected.First().DeltaTime;
 
             var timeFromLastMsg = DateTime.Now - PressTime;
@@ -133,9 +144,7 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
             Thread.Sleep(Math.Max(durationToNextEvent, 0));
 
             if (settings.ShowNotes)
-            {
                 lightsManager.SetKeys(newKeys);
-            }
 
             if (newKeys.Count > 0)
             {

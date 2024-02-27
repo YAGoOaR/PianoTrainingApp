@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static PianoTrainer.Scripts.MIDI.MIDIPlayer;
 
 namespace PianoTrainer.Scripts.MIDI
 {
     public class Blinker : IDisposable
     {
-        const int blinkOffset = 900;
-        const int blinkOutdatedOffset = 600;
-
         private int blinkedMessageTimeAccumulator = 0;
         private int skipped = 0;
 
@@ -44,8 +40,8 @@ namespace PianoTrainer.Scripts.MIDI
                 int currentRelativeTime = Math.Min(player.MessageTimeAccumulator + (int)(DateTime.Now - player.PressTime).TotalMilliseconds, player.NextMsgRelTime);
                 int selectedMessageTime = blinkedMessageTimeAccumulator + nextMsg.DeltaTime;
 
-                bool completed = selectedMessageTime - currentRelativeTime < blinkOffset;
-                bool outdated = selectedMessageTime - currentRelativeTime < blinkOutdatedOffset && settings.ShowNotes;
+                bool completed = selectedMessageTime - currentRelativeTime < settings.BlinkOffset;
+                bool outdated = selectedMessageTime - currentRelativeTime < settings.BlinkOutdatedOffset && settings.ShowNotes;
 
                 if (completed && !outdated)
                 {
