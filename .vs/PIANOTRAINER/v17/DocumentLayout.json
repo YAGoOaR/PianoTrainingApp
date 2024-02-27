@@ -1,0 +1,109 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\keylights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\keylights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\preblinkplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\preblinkplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\progressbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:progressbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\musicsheet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:musicsheet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "KeyLights.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyLights.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\KeyLights.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyLights.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\KeyLights.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAAAgwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:34:09.921Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MusicSheet.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\MusicSheet.cs",
+              "RelativeDocumentMoniker": "MusicSheet.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\MusicSheet.cs",
+              "RelativeToolTip": "MusicSheet.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:33:21.458Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ProgressBar.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\ProgressBar.cs",
+              "RelativeDocumentMoniker": "ProgressBar.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\ProgressBar.cs",
+              "RelativeToolTip": "ProgressBar.cs",
+              "ViewState": "AQIAAAoAAAAAAAAAAAAgwCkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-26T05:47:23.279Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Menu.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Menu.cs",
+              "RelativeDocumentMoniker": "Menu.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Menu.cs",
+              "RelativeToolTip": "Menu.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAQwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:32:30.083Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PreBlinkPlayer.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "ViewState": "AQIAADwAAAAAAAAAAADgvw0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-26T07:46:34.12Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
