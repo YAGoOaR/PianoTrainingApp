@@ -15,14 +15,15 @@ namespace PianoTrainer.Scripts.MIDI;
 // TODO: MOVE FROM ASYNC TO GODOT UPDATE
 // TODO: REFACTOR NOT TO USE THREAD SLEEP
 
-public struct PlayerSettings // TODO: add constructor
+public struct PlayerSettings()
 {
-    public int PreBlinkCount;
-    public bool ShowNotes;
-    public int KeyTimeOffset;
-    public int StartOffset;
-    public int BlinkOffset;
-    public int BlinkOutdatedOffset;
+    public int PreBlinkCount = 1;
+    public bool ShowNotes = true;
+    public int KeyTimeOffset = -400;
+    public int StartOffset = 3000;
+    public int BlinkOffset = 900;
+    public int BlinkOutdatedOffset = 600;
+
 }
 
 public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSettings settings)
@@ -51,19 +52,7 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
 
     private int timeToNextMsg = 0;
 
-    public MIDIPlayer(KeyState piano, KeyLightsManager lightsManager) 
-        : this(
-            piano, 
-            lightsManager, 
-            new() { 
-                PreBlinkCount = 1, 
-                ShowNotes = true, 
-                KeyTimeOffset = -400, 
-                StartOffset = 3000, 
-                BlinkOffset = 900, 
-                BlinkOutdatedOffset = 600
-            }
-        ) { }
+    public MIDIPlayer(KeyState piano, KeyLightsManager lightsManager) : this(piano, lightsManager, new()) { }
 
     public void Load(string filename)
     {
