@@ -8,7 +8,7 @@ namespace PianoTrainer.Scripts.MIDI
 {
     public class KeyState(byte minKey = 36, byte maxKey = 36 + 61)
     {
-        public virtual event Action<byte, bool> KeyChange;
+        public event Action<byte, bool> KeyChange;
         public byte MinKey { get; } = minKey;
         public byte MaxKey { get; } = maxKey;
         public HashSet<byte> State { get; } = [];
@@ -85,7 +85,6 @@ namespace PianoTrainer.Scripts.MIDI
                 throw new ArgumentException("Wrong method usage");
             }
 
-            // TODO: optimize
             lock (lightQueue)
             {
                 var off = lightQueue.Except(keysOn);
@@ -107,7 +106,6 @@ namespace PianoTrainer.Scripts.MIDI
             if (UpdateNote(new(key, false)))
                 lock (lightQueue)
                 {
-                    // TODO: CHECK IF ALWAYS EXECUTED
                     lightQueue = new(lightQueue.Where(x => x != key));
                 }
 

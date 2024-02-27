@@ -12,16 +12,11 @@ public partial class MIDIManager : Node2D
 {
     private Thread playerThread;
 
-    // Called when the node enters the scene tree for the first time.
-
     public event Action<byte, bool> KeyPressed; // TODO: CHANGE TO STATE's event
 
-    private KeyState piano;
+    public KeyState Piano { get; private set; }
 
     public PreBlinkPlayer Player {  get; private set; }
-
-    //[Signal]
-    //public delegate void PianoKeyPressedEventHandler(byte key, bool state);
 
     public void PlayMIDI(string filePath)
     {
@@ -42,51 +37,25 @@ public partial class MIDIManager : Node2D
 
     private void Play(string filePath)
     {
-        // TODO: REFACTOR EXCEPTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Debug.WriteLine("Playing music...");
 
-        //while(true)
+        Piano = new KeyState();
+
+        using var output = new OutputPortManager("CASIO USB-MIDI").OpenPort();
+        using var input = new InputPortManager("CASIO USB-MIDI").OpenPort();
+        var lights = new KeyLights(output);
+        using var lightsManager = new KeyLightsManager(lights);
+        Player = new PreBlinkPlayer(Piano, lightsManager);
+
+        input.MessageReceived += OnMessage;
+
+        Player.Load(filePath);
+
+        while (true)
         {
-            try
-            {
-                Debug.WriteLine("Playing music...");
-
-                piano = new KeyState();
-                piano.KeyChange += (k, s) => KeyPressed?.Invoke(k, s);
-
-                using var output = new OutputPortManager("CASIO USB-MIDI").OpenPort();
-                using var input = new InputPortManager("CASIO USB-MIDI").OpenPort();
-                var lights = new KeyLights(output);
-                using var lightsManager = new KeyLightsManager(lights);
-                Player = new PreBlinkPlayer(piano, lightsManager); // TODO: Dispose!
-
-                lights.OnError += () => Player.StopSignal.TrySetResult();
-
-                input.MessageReceived += OnMessage;
-
-                bool err = false;
-
-                lights.OnError += () => err = true;
-
-                while (!err)
-                {
-                    Player.Load(filePath);
-                    // TODO: Make config for player
-                    Player.Play();
-                    Player.StopSignal.Task.Wait();
-                }
-            } catch (MidiException e)
-            {
-                Player.Dispose();
-                Debug.WriteLine(e.Message);
-            }
+            Player.Play();
         }
     }
-
-	//// Called every frame. 'delta' is the elapsed time since the previous frame.
-	//public override void _Process(double delta)
-	//{
-
-	//}
 
     public void OnMessage(object input, MidiReceivedEventArgs message)
     {
@@ -97,7 +66,7 @@ public partial class MIDIManager : Node2D
         if (isKeyData)
         {
             byte note = message.Data[1];
-            piano.SetKey(new(note, msgType == MidiEvent.NoteOn));
+            Piano.SetKey(new(note, msgType == MidiEvent.NoteOn));
         }
     }
 
@@ -111,9 +80,4 @@ public partial class MIDIManager : Node2D
         MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
         Debug.WriteLine("");
     }
-
-    //public override void _ExitTree()
-    //{
-        
-    //}
 }

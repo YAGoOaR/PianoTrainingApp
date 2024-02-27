@@ -3,24 +3,64 @@
   "WorkspaceRootPath": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\keylights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\keylights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\keystate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\keystate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\preblinkplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\preblinkplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\keylightsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\keylightsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\keylights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\keylights.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\progressbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:progressbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\midimessages.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\midimessages.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\portmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\portmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\preblinkplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\preblinkplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midi\\keylightholder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midi\\keylightholder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\scripts\\midimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:scripts\\midimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\piano.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:piano.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\musicsheet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:musicsheet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\gamesettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:gamesettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|c:\\users\\yagooar\\projects\\pianotrainer\\playscene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F79CFF5-A622-4910-A925-CE338A1EDD16}|PianoTrainer.csproj|solutionrelative:playscene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +70,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,67 +78,197 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MidiMessages.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\MidiMessages.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\MidiMessages.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\MidiMessages.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\MidiMessages.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T01:01:10.908Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "KeyLightsManager.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyLightsManager.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\KeyLightsManager.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyLightsManager.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\KeyLightsManager.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAF8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:59:43.307Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "KeylightHolder.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeylightHolder.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\KeylightHolder.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeylightHolder.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\KeylightHolder.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAA0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:57:33.303Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "KeyState.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyState.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\KeyState.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyState.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\KeyState.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAYwE8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:57:14.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PortManager.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PortManager.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\PortManager.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PortManager.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\PortManager.cs",
+              "ViewState": "AQIAACkAAAAAAAAAAAAwwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:57:11.104Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Utils.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\Utils.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\Utils.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\Utils.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\Utils.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:47:50.54Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Piano.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Piano.cs",
+              "RelativeDocumentMoniker": "Piano.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Piano.cs",
+              "RelativeToolTip": "Piano.cs",
+              "ViewState": "AQIAAEcAAAAAAAAAAAAwwFUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:47:11.177Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "MIDIManager.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDIManager.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDIManager.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDIManager.cs",
+              "RelativeToolTip": "Scripts\\MIDIManager.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAADIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:43:26.138Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "KeyLights.cs",
               "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyLights.cs",
               "RelativeDocumentMoniker": "Scripts\\MIDI\\KeyLights.cs",
               "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\KeyLights.cs",
               "RelativeToolTip": "Scripts\\MIDI\\KeyLights.cs",
-              "ViewState": "AQIAAA0AAAAAAAAAAAAgwAAAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-02-27T00:34:09.921Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MusicSheet.cs",
-              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\MusicSheet.cs",
-              "RelativeDocumentMoniker": "MusicSheet.cs",
-              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\MusicSheet.cs",
-              "RelativeToolTip": "MusicSheet.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "DocumentIndex": 7,
+              "Title": "PreBlinkPlayer.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "RelativeDocumentMoniker": "Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "RelativeToolTip": "Scripts\\MIDI\\PreBlinkPlayer.cs",
+              "ViewState": "AQIAAOoAAAAAAAAAAAAiwCAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-02-27T00:33:21.458Z",
+              "WhenOpened": "2024-02-26T07:46:34.12Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "ProgressBar.cs",
               "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\ProgressBar.cs",
               "RelativeDocumentMoniker": "ProgressBar.cs",
               "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\ProgressBar.cs",
               "RelativeToolTip": "ProgressBar.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAAgwCkAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAEAAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-02-26T05:47:23.279Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 12,
+              "Title": "GameSettings.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\GameSettings.cs",
+              "RelativeDocumentMoniker": "GameSettings.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\GameSettings.cs",
+              "RelativeToolTip": "GameSettings.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:46:40.974Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "PlayScene.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\PlayScene.cs",
+              "RelativeDocumentMoniker": "PlayScene.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\PlayScene.cs",
+              "RelativeToolTip": "PlayScene.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:41:26.195Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "MusicSheet.cs",
+              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\MusicSheet.cs",
+              "RelativeDocumentMoniker": "MusicSheet.cs",
+              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\MusicSheet.cs",
+              "RelativeToolTip": "MusicSheet.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-27T00:33:21.458Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "Menu.cs",
               "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Menu.cs",
               "RelativeDocumentMoniker": "Menu.cs",
               "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Menu.cs",
               "RelativeToolTip": "Menu.cs",
-              "ViewState": "AQIAABcAAAAAAAAAAAAQwAAAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-02-27T00:32:30.083Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PreBlinkPlayer.cs",
-              "DocumentMoniker": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PreBlinkPlayer.cs",
-              "RelativeDocumentMoniker": "Scripts\\MIDI\\PreBlinkPlayer.cs",
-              "ToolTip": "C:\\Users\\yagooar\\Projects\\PianoTrainer\\Scripts\\MIDI\\PreBlinkPlayer.cs",
-              "RelativeToolTip": "Scripts\\MIDI\\PreBlinkPlayer.cs",
-              "ViewState": "AQIAADwAAAAAAAAAAADgvw0AAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-02-26T07:46:34.12Z",
               "EditorCaption": ""
             }
           ]

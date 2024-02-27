@@ -66,14 +66,11 @@ namespace PianoTrainer.Scripts.MIDI
 
             tickThread = new Thread(() =>
             {
-                try {
-                    while (!StopSignal.Task.IsCompleted)
-                    {
-                        OnTick();
-                        Thread.Sleep(tickTime);
-                    }
+                while (!StopSignal.Task.IsCompleted)
+                {
+                    OnTick();
+                    Thread.Sleep(tickTime);
                 }
-                catch (MidiException){}
             });
             tickThread.Start();
             DesiredStateUpdate += OnDesiredStateUpdate;

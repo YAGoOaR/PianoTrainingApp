@@ -12,20 +12,18 @@ namespace PianoTrainer.Scripts.MIDI
 
         private const int period = 100;
 
+        // TODO: Check if using TaskCompletionSource is appropriate
         static void LightLoop(KeyLights lights, TaskCompletionSource started, TaskCompletionSource stopSignal)
         {
-            try {
+            lights.SendHold();
+            Thread.Sleep(period);
+            started.SetResult();
+
+            while (!stopSignal.Task.IsCompleted)
+            {
                 lights.SendHold();
                 Thread.Sleep(period);
-                started.SetResult();
-
-                while (!stopSignal.Task.IsCompleted)
-                {
-                    lights.SendHold();
-                    Thread.Sleep(period);
-                }
             }
-            catch (MidiException){}
         }
 
         public KeylightHolder(KeyLights lights, TaskCompletionSource started)

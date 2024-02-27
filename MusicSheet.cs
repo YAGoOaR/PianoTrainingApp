@@ -1,6 +1,4 @@
 using Godot;
-using PianoTrainer.Scripts.MIDI;
-using System;
 
 public partial class MusicSheet : Node2D
 {

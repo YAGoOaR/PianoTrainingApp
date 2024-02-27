@@ -1,7 +1,5 @@
 using Godot;
-using PianoTrainer.Scripts.MIDI;
 using System;
-using System.Diagnostics;
 
 public partial class ProgressBar : Node2D
 {

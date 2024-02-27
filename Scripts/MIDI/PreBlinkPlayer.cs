@@ -1,6 +1,5 @@
 ﻿
 using Commons.Music.Midi;
-using CoreMidi;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,25 +7,30 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static PianoTrainer.Scripts.MIDI.Utils;
 
 namespace PianoTrainer.Scripts.MIDI;
 
-public record SimpleTimedMsg(byte Key, bool State, int DeltaTime) : SimpleMsg(Key, State);
-
-public class PreBlinkPlayer(KeyState piano, KeyLightsManager lightsManager, int preBlinkCount = 1, bool showNotes = true) : IDisposable
+public class PreBlinkPlayer(KeyState piano, KeyLightsManager lightsManager, int preBlinkCount = 1, bool showNotes = true)
 {
-    public KeyState keyLightState = lightsManager.LightsState;
-    private KeyState piano = piano;
-
-    private HashSet<byte> nonreadyKeys = [];
-
     public event Action<byte, bool> OnPlayedNote;
 
+    public DateTime LastTimeCheck { get => pressTime; }
+    public int RelativeMessageTime { get => messageTimeAccumulator; }
+    public int TotalTimeMilis { get; private set; } = 0;
+    public int TimeToNextMsg { get; private set; } = 0;
+
+    public KeyState keyLightState = lightsManager.LightsState;
+
+    private const int keyTimeOffset = -400;
+    private const int startOffset = 3000;
+    const int blinkOffset = 900;
+    const int blinkOutdatedOffset = 600;
+
+    private readonly KeyState piano = piano;
+    private HashSet<byte> nonreadyKeys = [];
     private MidiMusic music;
     private readonly KeyLightsManager lightsManager = lightsManager;
 
-    private const int startOffset = 3000;
     private int currentTempo = 500000;
     private readonly double tempo_ratio = 1.0;
 
@@ -37,29 +41,12 @@ public class PreBlinkPlayer(KeyState piano, KeyLightsManager lightsManager, int 
     private int nextMsgRelTime = 0;
     private int skipped = 0;
 
-    const int keyTimeOffset = -400;
-
     private int messageTimeAccumulator = 0;
 
-    public DateTime LastTimeCheck { get => pressTime; }
-    public int RelativeMessageTime { get => messageTimeAccumulator; }
-    public int TotalTimeMilis { get; private set; } = 0;
-    public int TimeToNextMsg { get; private set; } = 0;
-
-    public TaskCompletionSource StopSignal { get; private set; } = new();
-
-    private List<SimpleTimedMsg> messageList = new();
-
-    //public PreBlinkPlayer(KeyState piano, KeyLightsManager lightsManager, string filename, int preBlinkCount = 1, bool showNotes = true) : this(piano, lightsManager, preBlinkCount, showNotes)
-    //{
-    //    Load(filename);
-    //}
+    private List<SimpleTimedMsg> messageList = [];
 
     private void PreTick()
     {
-        const int blinkOffset = 900;
-        const int blinkOutdatedOffset = 600;
-
         bool contCondition = true;
         bool lastTimeCompleted = false;
 
@@ -152,7 +139,6 @@ public class PreBlinkPlayer(KeyState piano, KeyLightsManager lightsManager, int 
             return;
         }
 
-        StopSignal = new();
         messageTimeAccumulator = 0;
         blinkedMessageTimeAccumulator = 0;
         currentMessageIndex = 0;
@@ -215,85 +201,64 @@ public class PreBlinkPlayer(KeyState piano, KeyLightsManager lightsManager, int 
 
         TotalTimeMilis = messagesOn.Select(x => x.DeltaTime).Sum() + endTime;
 
-        try
+
+        for (int i = 0; i < messagesOn.Count;)
         {
-            for (int i = 0; i < messagesOn.Count;)
+            currentMessageIndex = i;
+
+            var selected = messagesOn.Skip(i).TakeWhile((m, j) => j == 0 || m.DeltaTime == 0);
+            var selectedCount = selected.Count();
+
+            var newKeys = selected.Where(x => x.State).Select(x => x.Key).ToList();
+
+            var messageDelta = selected.First().DeltaTime;
+
+            var timeFromLastMsg = DateTime.Now - pressTime;
+            var rawDurationToNextEvent = messageDelta - (int)timeFromLastMsg.TotalMilliseconds;
+            var durationToNextEvent = rawDurationToNextEvent + keyTimeOffset;
+
+            TimeToNextMsg = rawDurationToNextEvent;
+
+            Thread.Sleep(Math.Max(durationToNextEvent, 0));
+
+            if (showNotes)
             {
-                currentMessageIndex = i;
-
-                var selected = messagesOn.Skip(i).TakeWhile((m, j) => j == 0 || m.DeltaTime == 0);
-                var selectedCount = selected.Count();
-
-                var newKeys = selected.Where(x => x.State).Select(x => x.Key).ToList();
-
-                var messageDelta = selected.First().DeltaTime;
-
-                var timeFromLastMsg = DateTime.Now - pressTime;
-                var rawDurationToNextEvent = messageDelta - (int)timeFromLastMsg.TotalMilliseconds;
-                var durationToNextEvent = rawDurationToNextEvent + keyTimeOffset;
-
-                TimeToNextMsg = rawDurationToNextEvent;
-
-                Thread.Sleep(Math.Max(durationToNextEvent, 0));
-
-                if (showNotes)
-                {
-                    lightsManager.SetKeys(newKeys);
-                }
-
-                if (newKeys.Count > 0)
-                {
-                    var proceed = new TaskCompletionSource();
-
-                    void callback(byte key, bool state)
-                    {
-                        if (newKeys.Except(piano.State.Except(nonreadyKeys)).Any()) return;
-
-                        pressTime = DateTime.Now;
-                        messageTimeAccumulator += messageDelta;
-
-                        if (messagesOn.Count > i + selectedCount)
-                        {
-                            nextMsgRelTime = messageTimeAccumulator + messagesOn[i + selectedCount].DeltaTime;
-                        }
-
-                        nonreadyKeys = new(piano.State);
-
-                        lightsManager.Reset();
-
-                        proceed.TrySetResult();
-                        piano.KeyChange -= callback;
-                    }
-
-                    piano.KeyChange += callback; // TODO: Rewrite
-
-
-                    Task.WaitAny(StopSignal.Task, proceed.Task);
-                    if (StopSignal.Task.IsCompleted)
-                    {
-                        Debug.WriteLine("Throwing error from player...");
-                        throw new MidiException("Error: Device lost.");
-                    }
-                }
-
-                i += selectedCount;
+                lightsManager.SetKeys(newKeys);
             }
-            Thread.Sleep(endTime);
-        }
-        catch (MidiException)
-        {
-            //piano.KeyChange -= KeyUpdater;
-            throw;
-        }
-        
-        piano.KeyChange -= KeyUpdater;
-        lightsManager.PreTick -= PreTick;
-        StopSignal.TrySetResult();
-    }
 
-    public void Dispose()
-    {
-        StopSignal.TrySetResult();
+            if (newKeys.Count > 0)
+            {
+                var proceed = new TaskCompletionSource();
+
+                void callback(byte key, bool state)
+                {
+                    if (newKeys.Except(piano.State.Except(nonreadyKeys)).Any()) return;
+
+                    pressTime = DateTime.Now;
+                    messageTimeAccumulator += messageDelta;
+
+                    if (messagesOn.Count > i + selectedCount)
+                    {
+                        nextMsgRelTime = messageTimeAccumulator + messagesOn[i + selectedCount].DeltaTime;
+                    }
+
+                    nonreadyKeys = new(piano.State);
+
+                    lightsManager.Reset();
+
+                    proceed.TrySetResult();
+                    piano.KeyChange -= callback;
+                }
+
+                piano.KeyChange += callback;
+
+                proceed.Task.Wait();
+            }
+
+            i += selectedCount;
+        }
+        Thread.Sleep(endTime);
+        
         piano.KeyChange -= KeyUpdater;
         lightsManager.PreTick -= PreTick;
     }

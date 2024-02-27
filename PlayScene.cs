@@ -1,6 +1,4 @@
 using Godot;
-using System;
-using static GameSettings;
 
 public partial class PlayScene : Node2D
 {

@@ -1,12 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://cj66rpubutra0"]
+[gd_scene load_steps=4 format=3 uid="uid://cj66rpubutra0"]
 
-[ext_resource type="Script" path="res://GameManager.cs" id="1_0s4yu"]
 [ext_resource type="Script" path="res://Menu.cs" id="1_yi4a4"]
 [ext_resource type="Texture2D" uid="uid://dmiq3mal5ptlk" path="res://icon.svg" id="3_u1s68"]
 [ext_resource type="Script" path="res://GameSettings.cs" id="5_448o7"]
 
 [node name="Main" type="Node2D"]
-script = ExtResource("1_0s4yu")
 
 [node name="Menu" type="Node2D" parent="." node_paths=PackedStringArray("itemList", "settings", "DisplayText")]
 script = ExtResource("1_yi4a4")

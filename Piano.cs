@@ -86,7 +86,6 @@ public partial class Piano : Node2D
 
     public void SetKey(byte key, bool state) => changes.Enqueue((key, state));
 
-
     public override void _Process(double delta)
     {
         while (changes.Count > 0)
