@@ -60,27 +60,6 @@ public class MIDIPlayer(KeyState piano, KeyLightsManager lightsManager, PlayerSe
         Debug.WriteLine($"Tracks count: {music.Tracks.Count}");
     }
 
-    // TODO: Add meta settings type
-    private (List<MidiMessage>, int) SetupMetadata(IEnumerable<MidiMessage> messages)
-    {
-        List<MidiMessage> rest = [];
-        var currentTempo = 500000;
-
-        foreach (var m in messages)
-        {
-            if (m.Event.StatusByte == byte.MaxValue && m.Event.Msb == 81)
-            {
-                currentTempo = MidiMetaType.GetTempo(m.Event.ExtraData, m.Event.ExtraDataOffset);
-                Debug.WriteLine($"Set current tempo to {currentTempo}");
-            }
-            else if (m.Event.EventType == MidiEvent.NoteOn || m.Event.EventType == MidiEvent.NoteOff)
-            {
-                rest.Add(m);
-            }
-        }
-        return (rest, currentTempo);
-    }
-
     public void KeyUpdater(byte key, bool state) => nonreadyKeys = nonreadyKeys.Intersect(piano.State).ToHashSet();
 
     public bool KeyFits(byte key) => lightsManager.LightsState.IsAcceptable(key);

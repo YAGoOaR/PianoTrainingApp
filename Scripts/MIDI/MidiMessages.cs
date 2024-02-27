@@ -2,6 +2,7 @@
 using Commons.Music.Midi;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PianoTrainer.Scripts.MIDI;
@@ -84,6 +85,25 @@ public class MidiUtils()
         }
 
         return result;
+    }
+
+    public static (List<MidiMessage>, int) SetupMetadata(IEnumerable<MidiMessage> messages)
+    {
+        List<MidiMessage> rest = [];
+        var currentTempo = 500000;
+
+        foreach (var m in messages)
+        {
+            if (m.Event.StatusByte == byte.MaxValue && m.Event.Msb == 81)
+            {
+                currentTempo = MidiMetaType.GetTempo(m.Event.ExtraData, m.Event.ExtraDataOffset);
+                Debug.WriteLine($"Set current tempo to {currentTempo}");
+            } else if (m.Event.EventType == MidiEvent.NoteOn || m.Event.EventType == MidiEvent.NoteOff)
+            {
+                rest.Add(m);
+            }
+        }
+        return (rest, currentTempo);
     }
 
 }
