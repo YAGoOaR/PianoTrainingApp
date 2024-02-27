@@ -31,6 +31,8 @@ public partial class ProgressBar : Node2D
             Size = new Vector2(rectLen, rectH)
         };
         AddChild(progressRect);
+
+        SetProgress(0);
     }
 
     public void SetProgress(float progress)
@@ -45,12 +47,7 @@ public partial class ProgressBar : Node2D
 
         if (p != null && p.TotalTimeMilis != 0)
         {
-            var lastT = p.LastTimeCheck;
-            var now = DateTime.Now;
-            var newOffsetTime = Mathf.Min((float)(now - lastT).TotalMilliseconds, p.TimeToNextMsg);
-            var currentTime = newOffsetTime + p.RelativeMessageTime;
-
-            var progress = currentTime / p.TotalTimeMilis;
+            var progress = p.CurrentTimeMilis / p.TotalTimeMilis;
             SetProgress(progress);
         }
     }

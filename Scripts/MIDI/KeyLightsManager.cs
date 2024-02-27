@@ -1,11 +1,9 @@
 ﻿
 using System;
-using Commons.Music.Midi;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using CoreMidi;
 
 namespace PianoTrainer.Scripts.MIDI
 {

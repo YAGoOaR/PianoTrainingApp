@@ -1,23 +1,25 @@
 using Godot;
 using System.IO;
-
 using System.Text.Json;
 
-public partial class Menu : Node2D
+internal partial class Menu : Node2D
 {
     private string directoryPath = @"C:\Users\yagooar\Desktop\midi_files";
 
     [Export]
-    ItemList itemList;
+    private string playScenePath = "res://Scenes/PlayScene.tscn";
 
     [Export]
-    Texture2D icon;
+    private ItemList itemList;
 
     [Export]
-    GameSettings settings;
+    private Texture2D icon;
 
     [Export]
-    TextEdit DisplayText;
+    private GameSettings settings;
+
+    [Export]
+    private TextEdit DisplayText;
 
     private string[] midis;
 
@@ -45,7 +47,7 @@ public partial class Menu : Node2D
     {
         GameSettings.GSettings s = settings.Settings;
         File.WriteAllText(settings.SettingsPath, JsonSerializer.Serialize(s));
-        GetTree().ChangeSceneToFile("res://PlayScene.tscn");
+        GetTree().ChangeSceneToFile(playScenePath);
     }
 
     public void OnQuitPressed()

@@ -16,7 +16,7 @@ public partial class MIDIManager : Node2D
 
     public KeyState Piano { get; private set; }
 
-    public PreBlinkPlayer Player {  get; private set; }
+    public MIDIPlayer Player {  get; private set; }
 
     public void PlayMIDI(string filePath)
     {
@@ -45,7 +45,7 @@ public partial class MIDIManager : Node2D
         using var input = new InputPortManager("CASIO USB-MIDI").OpenPort();
         var lights = new KeyLights(output);
         using var lightsManager = new KeyLightsManager(lights);
-        Player = new PreBlinkPlayer(Piano, lightsManager);
+        Player = new MIDIPlayer(Piano, lightsManager);
 
         input.MessageReceived += OnMessage;
 

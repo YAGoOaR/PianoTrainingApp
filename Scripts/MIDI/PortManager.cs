@@ -1,5 +1,4 @@
 ﻿using Commons.Music.Midi;
-using System;
 using System.Threading;
 using System.Linq;
 using System.Diagnostics;
@@ -48,25 +47,14 @@ namespace PianoTrainer.Scripts.MIDI
         public abstract T OpenPort();
     }
 
-    internal class InputPortManager : PortManager<IMidiInput>
+    internal class InputPortManager(string portName) : PortManager<IMidiInput>(portName)
     {
-        public InputPortManager(string portName) : base(portName) { }
-
-        public override IMidiInput OpenPort()
-        {
-            return access.OpenInputAsync(PortDetails.Id).Result;
-        }
+        public override IMidiInput OpenPort() => access.OpenInputAsync(PortDetails.Id).Result;
     }
 
-    internal class OutputPortManager : PortManager<IMidiOutput>
+    internal class OutputPortManager(string portName) : PortManager<IMidiOutput>(portName)
     {
-        public OutputPortManager(string portName) : base(portName) { }
-
-        public override IMidiOutput OpenPort()
-        {
-
-            return access.OpenOutputAsync(PortDetails.Id).Result;
-        }
+        public override IMidiOutput OpenPort() => access.OpenOutputAsync(PortDetails.Id).Result;
     }
 
 }

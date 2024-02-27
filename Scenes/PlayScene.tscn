@@ -1,33 +1,33 @@
 [gd_scene load_steps=7 format=3 uid="uid://b8h3lrgadghix"]
 
-[ext_resource type="Script" path="res://Scripts/PlayScene.cs" id="1_hiksh"]
-[ext_resource type="Script" path="res://Scripts/GameSettings.cs" id="2_w8sb6"]
-[ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_fyfdn"]
-[ext_resource type="Script" path="res://Scripts/Piano.cs" id="4_f1wc4"]
-[ext_resource type="Script" path="res://Scripts/MusicSheet.cs" id="5_lyfun"]
-[ext_resource type="Script" path="res://Scripts/ProgressBar.cs" id="6_lj6nr"]
+[ext_resource type="Script" path="res://Scripts/PlayScene.cs" id="1_h8r17"]
+[ext_resource type="Script" path="res://Scripts/GameSettings.cs" id="2_6viva"]
+[ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_ji2ot"]
+[ext_resource type="Script" path="res://Scripts/Piano.cs" id="4_4ebec"]
+[ext_resource type="Script" path="res://Scripts/MusicSheet.cs" id="5_ga1et"]
+[ext_resource type="Script" path="res://Scripts/ProgressBar.cs" id="6_t5trx"]
 
 [node name="PlayScene" type="Node2D" node_paths=PackedStringArray("gameSettings", "MIDIManager")]
-script = ExtResource("1_hiksh")
+script = ExtResource("1_h8r17")
 gameSettings = NodePath("GameSettings")
 MIDIManager = NodePath("MidiManager")
 
 [node name="GameSettings" type="Node2D" parent="."]
-script = ExtResource("2_w8sb6")
+script = ExtResource("2_6viva")
 
 [node name="MidiManager" type="Node2D" parent="."]
-script = ExtResource("3_fyfdn")
+script = ExtResource("3_ji2ot")
 
 [node name="Piano" type="Node2D" parent="." node_paths=PackedStringArray("midiManager")]
-script = ExtResource("4_f1wc4")
+script = ExtResource("4_4ebec")
 midiManager = NodePath("../MidiManager")
 
 [node name="MusicSheet" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager")]
-script = ExtResource("5_lyfun")
+script = ExtResource("5_ga1et")
 MIDIManager = NodePath("../MidiManager")
 
 [node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager")]
-script = ExtResource("6_lj6nr")
+script = ExtResource("6_t5trx")
 MIDIManager = NodePath("../MidiManager")
 
 [connection signal="SettingsLoaded" from="GameSettings" to="." method="OnSettingsLoaded"]
