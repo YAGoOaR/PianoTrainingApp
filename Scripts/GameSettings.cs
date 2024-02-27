@@ -8,6 +8,8 @@ public partial class GameSettings : Node2D
     {
         public string MusicPath { get; set; }
     }
+    public string SettingsPath { get; set; } = @"./player_settings.json";
+
 
     [Signal]
     public delegate void SettingsLoadedEventHandler();
@@ -15,9 +17,9 @@ public partial class GameSettings : Node2D
     public GSettings Settings = new() { MusicPath = "" };
     public override void _Ready()
     {
-        if (File.Exists("./settings.txt"))
+        if (File.Exists(SettingsPath))
         {
-            Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText("./settings.txt"));
+            Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(SettingsPath));
             EmitSignal(SignalName.SettingsLoaded);
         }
     }

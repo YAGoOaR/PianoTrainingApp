@@ -44,7 +44,7 @@ public partial class Menu : Node2D
     public void OnPlayPressed()
     {
         GameSettings.GSettings s = settings.Settings;
-        File.WriteAllText("./settings.txt", JsonSerializer.Serialize(s));
+        File.WriteAllText(settings.SettingsPath, JsonSerializer.Serialize(s));
         GetTree().ChangeSceneToFile("res://PlayScene.tscn");
     }
 

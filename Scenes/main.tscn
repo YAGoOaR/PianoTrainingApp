@@ -1,0 +1,80 @@
+[gd_scene load_steps=4 format=3 uid="uid://cj66rpubutra0"]
+
+[ext_resource type="Script" path="res://Scripts/Menu.cs" id="1_q0yop"]
+[ext_resource type="Texture2D" uid="uid://dmiq3mal5ptlk" path="res://Icons/icon.svg" id="2_1cbve"]
+[ext_resource type="Script" path="res://Scripts/GameSettings.cs" id="3_v5iwv"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Menu" type="Node2D" parent="."]
+script = ExtResource("1_q0yop")
+icon = ExtResource("2_1cbve")
+itemList = Object(ItemList,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","visible":true,"modulate":Color(1, 1, 1, 1),"self_modulate":Color(1, 1, 1, 1),"show_behind_parent":false,"top_level":false,"clip_children":0,"light_mask":1,"visibility_layer":1,"z_index":0,"z_as_relative":true,"y_sort_enabled":false,"texture_filter":0,"texture_repeat":0,"material":null,"use_parent_material":false,"clip_contents":true,"custom_minimum_size":Vector2(0, 0),"layout_direction":0,"layout_mode":3,"anchors_preset":-1,"anchor_left":-0.0124925,"anchor_top":-0.00224504,"anchor_right":19.6875,"anchor_bottom":10.0227,"offset_left":33.4997,"offset_top":38.0898,"offset_right":1094.5,"offset_bottom":521.09,"grow_horizontal":1,"grow_vertical":1,"rotation":0.0,"scale":Vector2(1, 1),"pivot_offset":Vector2(0, 0),"size_flags_horizontal":1,"size_flags_vertical":1,"size_flags_stretch_ratio":1.0,"auto_translate":true,"localize_numeral_system":true,"tooltip_text":"","focus_neighbor_left":NodePath(""),"focus_neighbor_top":NodePath(""),"focus_neighbor_right":NodePath(""),"focus_neighbor_bottom":NodePath(""),"focus_next":NodePath(""),"focus_previous":NodePath(""),"focus_mode":2,"mouse_filter":0,"mouse_force_pass_scroll_events":true,"mouse_default_cursor_shape":0,"shortcut_context":null,"theme":null,"theme_type_variation":&"","select_mode":0,"allow_reselect":false,"allow_rmb_select":false,"allow_search":true,"max_text_lines":1,"auto_height":false,"text_overrun_behavior":3,"item_count":0,"max_columns":1,"same_column_width":false,"fixed_column_width":0,"icon_mode":1,"icon_scale":1.0,"fixed_icon_size":Vector2i(0, 0),"script":null,"metadata/_edit_use_anchors_":true)
+
+settings = Object(Node2D,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","visible":true,"modulate":Color(1, 1, 1, 1),"self_modulate":Color(1, 1, 1, 1),"show_behind_parent":false,"top_level":false,"clip_children":0,"light_mask":1,"visibility_layer":1,"z_index":0,"z_as_relative":true,"y_sort_enabled":false,"texture_filter":0,"texture_repeat":0,"material":null,"use_parent_material":false,"position":Vector2(0, 0),"rotation":0.0,"scale":Vector2(1, 1),"skew":0.0,"script":ExtResource("3_v5iwv"))
+
+DisplayText = Object(TextEdit,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","visible":true,"modulate":Color(1, 1, 1, 1),"self_modulate":Color(1, 1, 1, 1),"show_behind_parent":false,"top_level":false,"clip_children":0,"light_mask":1,"visibility_layer":1,"z_index":0,"z_as_relative":true,"y_sort_enabled":false,"texture_filter":0,"texture_repeat":0,"material":null,"use_parent_material":false,"clip_contents":false,"custom_minimum_size":Vector2(0, 0),"layout_direction":0,"layout_mode":3,"anchors_preset":0,"anchor_left":0.0,"anchor_top":0.0,"anchor_right":0.0,"anchor_bottom":0.0,"offset_left":480.0,"offset_top":950.0,"offset_right":1414.0,"offset_bottom":1037.0,"grow_horizontal":1,"grow_vertical":1,"rotation":0.0,"scale":Vector2(1, 1),"pivot_offset":Vector2(0, 0),"size_flags_horizontal":1,"size_flags_vertical":1,"size_flags_stretch_ratio":1.0,"auto_translate":true,"localize_numeral_system":true,"tooltip_text":"","focus_neighbor_left":NodePath(""),"focus_neighbor_top":NodePath(""),"focus_neighbor_right":NodePath(""),"focus_neighbor_bottom":NodePath(""),"focus_next":NodePath(""),"focus_previous":NodePath(""),"focus_mode":2,"mouse_filter":0,"mouse_force_pass_scroll_events":true,"mouse_default_cursor_shape":1,"shortcut_context":null,"theme":null,"theme_type_variation":&"","text":"","placeholder_text":"<File is not selected>","editable":false,"context_menu_enabled":true,"shortcut_keys_enabled":true,"selecting_enabled":true,"deselect_on_focus_loss_enabled":true,"drag_and_drop_selection_enabled":true,"virtual_keyboard_enabled":true,"middle_mouse_paste_enabled":true,"wrap_mode":0,"autowrap_mode":3,"scroll_smooth":false,"scroll_v_scroll_speed":80.0,"scroll_past_end_of_file":false,"scroll_vertical":0.0,"scroll_horizontal":0,"scroll_fit_content_height":false,"minimap_draw":false,"minimap_width":80,"caret_type":0,"caret_blink":false,"caret_blink_interval":0.65,"caret_draw_when_editable_disabled":false,"caret_move_on_right_click":true,"caret_mid_grapheme":false,"caret_multiple":true,"syntax_highlighter":null,"highlight_all_occurrences":false,"highlight_current_line":false,"draw_control_chars":false,"draw_tabs":false,"draw_spaces":false,"text_direction":0,"language":"","structured_text_bidi_override":0,"structured_text_bidi_override_options":[],"script":null)
+
+
+[node name="Control" type="Control" parent="Menu"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Play" type="Button" parent="Menu/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 2.45
+anchor_top = 18.199
+anchor_right = 10.363
+anchor_bottom = 21.908
+offset_top = 220.04
+offset_right = -27.52
+offset_bottom = 163.68
+text = "Play"
+metadata/_edit_use_anchors_ = true
+
+[node name="Quit" type="Button" parent="Menu/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 33.372
+anchor_top = 19.618
+anchor_right = 46.943
+anchor_bottom = 22.785
+offset_left = 182.12
+offset_top = 162.28
+offset_right = -44.7202
+offset_bottom = 128.6
+text = "Quit"
+metadata/_edit_use_anchors_ = true
+
+[node name="ItemList" type="ItemList" parent="Menu/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.0124925
+anchor_top = -0.00224504
+anchor_right = 19.6875
+anchor_bottom = 10.0227
+offset_left = 33.4997
+offset_top = 38.0898
+offset_right = 1094.5
+offset_bottom = 521.09
+metadata/_edit_use_anchors_ = true
+
+[node name="TextEdit" type="TextEdit" parent="Menu/Control"]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 950.0
+offset_right = 1414.0
+offset_bottom = 1037.0
+placeholder_text = "<File is not selected>"
+editable = false
+
+[node name="GameSettings" type="Node2D" parent="."]
+script = ExtResource("3_v5iwv")
+
+[connection signal="pressed" from="Menu/Control/Play" to="Menu" method="OnPlayPressed"]
+[connection signal="pressed" from="Menu/Control/Quit" to="Menu" method="OnQuitPressed"]
+[connection signal="item_activated" from="Menu/Control/ItemList" to="Menu" method="OnItemSelect"]
+[connection signal="SettingsLoaded" from="GameSettings" to="Menu" method="UpdateText"]

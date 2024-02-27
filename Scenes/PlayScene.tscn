@@ -1,11 +1,11 @@
 [gd_scene load_steps=7 format=3 uid="uid://b8h3lrgadghix"]
 
-[ext_resource type="Script" path="res://PlayScene.cs" id="1_hiksh"]
-[ext_resource type="Script" path="res://GameSettings.cs" id="2_w8sb6"]
+[ext_resource type="Script" path="res://Scripts/PlayScene.cs" id="1_hiksh"]
+[ext_resource type="Script" path="res://Scripts/GameSettings.cs" id="2_w8sb6"]
 [ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_fyfdn"]
-[ext_resource type="Script" path="res://Piano.cs" id="4_f1wc4"]
-[ext_resource type="Script" path="res://MusicSheet.cs" id="5_lyfun"]
-[ext_resource type="Script" path="res://ProgressBar.cs" id="6_lj6nr"]
+[ext_resource type="Script" path="res://Scripts/Piano.cs" id="4_f1wc4"]
+[ext_resource type="Script" path="res://Scripts/MusicSheet.cs" id="5_lyfun"]
+[ext_resource type="Script" path="res://Scripts/ProgressBar.cs" id="6_lj6nr"]
 
 [node name="PlayScene" type="Node2D" node_paths=PackedStringArray("gameSettings", "MIDIManager")]
 script = ExtResource("1_hiksh")

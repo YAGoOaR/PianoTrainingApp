@@ -1,4 +1,7 @@
 
+### Custom ignore ###
+/player_settings.json
+
 ### Godot ###
 # Godot 4+ specific ignores
 .godot/
