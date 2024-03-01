@@ -11,7 +11,12 @@ public partial class MusicSheet : Node2D
 
     private Vector2 MusicSheetOffset = new(0, 250);
     private Vector2 MusicSheetSize;
-    
+
+    [Export]
+    private CompressedTexture2D noteWhiteTexture;
+
+    [Export]
+    private CompressedTexture2D noteBlackTexture;
 
     private float timeSpan = 3;
 	private int currentGroup = 0;
@@ -24,7 +29,7 @@ public partial class MusicSheet : Node2D
     private Vector2 BlackNoteSize;
 
 
-    private record Note(byte Key, ColorRect rect);
+    private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
 
 	private Dictionary<int, NoteGroup> notes = [];
@@ -53,11 +58,11 @@ public partial class MusicSheet : Node2D
 		{
             var isBlack = Piano.IsBlack(k);
 
-            var rect = new ColorRect()
+            var rect = new Sprite2D()
             {
-                Color = isBlack ? Colors.DarkBlue : Colors.Green,
+                Texture = isBlack ? noteBlackTexture : noteWhiteTexture,
                 Position = new Vector2(0, 0),
-                Size = isBlack ? BlackNoteSize: NoteSize,
+                Scale = (isBlack ? BlackNoteSize: NoteSize) / 200,
             };
             AddChild(rect);
 
@@ -123,9 +128,9 @@ public partial class MusicSheet : Node2D
 
                 var (_, noteOffset) = Piano.GetNoteOffset(whiteIndex);
 
-                var totalOffset = Piano.IsBlack(n.Key) ? (noteOffset + 1) * piano.NoteGridSize.X : piano.NoteGap / 2;
+                var totalOffset = Piano.IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + BlackNoteSize.X/2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
 
-                n.rect.Position = new Vector2(whiteIndex / 36f * MusicSheetSize.X + totalOffset, 80 + MusicSheetSize.Y - verticalPos - NoteSize.Y);
+                n.rect.Position = new Vector2(whiteIndex / 36f * MusicSheetSize.X + totalOffset, 80 + MusicSheetSize.Y - verticalPos - NoteSize.Y / 2);
             }  
         }
 
