@@ -10,33 +10,35 @@ namespace PianoTrainer.Scripts.MIDI
         public int CurrentTimeMilis { get; private set; } = 0;
         public int TimeToNextKey { get; private set; } = 0;
 
+        public float TimeSinceLastKey { get; private set; } = 0;
+
         public DateTime CheckPoint { get; set; } = DateTime.MinValue;
 
-        private float timeFromCheckpointMilis = 0;
+        
 
         private PlayManagerState state;
 
         public void Update(float dT)
         {
-            timeFromCheckpointMilis += dT * 1000f;
-            if (timeFromCheckpointMilis > state.MessageDelta)
+            TimeSinceLastKey += dT * 1000f;
+            if (TimeSinceLastKey > state.MessageDelta)
             {
-                timeFromCheckpointMilis = state.MessageDelta;
+                TimeSinceLastKey = state.MessageDelta;
             }
 
             // TODO: FIX VARIABLES 1 TICK DELAY
-            CurrentTimeMilis = state.TotalMessagesTime + (int)timeFromCheckpointMilis;
-            TimeToNextKey = state.MessageDelta - (int)timeFromCheckpointMilis;
+            CurrentTimeMilis = state.TotalMessagesTime + (int)TimeSinceLastKey;
+            TimeToNextKey = state.MessageDelta - (int)TimeSinceLastKey;
         }
 
         public void OnTargetChange(PlayManagerState state)
         {
-            this.state = state;
+            this.state = state; //TODO: REMOVE
             CheckPoint = DateTime.Now;
-            timeFromCheckpointMilis = 0;
+            TimeSinceLastKey = 0;
 
-            CurrentTimeMilis = state.TotalMessagesTime + (int)timeFromCheckpointMilis;
-            TimeToNextKey = state.MessageDelta - (int)timeFromCheckpointMilis;
+            CurrentTimeMilis = state.TotalMessagesTime + (int)TimeSinceLastKey;
+            TimeToNextKey = state.MessageDelta - (int)TimeSinceLastKey;
         }
     }
 }

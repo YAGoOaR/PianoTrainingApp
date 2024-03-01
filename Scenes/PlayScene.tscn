@@ -21,8 +21,9 @@ Player = NodePath("../MidiPlayer")
 script = ExtResource("4_4ebec")
 midiManager = NodePath("../MidiManager")
 
-[node name="MusicSheet" type="Node2D" parent="."]
+[node name="MusicSheet" type="Node2D" parent="." node_paths=PackedStringArray("piano")]
 script = ExtResource("5_ga1et")
+piano = NodePath("../Piano")
 
 [node name="MidiPlayer" type="Node2D" parent="."]
 script = ExtResource("7_tvdah")

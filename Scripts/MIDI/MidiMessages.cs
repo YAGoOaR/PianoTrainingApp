@@ -30,8 +30,6 @@ public class MidiUtils()
         return (int)(currentTempo / 1000 * deltaTime / deltaTimeSpec / tempo_ratio);
     }
 
-    // TODO: ADD CONTEXT VARIABLE
-
     public static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec) =>
     (
         new(

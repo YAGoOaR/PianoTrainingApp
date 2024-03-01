@@ -2,12 +2,17 @@
 using System.Threading;
 using System.Linq;
 using System.Diagnostics;
+using System;
 
 namespace PianoTrainer.Scripts.MIDI
 {
 
+    // TODO: FIX HANG ISSUE
+
     internal abstract class PortManager<T> where T : IMidiPort
     {
+        //public event Action OnDeviceReady;
+
         public IMidiPortDetails PortDetails { get; set; }
         protected readonly IMidiAccess access;
 

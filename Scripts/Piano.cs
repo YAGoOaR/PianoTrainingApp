@@ -1,12 +1,21 @@
 using Godot;
-using PianoTrainer.Scripts.MIDI;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 public partial class Piano : Node2D
 {
-	private Vector2 noteSize;
-    Vector2 blackNoteSize;
+    public Vector2 NoteGridSize { get; private set; }
+    public Vector2 NoteSize {  get; private set; }
+    public Vector2 BlackNoteSize { get; private set; }
+
+    public float NoteGap { get; private set; } = 4;
+    public int Whites { get; } = 61 - 25;
+
+    const float bw = 1 / 2f;
+    const float left = -bw * 2 / 3;
+    const float mid = -bw / 2;
+    const float right = -bw * 1 / 3;
 
     List<ColorRect> noteRects = [];
 
@@ -22,62 +31,79 @@ public partial class Piano : Node2D
         Missing
     }
 
-    private static bool IsBlack(byte idx) => (idx % 12) switch
+    public static bool IsBlack(byte idx) => (idx % 12) switch
     {
         1 or 3 or 6 or 8 or 10 => true,
         _ => false,
     };
+
+    public static byte GetWhiteIndex(byte key)
+    {
+        var octave = key / 12;
+
+        var isBlack = IsBlack(key);
+
+        var whiteKeyInOctave = key % 12 - (isBlack ? 1: 0);
+
+        int whiteKeyPosition = 0;
+        for (byte i = 0; i < whiteKeyInOctave; i++)
+        {
+            if (!IsBlack(i))
+            {
+                whiteKeyPosition++;
+            }
+        }
+
+        return (byte)(octave * 7 + whiteKeyPosition);
+    }
+
+    public static (bool, float) GetNoteOffset(byte whitePos)
+    {
+        var pos = whitePos % 7;
+        return pos switch
+        {
+            0 or 3 => (true, left),
+            1 or 5 => (true, right),
+            4 => (true, mid),
+            _ => (false, 0)
+        };
+        
+    }
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
         midiManager.Piano.KeyChange += SetKey;
 
-        var whites = 61 - 25;
+		var w = GetViewportRect().Size.X / Whites;
 
-		var w = GetViewportRect().Size.X / whites;
-        var bw = w / 2;
-
-        var gap = 4;
-
-        noteSize = new (w-gap, 250);
-        blackNoteSize = new(noteSize.X / 2, noteSize.Y * 2/3);
-
-        Vector2 left = new(-bw*2/3, 0);
-        Vector2 mid = new(-bw/2, 0);
-        Vector2 right = new(-bw*1/3, 0);
+        NoteGridSize = new(w, 250);
+        NoteSize = NoteGridSize - Vector2.Right * NoteGap;
+        BlackNoteSize = new(NoteSize.X / 2, NoteSize.Y * 2/3);
 
         Position = new(0, GetViewportRect().Size.Y);
 
-        for (int i = 0; i < whites; i++)
+        for (byte i = 0; i < Whites; i++)
         {
             var whiteRect = new ColorRect
             {
                 Color = Colors.White,
-                Position = new Vector2(w * i + gap/2, -noteSize.Y),
-                Size = new Vector2(noteSize.X, noteSize.Y),
+                Position = new Vector2(w * i + NoteGap/2, -NoteSize.Y),
+                Size = new Vector2(NoteSize.X, NoteSize.Y),
                 ZIndex = -1
             };
             AddChild(whiteRect);
             noteRects.Add(whiteRect);
 
-            var pos = i % 7;
+            var (blackExists, noteOffset) = GetNoteOffset(i);
 
-            var (blackExists, offset) = pos switch
-            {
-                0 or 3 => (true, left),
-                1 or 5 => (true, right),
-                4 => (true, mid),
-                _ => (false, Vector2.Zero)
-            };
-
-            if (blackExists && i != whites - 1)
+            if (blackExists && i != Whites - 1)
             {
                 var rect = new ColorRect()
                 {
                     Color = Colors.Black,
-                    Position = new Vector2(w * i + w + offset.X, -noteSize.Y),
-                    Size = new Vector2(blackNoteSize.X, blackNoteSize.Y)
+                    Position = new Vector2(w * i + w + noteOffset * w, -NoteSize.Y),
+                    Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y)
                 };
 
                 AddChild(rect);

@@ -20,13 +20,15 @@ public partial class MIDIManager : Node2D
     private IMidiOutput output;
     private IMidiInput input;
 
+    private bool stopped = false;
+    private bool exit = false;
+
     public override void _Ready()
     {
         ListDevices();
         Instance = this;
         Piano = new KeyState();
 
-        //TODO: DISPOSE!
         output = new OutputPortManager("CASIO USB-MIDI").OpenPort();
         input = new InputPortManager("CASIO USB-MIDI").OpenPort();
         var lights = new KeyLights(output);
@@ -78,6 +80,24 @@ public partial class MIDIManager : Node2D
         Debug.WriteLine("Available output devices:");
         MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
         Debug.WriteLine("");
+    }
+
+    public override void _Process(double delta)
+    {
+        if (!stopped) return;
+        if (exit) return;
+
+        GetTree().ChangeSceneToFile("res://Scenes/main.tscn");
+
+        exit = true;
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("ui_cancel"))
+        {
+            stopped = true;
+        }
     }
 
     public override void _ExitTree()

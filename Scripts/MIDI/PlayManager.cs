@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using static Godot.WebSocketPeer;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-    // TODO: CHANGE TO CLASS?
     public struct PlayManagerState()
     {
         public HashSet<byte> DesiredKeys { get; set; } = [];
         public int NextMessageGroup { get; set; } = 0;
+        public int CurrentMessageGroup { get; set; } = 0;
         public int MessageDelta { get; set; } = 0;
         public int TotalMessagesTime { get; set; } = 0;
     }
@@ -21,10 +22,13 @@ namespace PianoTrainer.Scripts.MIDI
 
         private HashSet<byte> nonreadyKeys = [];
 
-        private PlayManagerState state;
+        public PlayManagerState State { get; private set; }
 
         public event Action<PlayManagerState> OnTargetChanged;
+        public event Action OnComplete;
         public event Action OnStopped;
+
+        private bool complete = false;
 
         public enum PlayState
         {
@@ -36,7 +40,7 @@ namespace PianoTrainer.Scripts.MIDI
         public void Setup(List<SimpleTimedKeyGroup> keyMessages)
         {
             EventGroups = keyMessages;
-            state = new();
+            State = new();
             playState = PlayState.Ready;
 
             NextTarget();
@@ -45,7 +49,7 @@ namespace PianoTrainer.Scripts.MIDI
         public void Stop()
         {
             playState = PlayState.Stopped;
-            state = new();
+            State = new();
             OnStopped?.Invoke();
         }
 
@@ -53,22 +57,27 @@ namespace PianoTrainer.Scripts.MIDI
         {
             if (EventGroups.Count == 0) throw new Exception("PlayManager is not initialized");
 
-            if (state.NextMessageGroup > EventGroups.Count - 1)
+            if (State.NextMessageGroup > EventGroups.Count - 1)
             {
                 Stop();
-                OnTargetChanged?.Invoke(state);
+                OnTargetChanged?.Invoke(State);
                 return;
             }
 
-            state.TotalMessagesTime += state.MessageDelta;
+            var group = EventGroups[State.NextMessageGroup];
 
-            var group = EventGroups[state.NextMessageGroup];
+            State = new()
+            {
+                TotalMessagesTime = State.TotalMessagesTime + State.MessageDelta,
+                DesiredKeys = group.Keys,
+                MessageDelta = group.DeltaTime,
+                CurrentMessageGroup = State.NextMessageGroup,
+                NextMessageGroup = State.NextMessageGroup + 1
+            };
 
-            state.DesiredKeys = group.Keys;
-            state.MessageDelta = group.DeltaTime;
+            OnTargetChanged?.Invoke(State);
 
-            OnTargetChanged?.Invoke(state);
-            state.NextMessageGroup++;
+            complete = false;
         }
 
         public void OnKeyChange(HashSet<byte> pressedKeys)
@@ -77,10 +86,12 @@ namespace PianoTrainer.Scripts.MIDI
 
             nonreadyKeys = nonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
-            if (state.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
+            if (State.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
 
-            NextTarget();
+            complete = true;
             nonreadyKeys = new(pressedKeys);
+
+            OnComplete?.Invoke();
         }
     }
 }

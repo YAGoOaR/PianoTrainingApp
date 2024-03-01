@@ -54,4 +54,12 @@ internal partial class Menu : Node2D
     {
         GetTree().Quit();
     }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("ui_cancel"))
+        {
+            OnQuitPressed();
+        }
+    }
 }

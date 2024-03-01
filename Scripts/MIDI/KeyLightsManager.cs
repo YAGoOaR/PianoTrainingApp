@@ -38,11 +38,9 @@ namespace PianoTrainer.Scripts.MIDI
             }
         }
 
-        public HashSet<byte> tickDisplayed;
         private readonly KeylightHolder keyLightsHolder;
 
-        private const int blinkTime = 100;
-        private const int tickTime = 50;
+        public int TickTime { get; } = 50;
 
         private int rollCycle = 0;
 
@@ -53,7 +51,6 @@ namespace PianoTrainer.Scripts.MIDI
         public KeyLightsManager(KeyLights lights)
         {
             LightsState = new(lights);
-            tickDisplayed = new();
             StopSignal = new();
 
             var started = new TaskCompletionSource();
@@ -67,7 +64,7 @@ namespace PianoTrainer.Scripts.MIDI
                 while (!StopSignal.Task.IsCompleted)
                 {
                     OnTick();
-                    Thread.Sleep(tickTime);
+                    Thread.Sleep(TickTime);
                 }
             });
             tickThread.Start();
@@ -119,7 +116,7 @@ namespace PianoTrainer.Scripts.MIDI
             }
         }
 
-        public void AddBlink(byte key)
+        public void AddBlink(byte key, int blinkTime = 50)
         {
             Blinks = [key, .. Blinks];
 
