@@ -1,4 +1,6 @@
 ﻿using System;
+using static Godot.WebSocketPeer;
+using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -7,28 +9,18 @@ namespace PianoTrainer.Scripts.MIDI
     //TODO: ADD NOTE TIME SKIP OPTIONS
     public class TimelineManager()
     {
-        public int CurrentTimeMilis { get; private set; } = 0;
-        public int TimeToNextKey { get; private set; } = 0;
+        public int CurrentTimeMilis { get => state.TotalMessagesTime + (int)TimeSinceLastKey; }
+        public int TimeToNextKey { get => state.MessageDelta - (int)TimeSinceLastKey; }
 
         public float TimeSinceLastKey { get; private set; } = 0;
 
         public DateTime CheckPoint { get; set; } = DateTime.MinValue;
 
-        
-
         private PlayManagerState state;
 
         public void Update(float dT)
         {
-            TimeSinceLastKey += dT * 1000f;
-            if (TimeSinceLastKey > state.MessageDelta)
-            {
-                TimeSinceLastKey = state.MessageDelta;
-            }
-
-            // TODO: FIX VARIABLES 1 TICK DELAY
-            CurrentTimeMilis = state.TotalMessagesTime + (int)TimeSinceLastKey;
-            TimeToNextKey = state.MessageDelta - (int)TimeSinceLastKey;
+            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * 1000f, state.MessageDelta);
         }
 
         public void OnTargetChange(PlayManagerState state)
@@ -36,9 +28,6 @@ namespace PianoTrainer.Scripts.MIDI
             this.state = state; //TODO: REMOVE
             CheckPoint = DateTime.Now;
             TimeSinceLastKey = 0;
-
-            CurrentTimeMilis = state.TotalMessagesTime + (int)TimeSinceLastKey;
-            TimeToNextKey = state.MessageDelta - (int)TimeSinceLastKey;
         }
     }
 }

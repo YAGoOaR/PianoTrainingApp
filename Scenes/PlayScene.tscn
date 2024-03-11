@@ -15,9 +15,16 @@ script = ExtResource("1_h8r17")
 gameSettings = NodePath("GameSettings")
 MIDIManager = NodePath("MidiManager")
 
-[node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("Player")]
+[node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager", "Txt")]
+script = ExtResource("6_t5trx")
+MIDIManager = NodePath("../MidiManager")
+Txt = NodePath("../Control/RichTextLabel")
+RangeRectColor = Color(1, 1, 0, 0.423529)
+
+[node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("Player", "PBar")]
 script = ExtResource("3_ji2ot")
 Player = NodePath("../MidiPlayer")
+PBar = NodePath("../ProgressBar")
 
 [node name="Piano" type="Node2D" parent="." node_paths=PackedStringArray("midiManager")]
 script = ExtResource("4_4ebec")
@@ -35,8 +42,16 @@ script = ExtResource("7_tvdah")
 [node name="GameSettings" type="Node2D" parent="."]
 script = ExtResource("2_6viva")
 
-[node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager")]
-script = ExtResource("6_t5trx")
-MIDIManager = NodePath("../MidiManager")
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
+layout_mode = 0
+offset_right = 164.0
+offset_bottom = 61.0
+text = "0.00"
 
 [connection signal="SettingsLoaded" from="GameSettings" to="." method="OnSettingsLoaded"]

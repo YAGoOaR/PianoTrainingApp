@@ -11,7 +11,7 @@ public record SimpleMsg(byte Key, bool State);
 public record SimpleTimedMsg(byte Key, bool State, int DeltaTime) : SimpleMsg(Key, State);
 public record SimpleTimedKey(byte Key, int DeltaTime);
 
-public record SimpleTimedKeyGroup(int DeltaTime, HashSet<byte> Keys);
+public record SimpleTimedKeyGroup(int Time, HashSet<byte> Keys);
 
 public class MidiUtils()
 {
@@ -30,12 +30,12 @@ public class MidiUtils()
         return (int)(currentTempo / 1000 * deltaTime / deltaTimeSpec / tempo_ratio);
     }
 
-    public static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec) =>
+    public static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio=1f) =>
     (
         new(
             m.Event.Msb,
             m.Event.EventType == MidiEvent.NoteOn && m.Event.Lsb != 0,
-            GetContextDeltaTime(currentTempo, deltaTimeSpec, m.DeltaTime)
+            GetContextDeltaTime(currentTempo, deltaTimeSpec, m.DeltaTime, tempoRatio)
         )
     );
 

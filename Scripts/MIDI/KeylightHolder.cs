@@ -10,7 +10,7 @@ namespace PianoTrainer.Scripts.MIDI
     {
         private readonly TaskCompletionSource stopSignal;
 
-        private const int period = 100;
+        private const int period = 50;
 
         // TODO: Check if using TaskCompletionSource is appropriate
         static void LightLoop(KeyLights lights, TaskCompletionSource started, TaskCompletionSource stopSignal)

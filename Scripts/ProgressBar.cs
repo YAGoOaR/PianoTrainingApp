@@ -1,16 +1,24 @@
 using Godot;
-using System;
-using System.Diagnostics;
+using PianoTrainer.Scripts.MIDI;
 
 public partial class ProgressBar : Node2D
 {
     [Export]
-    MIDIManager MIDIManager { get; set; }
+    private MIDIManager MIDIManager { get; set; }
+
+    [Export]
+    private RichTextLabel Txt { get; set; }
+
+    [Export]
+    private Color RangeRectColor { get; set; } = Colors.Yellow;
 
     private ColorRect progressRect;
+    private ColorRect rangeRect;
     private ColorRect bgRect;
     private float rectLen;
     private float rectH = 80;
+
+    private (float, float)? timeRange = null;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -33,12 +41,55 @@ public partial class ProgressBar : Node2D
         };
         AddChild(progressRect);
 
+        rangeRect = new ColorRect()
+        {
+            Color = RangeRectColor,
+            Position = new Vector2(0, 0),
+            Size = new Vector2(rectLen, rectH),
+            ZIndex = 10
+        };
+        AddChild(rangeRect);
+
         SetProgress(0);
     }
 
-    public void SetProgress(float progress)
+    public void SetProgress(float time)
     {
-        progressRect.Size = new(rectLen*progress, rectH);
+        var p = MIDIManager.Player;
+        var totalT = p.TotalTimeMilis / 1000f;
+
+        if (totalT == 0)
+            return; //TODO: REFACTOR
+
+        if (timeRange is (float s, float e))
+        {
+            progressRect.Position = new(s / totalT * rectLen, 0);
+
+            progressRect.Size = new(Mathf.Max(0, time - s) / totalT * rectLen, rectH);
+        }
+        else
+        {
+            progressRect.Position = Vector2.Zero;
+            progressRect.Size = new(rectLen * time / totalT, rectH);
+        }
+    }
+
+    public void SetTimeRange(MIDIPlayer p, (float, float)? range)
+    {
+        timeRange = range;
+
+        if (range is (float, float) r)
+        {
+            var totalTime = p.TotalTimeMilis / 1000f;
+            rangeRect.Size = new((r.Item2 - r.Item1) / totalTime * rectLen, rectH);
+            rangeRect.Position = new(r.Item1 / totalTime * rectLen, 0);
+        }
+        else
+        {
+            rangeRect.Size = Vector2.Zero;
+            rangeRect.Position = Vector2.Zero;
+            return;
+        }
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -48,8 +99,9 @@ public partial class ProgressBar : Node2D
 
         if (p != null && p.TotalTimeMilis != 0)
         {
-            var progress = p.TimelineManager.CurrentTimeMilis / (float)p.TotalTimeMilis;
-            SetProgress(progress);
+            var t = p.TimelineManager.CurrentTimeMilis / 1000f;
+            SetProgress(t);
+            Txt.Text = $"{t:0.00}";
         }
     }
 }

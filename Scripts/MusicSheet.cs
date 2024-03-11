@@ -69,7 +69,7 @@ public partial class MusicSheet : Node2D
             newNotes.Add(new(k, rect));
         }
 
-        var time = group.DeltaTime;
+        var time = group.Time;
 
         notes[groupIndex] = new(time, newNotes);
     }
@@ -92,13 +92,13 @@ public partial class MusicSheet : Node2D
 
         if (midiPlayer != null && midiPlayer.TotalTimeMilis != 0)
 		{
-            currentGroup = midiPlayer.PlayManager.State.CurrentMessageGroup;
+            currentGroup = Mathf.Max(0, midiPlayer.PlayManager.State.CurrentMessageGroup);
 
             var selectedGroups = midiPlayer.NoteListAbsTime;
 
             Dictionary<int, SimpleTimedKeyGroup> groupAcc = [];
 
-			for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].DeltaTime < tm.CurrentTimeMilis + timeSpan*1000; i++)
+			for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].Time < tm.CurrentTimeMilis + timeSpan*1000; i++)
 			{
                 groupAcc.Add(i, selectedGroups[i]);
             }

@@ -31,7 +31,8 @@ internal partial class Menu : Node2D
 
     public override void _Ready()
     {
-        midis = Directory.GetFiles(directoryPath, "*.mid");
+        midis = [..Directory.GetFiles(directoryPath, "*.mid"), ..Directory.GetFiles(directoryPath, "*.midi")];
+
         foreach (string midiFile in midis)
         {
             itemList.AddItem(Path.GetFileName(midiFile), icon);

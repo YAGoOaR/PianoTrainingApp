@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using static Godot.WebSocketPeer;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -11,7 +10,7 @@ namespace PianoTrainer.Scripts.MIDI
     {
         public HashSet<byte> DesiredKeys { get; set; } = [];
         public int NextMessageGroup { get; set; } = 0;
-        public int CurrentMessageGroup { get; set; } = 0;
+        public int CurrentMessageGroup { get; set; } = -1;
         public int MessageDelta { get; set; } = 0;
         public int TotalMessagesTime { get; set; } = 0;
     }
@@ -64,13 +63,15 @@ namespace PianoTrainer.Scripts.MIDI
                 return;
             }
 
+            var pGroup = State.CurrentMessageGroup == -1 ? new(0, []) : EventGroups[State.CurrentMessageGroup];
             var group = EventGroups[State.NextMessageGroup];
 
             State = new()
             {
-                TotalMessagesTime = State.TotalMessagesTime + State.MessageDelta,
+                TotalMessagesTime = pGroup.Time,
                 DesiredKeys = group.Keys,
-                MessageDelta = group.DeltaTime,
+                MessageDelta = group.Time - pGroup.Time, //TODO: REFACTOR
+
                 CurrentMessageGroup = State.NextMessageGroup,
                 NextMessageGroup = State.NextMessageGroup + 1
             };
@@ -86,7 +87,7 @@ namespace PianoTrainer.Scripts.MIDI
 
             nonreadyKeys = nonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
-            if (State.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
+            if (complete || State.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
 
             complete = true;
             nonreadyKeys = new(pressedKeys);

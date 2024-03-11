@@ -13,6 +13,9 @@ public partial class MIDIManager : Node2D
     [Export]
     public MIDIPlayer Player {  get; private set; }
 
+    [Export]
+    public ProgressBar PBar { get; private set; }
+
     public static MIDIManager Instance { get; private set; }
 
     public KeyLightsManager LightsManager { get; private set; }
@@ -53,9 +56,12 @@ public partial class MIDIManager : Node2D
 
         Player.Load(filePath);
 
-        Player.Play(LightsManager);
+        (float, float)? tRange = null; //(0f, 44.5f / Player.Settings.tempoRatio);
 
-        Player.PlayManager.OnStopped += () => Player.Play(LightsManager);
+        Player.Play(LightsManager, tRange);
+        PBar.SetTimeRange(Player, tRange);
+
+        Player.PlayManager.OnStopped += () => Player.Play(LightsManager, tRange);
     }
 
     public void OnMessage(object input, MidiReceivedEventArgs message)

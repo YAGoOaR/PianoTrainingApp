@@ -40,7 +40,7 @@ namespace PianoTrainer.Scripts.MIDI
 
         private readonly KeylightHolder keyLightsHolder;
 
-        public int TickTime { get; } = 50;
+        public int TickTime { get; } = 25;
 
         private int rollCycle = 0;
 
@@ -59,12 +59,12 @@ namespace PianoTrainer.Scripts.MIDI
 
             started.Task.Wait();
 
-            tickThread = new Thread(() =>
+            tickThread = new Thread(async () =>
             {
                 while (!StopSignal.Task.IsCompleted)
                 {
                     OnTick();
-                    Thread.Sleep(TickTime);
+                    await Task.Delay(TickTime);
                 }
             });
             tickThread.Start();
