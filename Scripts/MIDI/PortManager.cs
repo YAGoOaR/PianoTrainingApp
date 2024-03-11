@@ -1,23 +1,15 @@
 ﻿using Commons.Music.Midi;
-using System.Threading;
 using System.Linq;
 using System.Diagnostics;
-using System;
+using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-
-    // TODO: FIX HANG ISSUE
-
-    internal abstract class PortManager<T> where T : IMidiPort
+    internal abstract class PortManager<T>(string portName) where T : IMidiPort
     {
-        //public event Action OnDeviceReady;
-
-        public IMidiPortDetails PortDetails { get; set; }
-        protected readonly IMidiAccess access;
-
-        private IMidiPortDetails GetPort(string portName)
+        private static IMidiPortDetails GetPort(string portName)
         {
+            var access = MidiAccessManager.Default;
             var ports = typeof(T) == typeof(IMidiInput) ? access.Inputs : access.Outputs;
             var found = from deviceName in ports where deviceName.Name == portName select deviceName;
 
@@ -28,10 +20,8 @@ namespace PianoTrainer.Scripts.MIDI
             return null;
         }
 
-        public PortManager(string portName)
+        protected async Task<IMidiPortDetails> GetPortDetails()
         {
-            access = MidiAccessManager.Default;
-
             var details = GetPort(portName);
 
             if (details == null)
@@ -39,27 +29,43 @@ namespace PianoTrainer.Scripts.MIDI
                 Debug.WriteLine($"Port \"{portName}\" not found!");
                 Debug.WriteLine($"Waiting for device to be available.");
 
-                while (details == null)
+                return await Task.Run(async () =>
                 {
-                    Thread.Sleep(1000);
-                    details = GetPort(portName);
-                }
+                    while (details == null)
+                    {
+                        await Task.Delay(1000);
+                        details = GetPort(portName);
+                    }
+                    return details;
+                });
             }
-
-            PortDetails = details;
+            else
+            {
+                return details;
+            }
         }
-
-        public abstract T OpenPort();
     }
 
     internal class InputPortManager(string portName) : PortManager<IMidiInput>(portName)
     {
-        public override IMidiInput OpenPort() => access.OpenInputAsync(PortDetails.Id).Result;
+        public async Task<IMidiInput> OpenPort()
+        {
+            var access = MidiAccessManager.Default;
+            var details = await GetPortDetails();
+
+            return await access.OpenInputAsync(details.Id);
+        }
     }
 
     internal class OutputPortManager(string portName) : PortManager<IMidiOutput>(portName)
     {
-        public override IMidiOutput OpenPort() => access.OpenOutputAsync(PortDetails.Id).Result;
+        public async Task<IMidiOutput> OpenPort()
+        {
+            var access = MidiAccessManager.Default;
+            var details = await GetPortDetails();
+
+            return await access.OpenOutputAsync(details.Id);
+        }
     }
 
 }

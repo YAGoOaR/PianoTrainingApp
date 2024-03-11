@@ -1,43 +1,70 @@
 using Commons.Music.Midi;
 using Godot;
 using PianoTrainer.Scripts.MIDI;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 public partial class MIDIManager : Node2D
 {
+    public static MIDIManager Instance { get; private set; }
 
     public KeyState Piano { get; private set; }
 
-    [Export]
     public MIDIPlayer Player {  get; private set; }
 
     [Export]
     public ProgressBar PBar { get; private set; }
 
-    public static MIDIManager Instance { get; private set; }
-
     public KeyLightsManager LightsManager { get; private set; }
+
+    public GameSettings Settings { get; private set; }
 
     private IMidiOutput output;
     private IMidiInput input;
 
+    // TODO: MOVE TO STATE
     private bool stopped = false;
     private bool exit = false;
+
+    public enum MIDIManagerState
+    {
+        Preparing,
+        Ready,
+        Playing,
+    }
+
+    public MIDIManagerState State { get; private set; } = MIDIManagerState.Preparing;
+
+    public void SetState(MIDIManagerState state)
+    {
+        State = state;
+    }
 
     public override void _Ready()
     {
         ListDevices();
         Instance = this;
         Piano = new KeyState();
+        Player = new MIDIPlayer();
+        Settings = new GameSettings();
 
-        output = new OutputPortManager("CASIO USB-MIDI").OpenPort();
-        input = new InputPortManager("CASIO USB-MIDI").OpenPort();
-        var lights = new KeyLights(output);
-        LightsManager = new KeyLightsManager(lights);
+        Task.Run(async () =>
+        {
+            output = await new OutputPortManager("CASIO USB-MIDI").OpenPort();
+            input = await new InputPortManager("CASIO USB-MIDI").OpenPort();
 
-        input.MessageReceived += OnMessage;
+            var lights = new KeyLights(output);
+            LightsManager = new KeyLightsManager(lights);
+
+            input.MessageReceived += OnMessage;
+
+            Player.Setup(this);
+
+            SetState(MIDIManagerState.Ready);
+        });
     }
 
     public void PlayMIDI(string filePath)
@@ -54,11 +81,12 @@ public partial class MIDIManager : Node2D
     {
         Debug.WriteLine("Playing music...");
 
-        Player.Load(filePath);
+        Player.LoadMIDI(filePath);
 
         (float, float)? tRange = null; //(0f, 44.5f / Player.Settings.tempoRatio);
 
         Player.Play(LightsManager, tRange);
+
         PBar.SetTimeRange(Player, tRange);
 
         Player.PlayManager.OnStopped += () => Player.Play(LightsManager, tRange);
@@ -90,8 +118,17 @@ public partial class MIDIManager : Node2D
 
     public override void _Process(double delta)
     {
-        if (!stopped) return;
-        if (exit) return;
+        if (State == MIDIManagerState.Ready)
+        {
+            PlayMIDI(Settings.Settings.MusicPath);
+            SetState(MIDIManagerState.Playing);
+        }
+
+        Player.Process(delta);
+
+        if (!stopped || exit) return;
+
+        Debug.WriteLine("Returned to menu.");
 
         GetTree().ChangeSceneToFile("res://Scenes/main.tscn");
 

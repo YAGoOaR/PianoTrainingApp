@@ -7,7 +7,6 @@ using System.Linq;
 public partial class MusicSheet : Node2D
 {
 	private MIDIManager midiManager;
-	private MIDIPlayer midiPlayer;
 
     private Vector2 MusicSheetOffset = new(0, 250);
     private Vector2 MusicSheetSize;
@@ -42,7 +41,6 @@ public partial class MusicSheet : Node2D
         MusicSheetSize = GetViewportRect().Size - MusicSheetOffset - Vector2.Up * - 80;
 
         midiManager = MIDIManager.Instance;
-        midiPlayer = midiManager.Player;
     }
 
     public void AddNoteGroup(int groupIndex, SimpleTimedKeyGroup group)
@@ -88,6 +86,8 @@ public partial class MusicSheet : Node2D
 
 	public override void _Process(double delta)
 	{
+        var midiPlayer = midiManager.Player;
+
         var tm = midiPlayer.TimelineManager;
 
         if (midiPlayer != null && midiPlayer.TotalTimeMilis != 0)

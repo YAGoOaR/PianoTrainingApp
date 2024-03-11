@@ -16,21 +16,22 @@ internal partial class Menu : Node2D
     private Texture2D icon;
 
     [Export]
-    private GameSettings settings;
-
-    [Export]
     private TextEdit DisplayText;
 
     private string[] midis;
 
+    private GameSettings Settings;
+
     public void OnItemSelect(int idx)
     {
-        settings.Settings.MusicPath = midis[idx];
+        Settings.Settings.MusicPath = midis[idx];
         DisplayText.Text = midis[idx];
     }
 
     public override void _Ready()
     {
+        Settings = new GameSettings();
+
         midis = [..Directory.GetFiles(directoryPath, "*.mid"), ..Directory.GetFiles(directoryPath, "*.midi")];
 
         foreach (string midiFile in midis)
@@ -41,13 +42,13 @@ internal partial class Menu : Node2D
 
     public void UpdateText()
     {
-        DisplayText.Text = settings.Settings.MusicPath;
+        DisplayText.Text = Settings.Settings.MusicPath;
     }
 
     public void OnPlayPressed()
     {
-        GameSettings.GSettings s = settings.Settings;
-        File.WriteAllText(settings.SettingsPath, JsonSerializer.Serialize(s));
+        GameSettings.GSettings s = Settings.Settings;
+        File.WriteAllText(Settings.SettingsPath, JsonSerializer.Serialize(s));
         GetTree().ChangeSceneToFile(playScenePath);
     }
 

@@ -1,16 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://cj66rpubutra0"]
+[gd_scene load_steps=3 format=3 uid="uid://cj66rpubutra0"]
 
 [ext_resource type="Script" path="res://Scripts/Menu.cs" id="1_q0yop"]
 [ext_resource type="Texture2D" uid="uid://dmiq3mal5ptlk" path="res://Icons/icon.svg" id="2_1cbve"]
-[ext_resource type="Script" path="res://Scripts/GameSettings.cs" id="3_v5iwv"]
 
 [node name="Main" type="Node2D"]
 
-[node name="Menu" type="Node2D" parent="." node_paths=PackedStringArray("itemList", "settings", "DisplayText")]
+[node name="Menu" type="Node2D" parent="." node_paths=PackedStringArray("itemList", "DisplayText")]
 script = ExtResource("1_q0yop")
 itemList = NodePath("Control/ItemList")
 icon = ExtResource("2_1cbve")
-settings = NodePath("../GameSettings")
 DisplayText = NodePath("Control/TextEdit")
 
 [node name="Control" type="Control" parent="Menu"]
@@ -68,10 +66,6 @@ offset_bottom = 1037.0
 placeholder_text = "<File is not selected>"
 editable = false
 
-[node name="GameSettings" type="Node2D" parent="."]
-script = ExtResource("3_v5iwv")
-
 [connection signal="pressed" from="Menu/Control/Play" to="Menu" method="OnPlayPressed"]
 [connection signal="pressed" from="Menu/Control/Quit" to="Menu" method="OnQuitPressed"]
 [connection signal="item_activated" from="Menu/Control/ItemList" to="Menu" method="OnItemSelect"]
-[connection signal="SettingsLoaded" from="GameSettings" to="Menu" method="UpdateText"]

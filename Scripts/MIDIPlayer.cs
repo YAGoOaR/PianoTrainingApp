@@ -31,9 +31,9 @@ public struct PlayerSettings()
     public (float, float)? timeRange = null;
 }
 
-public partial class MIDIPlayer: Node2D
+public partial class MIDIPlayer
 {
-    private PlayerSettings settings;
+    private PlayerSettings settings = new();
 
     public PlayerSettings Settings { get => settings; }
 
@@ -44,25 +44,16 @@ public partial class MIDIPlayer: Node2D
 
     public int TotalTimeMilis { get; private set; } = 0;
 
-    public PlayManager PlayManager { get; private set; }
-    public TimelineManager TimelineManager { get; private set; }
+    public PlayManager PlayManager { get; private set; } = new();
+    public TimelineManager TimelineManager { get; private set; } = new();
 
     private MidiMusic music;
 
-    public void Load(string filename)
+    public void Setup(MIDIManager manager)
     {
-        music = MidiMusic.Read(File.OpenRead(filename));
-        Debug.WriteLine($"Tracks count: {music.Tracks.Count}");
-    }
+        keyLightsManager = manager.LightsManager;
+        piano = manager.Piano;
 
-    public override void _Ready()
-    {
-        settings = new();
-        keyLightsManager = MIDIManager.Instance.LightsManager;
-        piano = MIDIManager.Instance.Piano;
-
-        PlayManager = new PlayManager();
-        TimelineManager = new TimelineManager();
         piano.KeyChange += (k, s) => PlayManager.OnKeyChange(piano.State);
 
         PlayManager.OnComplete += () =>
@@ -109,6 +100,13 @@ public partial class MIDIPlayer: Node2D
             });
         };
         PlayManager.OnStopped += () => keyLightsManager.Reset();
+
+    }
+
+    public void LoadMIDI(string filename)
+    {
+        music = MidiMusic.Read(File.OpenRead(filename));
+        Debug.WriteLine($"Tracks count: {music.Tracks.Count}");
     }
 
     private static List<SimpleTimedKeyGroup> ExtractKeyGroups(List<SimpleTimedKey> keyOnMessages)
@@ -187,7 +185,7 @@ public partial class MIDIPlayer: Node2D
         PlayManager.Setup(NoteListAbsTime);
     }
 
-    public override void _Process(double delta)
+    public void Process(double delta)
     {
         TimelineManager.Update((float)delta);
     }

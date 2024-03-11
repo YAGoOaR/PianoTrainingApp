@@ -20,6 +20,8 @@ public partial class ProgressBar : Node2D
 
     private (float, float)? timeRange = null;
 
+    private bool active = false;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
@@ -29,7 +31,8 @@ public partial class ProgressBar : Node2D
         {
             Color = new(1/6f, 1/6f, 1/6f),
             Position = new Vector2(0, 0),
-            Size = new Vector2(rectLen, rectH)
+            Size = new Vector2(rectLen, rectH),
+            ZIndex = 10
         };
         AddChild(bgRect);
 
@@ -37,7 +40,8 @@ public partial class ProgressBar : Node2D
         {
             Color = Colors.Green,
             Position = new Vector2(0, 0),
-            Size = new Vector2(rectLen, rectH)
+            Size = new Vector2(0, rectH),
+            ZIndex = 11
         };
         AddChild(progressRect);
 
@@ -45,21 +49,15 @@ public partial class ProgressBar : Node2D
         {
             Color = RangeRectColor,
             Position = new Vector2(0, 0),
-            Size = new Vector2(rectLen, rectH),
-            ZIndex = 10
+            Size = new Vector2(0, rectH),
+            ZIndex = 12
         };
         AddChild(rangeRect);
-
-        SetProgress(0);
     }
 
-    public void SetProgress(float time)
+    public void SetProgress(MIDIPlayer p, float time)
     {
-        var p = MIDIManager.Player;
         var totalT = p.TotalTimeMilis / 1000f;
-
-        if (totalT == 0)
-            return; //TODO: REFACTOR
 
         if (timeRange is (float s, float e))
         {
@@ -95,12 +93,14 @@ public partial class ProgressBar : Node2D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        if (MIDIManager.Instance.State != MIDIManager.MIDIManagerState.Playing) return;
+
         var p = MIDIManager.Player;
 
         if (p != null && p.TotalTimeMilis != 0)
         {
             var t = p.TimelineManager.CurrentTimeMilis / 1000f;
-            SetProgress(t);
+            SetProgress(p, t);
             Txt.Text = $"{t:0.00}";
         }
     }

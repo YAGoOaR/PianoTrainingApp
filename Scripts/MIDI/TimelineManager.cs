@@ -1,6 +1,4 @@
 ﻿using System;
-using static Godot.WebSocketPeer;
-using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.MIDI
 {

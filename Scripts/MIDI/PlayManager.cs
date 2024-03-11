@@ -21,7 +21,7 @@ namespace PianoTrainer.Scripts.MIDI
 
         private HashSet<byte> nonreadyKeys = [];
 
-        public PlayManagerState State { get; private set; }
+        public PlayManagerState State { get; private set; } = new();
 
         public event Action<PlayManagerState> OnTargetChanged;
         public event Action OnComplete;
@@ -39,7 +39,6 @@ namespace PianoTrainer.Scripts.MIDI
         public void Setup(List<SimpleTimedKeyGroup> keyMessages)
         {
             EventGroups = keyMessages;
-            State = new();
             playState = PlayState.Ready;
 
             NextTarget();
