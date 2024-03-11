@@ -13,7 +13,7 @@ public partial class MIDIManager : Node2D
 
     public KeyState Piano { get; private set; }
 
-    public MIDIPlayer Player {  get; private set; }
+    public MIDIPlayer Player { get; private set; }
 
     [Export]
     public ProgressBar PBar { get; private set; }
@@ -25,15 +25,13 @@ public partial class MIDIManager : Node2D
     private IMidiOutput output;
     private IMidiInput input;
 
-    // TODO: MOVE TO STATE
-    private bool stopped = false;
-    private bool exit = false;
-
     public enum MIDIManagerState
     {
         Preparing,
         Ready,
         Playing,
+        Stopped,
+        Exited,
     }
 
     public MIDIManagerState State { get; private set; } = MIDIManagerState.Preparing;
@@ -126,20 +124,19 @@ public partial class MIDIManager : Node2D
 
         Player.Process(delta);
 
-        if (!stopped || exit) return;
+        if (State != MIDIManagerState.Stopped || State == MIDIManagerState.Exited) return;
 
         Debug.WriteLine("Returned to menu.");
 
         GetTree().ChangeSceneToFile("res://Scenes/main.tscn");
-
-        exit = true;
+        SetState(MIDIManagerState.Exited);
     }
 
     public override void _Input(InputEvent @event)
     {
         if (@event.IsActionPressed("ui_cancel"))
         {
-            stopped = true;
+            SetState(MIDIManagerState.Stopped);
         }
     }
 

@@ -45,7 +45,6 @@ public partial class MIDIPlayer
     public int TotalTimeMilis { get; private set; } = 0;
 
     public PlayManager PlayManager { get; private set; } = new();
-    public TimelineManager TimelineManager { get; private set; } = new();
 
     private MidiMusic music;
 
@@ -60,15 +59,13 @@ public partial class MIDIPlayer
         {
             Task.Run(async () =>
             {
-                await Task.Delay(Math.Max(0, TimelineManager.TimeToNextKey));
+                await Task.Delay(Math.Max(0, PlayManager.TimeToNextKey));
                 PlayManager.NextTarget();
             });
         };
 
         PlayManager.OnTargetChanged += (s) =>
         {
-            TimelineManager.OnTargetChange(s);
-
             keyLightsManager.Reset();
 
             List<byte> keys = new(s.DesiredKeys);
@@ -77,20 +74,20 @@ public partial class MIDIPlayer
 
             Task.Run(async () =>
             {
-                await Task.Delay(Math.Max(0, TimelineManager.TimeToNextKey - settings.KeyTimeOffset));
+                await Task.Delay(Math.Max(0, PlayManager.TimeToNextKey - settings.KeyTimeOffset));
                 lightsEnabled = true;
                 keyLightsManager.SetKeys(keys);
             });
 
-            if (TimelineManager.TimeToNextKey < settings.BlinkOutdatedOffset) return;
+            if (PlayManager.TimeToNextKey < settings.BlinkOutdatedOffset) return;
 
             Task.Run(async () =>
             {
-                await Task.Delay(Math.Max(0, TimelineManager.TimeToNextKey - settings.BlinkSlowOffset));
+                await Task.Delay(Math.Max(0, PlayManager.TimeToNextKey - settings.BlinkSlowOffset));
 
                 while (!lightsEnabled && (PlayManager.State.CurrentMessageGroup == s.CurrentMessageGroup))
                 {
-                    var interval = TimelineManager.TimeToNextKey > settings.BlinkOffset ? settings.BlinkSlowInterval : settings.BlinkInterval;
+                    var interval = PlayManager.TimeToNextKey > settings.BlinkOffset ? settings.BlinkSlowInterval : settings.BlinkInterval;
                     foreach (var k in keys)
                     {
                         keyLightsManager.AddBlink(k, interval);
@@ -100,7 +97,6 @@ public partial class MIDIPlayer
             });
         };
         PlayManager.OnStopped += () => keyLightsManager.Reset();
-
     }
 
     public void LoadMIDI(string filename)
@@ -187,6 +183,6 @@ public partial class MIDIPlayer
 
     public void Process(double delta)
     {
-        TimelineManager.Update((float)delta);
+        PlayManager.Update((float)delta);
     }
 }

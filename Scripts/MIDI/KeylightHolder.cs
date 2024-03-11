@@ -12,7 +12,6 @@ namespace PianoTrainer.Scripts.MIDI
 
         private const int period = 50;
 
-        // TODO: Check if using TaskCompletionSource is appropriate
         static void LightLoop(KeyLights lights, TaskCompletionSource started, TaskCompletionSource stopSignal)
         {
             lights.SendHold();

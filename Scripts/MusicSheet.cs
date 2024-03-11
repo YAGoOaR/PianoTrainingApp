@@ -31,7 +31,7 @@ public partial class MusicSheet : Node2D
     private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
 
-	private Dictionary<int, NoteGroup> notes = [];
+	private readonly Dictionary<int, NoteGroup> notes = [];
 
 	public override void _Ready()
 	{
@@ -88,17 +88,17 @@ public partial class MusicSheet : Node2D
 	{
         var midiPlayer = midiManager.Player;
 
-        var tm = midiPlayer.TimelineManager;
+        var pm = midiPlayer.PlayManager;
 
         if (midiPlayer != null && midiPlayer.TotalTimeMilis != 0)
 		{
-            currentGroup = Mathf.Max(0, midiPlayer.PlayManager.State.CurrentMessageGroup);
+            currentGroup = Mathf.Max(0, pm.State.CurrentMessageGroup);
 
             var selectedGroups = midiPlayer.NoteListAbsTime;
 
             Dictionary<int, SimpleTimedKeyGroup> groupAcc = [];
 
-			for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].Time < tm.CurrentTimeMilis + timeSpan*1000; i++)
+			for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].Time < pm.CurrentTimeMilis + timeSpan*1000; i++)
 			{
                 groupAcc.Add(i, selectedGroups[i]);
             }
@@ -120,7 +120,7 @@ public partial class MusicSheet : Node2D
 
         foreach (var (k, v) in notes)
         {
-            var verticalPos = (v.Time - tm.CurrentTimeMilis) / 1000f / timeSpan * MusicSheetSize.Y;
+            var verticalPos = (v.Time - pm.CurrentTimeMilis) / 1000f / timeSpan * MusicSheetSize.Y;
             foreach (var n in v.notes)
             {
                 var keyPos = (byte)(n.Key - 36);

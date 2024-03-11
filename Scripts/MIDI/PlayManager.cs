@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -29,6 +27,11 @@ namespace PianoTrainer.Scripts.MIDI
 
         private bool complete = false;
 
+        public int CurrentTimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
+        public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
+
+        public float TimeSinceLastKey { get; private set; } = 0;
+
         public enum PlayState
         {
             Ready,
@@ -39,6 +42,7 @@ namespace PianoTrainer.Scripts.MIDI
         public void Setup(List<SimpleTimedKeyGroup> keyMessages)
         {
             EventGroups = keyMessages;
+            State = new();
             playState = PlayState.Ready;
 
             NextTarget();
@@ -69,12 +73,13 @@ namespace PianoTrainer.Scripts.MIDI
             {
                 TotalMessagesTime = pGroup.Time,
                 DesiredKeys = group.Keys,
-                MessageDelta = group.Time - pGroup.Time, //TODO: REFACTOR
+                MessageDelta = group.Time - pGroup.Time,
 
                 CurrentMessageGroup = State.NextMessageGroup,
                 NextMessageGroup = State.NextMessageGroup + 1
             };
 
+            TimeSinceLastKey = 0;
             OnTargetChanged?.Invoke(State);
 
             complete = false;
@@ -92,6 +97,11 @@ namespace PianoTrainer.Scripts.MIDI
             nonreadyKeys = new(pressedKeys);
 
             OnComplete?.Invoke();
+        }
+
+        public void Update(float dT)
+        {
+            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * 1000f, State.MessageDelta);
         }
     }
 }

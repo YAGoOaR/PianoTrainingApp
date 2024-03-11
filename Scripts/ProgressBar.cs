@@ -99,7 +99,7 @@ public partial class ProgressBar : Node2D
 
         if (p != null && p.TotalTimeMilis != 0)
         {
-            var t = p.TimelineManager.CurrentTimeMilis / 1000f;
+            var t = p.PlayManager.CurrentTimeMilis / 1000f;
             SetProgress(p, t);
             Txt.Text = $"{t:0.00}";
         }

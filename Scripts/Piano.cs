@@ -17,9 +17,9 @@ public partial class Piano : Node2D
     const float mid = -bw / 2;
     const float right = -bw * 1 / 3;
 
-    List<ColorRect> noteRects = [];
+    readonly List<ColorRect> noteRects = [];
 
-    Queue<(byte, bool)> changes = [];
+    readonly Queue<(byte, bool)> changes = [];
 
     [Export]
     MIDIManager midiManager;

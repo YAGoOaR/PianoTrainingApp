@@ -5,7 +5,7 @@ namespace PianoTrainer.Scripts.MIDI
 {
     public class KeyLights(IMidiOutput piano)
     {
-        private IMidiOutput piano = piano;
+        private readonly IMidiOutput piano = piano;
 
         public void SendProprietary(SimpleMsg msg)
         {
