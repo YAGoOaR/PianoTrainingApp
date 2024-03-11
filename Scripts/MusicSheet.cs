@@ -43,6 +43,19 @@ public partial class MusicSheet : Node2D
         midiManager = MIDIManager.Instance;
     }
 
+    public void Init()
+    {
+        foreach (var (k, noteGroup) in notes)
+        {
+            foreach (var note in noteGroup.notes)
+            {
+                note.rect.QueueFree();
+            }
+        }
+
+        notes.Clear();
+    }
+
     public void AddNoteGroup(int groupIndex, SimpleTimedKeyGroup group)
     {
 		if (notes.ContainsKey(groupIndex))
@@ -61,6 +74,7 @@ public partial class MusicSheet : Node2D
                 Texture = isBlack ? noteBlackTexture : noteWhiteTexture,
                 Position = new Vector2(0, 0),
                 Scale = (isBlack ? BlackNoteSize: NoteSize) / 200,
+                ZIndex = -10
             };
             AddChild(rect);
 

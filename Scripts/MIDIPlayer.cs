@@ -26,7 +26,7 @@ public struct PlayerSettings()
 
     public bool HintOnlyMode = false;
 
-    public float tempoRatio = 1.1f;
+    public float tempoRatio = 1.0f;
 
     public (float, float)? timeRange = null;
 }
@@ -43,6 +43,8 @@ public partial class MIDIPlayer
     public List<SimpleTimedKeyGroup> NoteListAbsTime { get; private set; }
 
     public int TotalTimeMilis { get; private set; } = 0;
+
+    public float TotalTimeSeconds { get => TotalTimeMilis / 1000f; }
 
     public PlayManager PlayManager { get; private set; } = new();
 
@@ -178,7 +180,7 @@ public partial class MIDIPlayer
 
         settings.timeRange = range;
         NoteListAbsTime = groupSpan;
-        PlayManager.Setup(NoteListAbsTime);
+        PlayManager.Setup(NoteListAbsTime, range is (float s, float) ? (int)(s*1000f) : 0);
     }
 
     public void Process(double delta)

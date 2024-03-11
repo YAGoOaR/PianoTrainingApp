@@ -1,5 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=8 format=3 uid="uid://b8h3lrgadghix"]
 
+[ext_resource type="Script" path="res://Scenes/RangeSelection.cs" id="3_7rf0n"]
 [ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_ji2ot"]
 [ext_resource type="Script" path="res://Scripts/Piano.cs" id="4_4ebec"]
 [ext_resource type="Texture2D" uid="uid://hdkxnhmijj2v" path="res://Textures/Note.png" id="4_idkj6"]
@@ -9,15 +10,45 @@
 
 [node name="PlayScene" type="Node2D"]
 
-[node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("PBar")]
+[node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("PBar", "MSheet")]
 script = ExtResource("3_ji2ot")
 PBar = NodePath("../ProgressBar")
+MSheet = NodePath("../MusicSheet")
 
-[node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager", "Txt")]
+[node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager", "Txt", "bgRect", "progressRect", "rangeRect", "rangeSelectRect")]
 script = ExtResource("6_t5trx")
 MIDIManager = NodePath("../MidiManager")
 Txt = NodePath("../Control/RichTextLabel")
+bgRect = NodePath("Background")
+progressRect = NodePath("Progress")
+rangeRect = NodePath("Range")
+rangeSelectRect = NodePath("Selection")
 RangeRectColor = Color(1, 1, 0, 0.423529)
+RangeSelectRectColor = Color(0.4, 0.752941, 0.886275, 0.654902)
+
+[node name="Background" type="ColorRect" parent="ProgressBar"]
+offset_right = 1918.0
+offset_bottom = 80.0
+color = Color(0.196078, 0.196078, 0.196078, 1)
+script = ExtResource("3_7rf0n")
+
+[node name="Progress" type="ColorRect" parent="ProgressBar"]
+offset_right = 502.0
+offset_bottom = 80.0
+mouse_filter = 2
+color = Color(0.0666667, 0.839216, 0.0784314, 1)
+
+[node name="Range" type="ColorRect" parent="ProgressBar"]
+offset_right = 441.0
+offset_bottom = 80.0
+mouse_filter = 2
+color = Color(1, 1, 0, 0.423529)
+
+[node name="Selection" type="ColorRect" parent="ProgressBar"]
+offset_right = 369.0
+offset_bottom = 80.0
+mouse_filter = 2
+color = Color(0.4, 0.752941, 0.886275, 0.654902)
 
 [node name="Piano" type="Node2D" parent="." node_paths=PackedStringArray("midiManager")]
 script = ExtResource("4_4ebec")
@@ -37,6 +68,9 @@ offset_bottom = 40.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Control"]
 layout_mode = 0
-offset_right = 164.0
-offset_bottom = 61.0
+offset_right = 79.0
+offset_bottom = 26.0
 text = "0.00"
+
+[connection signal="RangeSelected" from="ProgressBar/Background" to="MidiManager" method="SelectRange"]
+[connection signal="SelectionMoved" from="ProgressBar/Background" to="MidiManager" method="RangeSelectionMoved"]

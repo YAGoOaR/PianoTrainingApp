@@ -11,6 +11,7 @@ namespace PianoTrainer.Scripts.MIDI
         public int CurrentMessageGroup { get; set; } = -1;
         public int MessageDelta { get; set; } = 0;
         public int TotalMessagesTime { get; set; } = 0;
+        public int startTime = 0;
     }
 
     public class PlayManager()
@@ -39,10 +40,10 @@ namespace PianoTrainer.Scripts.MIDI
         }
         PlayState playState = PlayState.Stopped;
 
-        public void Setup(List<SimpleTimedKeyGroup> keyMessages)
+        public void Setup(List<SimpleTimedKeyGroup> keyMessages, int startTime)
         {
             EventGroups = keyMessages;
-            State = new();
+            State = new() { startTime = startTime };
             playState = PlayState.Ready;
 
             NextTarget();
@@ -66,7 +67,7 @@ namespace PianoTrainer.Scripts.MIDI
                 return;
             }
 
-            var pGroup = State.CurrentMessageGroup == -1 ? new(0, []) : EventGroups[State.CurrentMessageGroup];
+            var pGroup = State.CurrentMessageGroup == -1 ? new(State.startTime, []) : EventGroups[State.CurrentMessageGroup];
             var group = EventGroups[State.NextMessageGroup];
 
             State = new()

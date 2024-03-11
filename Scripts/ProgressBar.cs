@@ -10,15 +10,22 @@ public partial class ProgressBar : Node2D
     private RichTextLabel Txt { get; set; }
 
     [Export]
+    private ColorRect bgRect;
+    [Export]
+    private ColorRect progressRect;
+    [Export]
+    private ColorRect rangeRect;
+    [Export]
+    private ColorRect rangeSelectRect;
+
+    [Export]
     private Color RangeRectColor { get; set; } = Colors.Yellow;
 
-    private ColorRect progressRect;
-    private ColorRect rangeRect;
-    private ColorRect bgRect;
-    private float rectLen;
-    private float rectH = 80;
+    [Export]
+    private Color RangeSelectRectColor { get; set; } = Colors.White;
 
-    private (float, float)? timeRange = null;
+    private float rectLen;
+    public static float RectH { get; } = 80;
 
     private bool active = false;
 
@@ -27,60 +34,28 @@ public partial class ProgressBar : Node2D
 	{
         rectLen = GetViewportRect().Size.X;
 
-        bgRect = new ColorRect()
-        {
-            Color = new(1/6f, 1/6f, 1/6f),
-            Position = new Vector2(0, 0),
-            Size = new Vector2(rectLen, rectH),
-            ZIndex = 10
-        };
-        AddChild(bgRect);
+        bgRect.Size = new(rectLen, RectH);
+        progressRect.Size = new(0, RectH);
+        rangeRect.Size = new(0, RectH);
+        rangeSelectRect.Size = new(0, RectH);
+    }
 
-        progressRect = new ColorRect()
-        {
-            Color = Colors.Green,
-            Position = new Vector2(0, 0),
-            Size = new Vector2(0, rectH),
-            ZIndex = 11
-        };
-        AddChild(progressRect);
-
-        rangeRect = new ColorRect()
-        {
-            Color = RangeRectColor,
-            Position = new Vector2(0, 0),
-            Size = new Vector2(0, rectH),
-            ZIndex = 12
-        };
-        AddChild(rangeRect);
+    private void SetProgressRectBounds(ColorRect rect, float tStart, float tEnd, float totalTime)
+    {
+        rect.Position = new(rectLen * tStart / totalTime, 0);
+        rect.Size = new(rectLen * (tEnd - tStart) / totalTime, RectH);
     }
 
     public void SetProgress(MIDIPlayer p, float time)
     {
-        var totalT = p.TotalTimeMilis / 1000f;
-
-        if (timeRange is (float s, float e))
-        {
-            progressRect.Position = new(s / totalT * rectLen, 0);
-
-            progressRect.Size = new(Mathf.Max(0, time - s) / totalT * rectLen, rectH);
-        }
-        else
-        {
-            progressRect.Position = Vector2.Zero;
-            progressRect.Size = new(rectLen * time / totalT, rectH);
-        }
+        SetProgressRectBounds(progressRect, 0, time, p.TotalTimeSeconds);
     }
 
     public void SetTimeRange(MIDIPlayer p, (float, float)? range)
     {
-        timeRange = range;
-
-        if (range is (float, float) r)
+        if (range is (float s, float e))
         {
-            var totalTime = p.TotalTimeMilis / 1000f;
-            rangeRect.Size = new((r.Item2 - r.Item1) / totalTime * rectLen, rectH);
-            rangeRect.Position = new(r.Item1 / totalTime * rectLen, 0);
+            SetProgressRectBounds(rangeRect, s, e, p.TotalTimeSeconds);
         }
         else
         {
@@ -88,6 +63,13 @@ public partial class ProgressBar : Node2D
             rangeRect.Position = Vector2.Zero;
             return;
         }
+    }
+
+    public void SetSelectionPreview(MIDIPlayer p, (float, float) range)
+    {
+        (float s, float e) = range;
+        if (s > e) return;
+        SetProgressRectBounds(rangeSelectRect, s, e, p.TotalTimeSeconds);
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.

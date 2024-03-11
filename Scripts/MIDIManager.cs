@@ -18,6 +18,9 @@ public partial class MIDIManager : Node2D
     [Export]
     public ProgressBar PBar { get; private set; }
 
+    [Export]
+    public MusicSheet MSheet { get; private set; }
+
     public KeyLightsManager LightsManager { get; private set; }
 
     public GameSettings Settings { get; private set; }
@@ -75,13 +78,30 @@ public partial class MIDIManager : Node2D
         Play(filePath);
     }
 
-    private void Play(string filePath)
+    public void SelectRange(float start, float end)
+    {
+        if (start == 0 && end == 1)
+        {
+            Play(Settings.Settings.MusicPath);
+            return;
+        }
+        var range = (start * Player.TotalTimeSeconds, end * Player.TotalTimeSeconds);
+        Play(Settings.Settings.MusicPath, range);
+    }
+
+    public void RangeSelectionMoved(float start, float end)
+    {
+        var range = (start * Player.TotalTimeSeconds, end * Player.TotalTimeSeconds);
+        PBar.SetSelectionPreview(Player, range);
+    }
+
+    private void Play(string filePath, (float, float)? tRange = null)
     {
         Debug.WriteLine("Playing music...");
 
-        Player.LoadMIDI(filePath);
+        MSheet.Init();
 
-        (float, float)? tRange = null; //(0f, 44.5f / Player.Settings.tempoRatio);
+        Player.LoadMIDI(filePath);
 
         Player.Play(LightsManager, tRange);
 
