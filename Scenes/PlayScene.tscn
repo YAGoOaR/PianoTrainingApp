@@ -1,12 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=6 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scenes/RangeSelection.cs" id="3_7rf0n"]
 [ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_ji2ot"]
-[ext_resource type="Script" path="res://Scripts/Piano.cs" id="4_4ebec"]
-[ext_resource type="Texture2D" uid="uid://hdkxnhmijj2v" path="res://Textures/Note.png" id="4_idkj6"]
-[ext_resource type="Script" path="res://Scripts/MusicSheet.cs" id="5_ga1et"]
-[ext_resource type="Texture2D" uid="uid://dt88cg8wu5m45" path="res://Textures/Note2.png" id="6_328y4"]
-[ext_resource type="Script" path="res://Scripts/ProgressBar.cs" id="6_t5trx"]
+[ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
+[ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
+[ext_resource type="Script" path="res://Scripts/GameElements/ProgressBar.cs" id="6_t5trx"]
 
 [node name="PlayScene" type="Node2D"]
 
@@ -56,8 +54,6 @@ midiManager = NodePath("../MidiManager")
 
 [node name="MusicSheet" type="Node2D" parent="." node_paths=PackedStringArray("piano")]
 script = ExtResource("5_ga1et")
-noteWhiteTexture = ExtResource("4_idkj6")
-noteBlackTexture = ExtResource("6_328y4")
 piano = NodePath("../Piano")
 
 [node name="Control" type="Control" parent="."]
