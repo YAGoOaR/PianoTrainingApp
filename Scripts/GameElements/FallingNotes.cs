@@ -17,7 +17,7 @@ public partial class FallingNotes : Control
     [Export] private float noteTextureScale = 200f;
 
     private MIDIManager midiManager;
-    
+
     private int currentGroup = 0;
 
     private record Note(byte Key, Sprite2D rect);
@@ -134,7 +134,7 @@ public partial class FallingNotes : Control
 
                 var totalOffset = IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + piano.BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
 
-                n.rect.Position = new Vector2(whiteIndex / (float)Whites * Size.X + totalOffset, Size.Y - verticalPos - noteHeight / 2);
+                n.rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - noteHeight / 2);
             }
         }
 

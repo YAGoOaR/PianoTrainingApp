@@ -6,9 +6,9 @@ public static class PianoKeyManager
 
     // Piano keyboard layout parameters
     const float blackWidth = 1 / 2f;
-    const float leftKeyOffset = -blackWidth * 2 / 3f;
+    const float leftKeyOffset = -blackWidth * 2 / 3;
     const float midKeyOffset = -blackWidth / 2;
-    const float rightKeyOffset = -blackWidth * 1 / 3f;
+    const float rightKeyOffset = -blackWidth * 1 / 3;
 
     const byte octave = 12;
     const byte octaveWhites = 7;
@@ -61,11 +61,11 @@ public static class PianoKeyManager
     /// </summary>
     public static byte GetWhiteIndex(byte key)
     {
-        var octavePos = key / (float)octave;
+        var octavePos = key / octave;
 
         var isBlack = IsBlack(key);
 
-        var whiteKeyInOctave = key % octavePos - (isBlack ? 1 : 0);
+        var whiteKeyInOctave = key % octave - (isBlack ? 1 : 0);
 
         int whiteKeyPosition = 0;
         for (byte i = 0; i < whiteKeyInOctave; i++)
