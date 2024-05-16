@@ -4,29 +4,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-public partial class FallingNotes : Node2D
+public partial class FallingNotes : Control
 {
+    [Export] private CompressedTexture2D whiteNoteTexture;
+    [Export] private CompressedTexture2D blackNoteTexture;
+    [Export] private PianoKeyboard piano;
+    [Export] private ProgressBar progressBar;
+    [Export] private float NoteHeight = 50;
+    [Export] private float timeSpan = 3;
+
     private MIDIManager midiManager;
-
-    private Vector2 CanvasOffset = new(0, 250);
-    private Vector2 CanvasSize;
-
-    [Export]
-    private CompressedTexture2D whiteNoteTexture;
-
-    [Export]
-    private CompressedTexture2D blackNoteTexture;
-
-    private float timeSpan = 3;
+    
     private int currentGroup = 0;
-
-    private float noteGap = 8;
-
-    [Export]
-    private PianoKeyboard piano;
-    private Vector2 NoteSize;
-    private Vector2 BlackNoteSize;
-
 
     private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
@@ -35,11 +24,6 @@ public partial class FallingNotes : Node2D
 
     public override void _Ready()
     {
-        NoteSize = new(piano.NoteSize.X, 50);
-        BlackNoteSize = new(piano.BlackNoteSize.X, 50);
-
-        CanvasSize = GetViewportRect().Size - CanvasOffset - Vector2.Up * -80;
-
         midiManager = MIDIManager.Instance;
     }
 
@@ -69,11 +53,14 @@ public partial class FallingNotes : Node2D
         {
             var isBlack = PianoKeyboard.IsBlack(k);
 
+            Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, NoteHeight);
+            Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, NoteHeight);
+
             var rect = new Sprite2D()
             {
                 Texture = isBlack ? blackNoteTexture : whiteNoteTexture,
                 Position = new Vector2(0, 0),
-                Scale = (isBlack ? BlackNoteSize : NoteSize) / 200,
+                Scale = (isBlack ? BlackNoteSize : WhiteNoteSize) / 200,
                 ZIndex = -10
             };
             AddChild(rect);
@@ -134,7 +121,7 @@ public partial class FallingNotes : Node2D
 
         foreach (var (k, v) in notes)
         {
-            var verticalPos = (v.Time - pm.CurrentTimeMilis) / 1000f / timeSpan * CanvasSize.Y;
+            var verticalPos = (v.Time - pm.CurrentTimeMilis) / 1000f / timeSpan * Size.Y;
             foreach (var n in v.notes)
             {
                 var keyPos = (byte)(n.Key - 36);
@@ -142,9 +129,9 @@ public partial class FallingNotes : Node2D
 
                 var (_, noteOffset) = PianoKeyboard.GetNoteOffset(whiteIndex);
 
-                var totalOffset = PianoKeyboard.IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
+                var totalOffset = PianoKeyboard.IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + piano.BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
 
-                n.rect.Position = new Vector2(whiteIndex / 36f * CanvasSize.X + totalOffset, 80 + CanvasSize.Y - verticalPos - NoteSize.Y / 2);
+                n.rect.Position = new Vector2(whiteIndex / 36f * Size.X + totalOffset, Size.Y - verticalPos - NoteHeight / 2);
             }
         }
 

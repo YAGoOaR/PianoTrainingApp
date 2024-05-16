@@ -1,7 +1,7 @@
 using Godot;
 using PianoTrainer.Scripts.MIDI;
 
-public partial class ProgressBar : Node2D
+public partial class ProgressBar : Control
 {
     [Export]
     private MIDIManager MIDIManager { get; set; }
@@ -24,26 +24,20 @@ public partial class ProgressBar : Node2D
     [Export]
     private Color RangeSelectRectColor { get; set; } = Colors.White;
 
-    private float rectLen;
-    public static float RectH { get; } = 80;
-
     private bool active = false;
 
-    // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        rectLen = GetViewportRect().Size.X;
-
-        bgRect.Size = new(rectLen, RectH);
-        progressRect.Size = new(0, RectH);
-        rangeRect.Size = new(0, RectH);
-        rangeSelectRect.Size = new(0, RectH);
+        bgRect.Size = new(Size.X, Size.Y);
+        progressRect.Size = new(0, Size.Y);
+        rangeRect.Size = new(0, Size.Y);
+        rangeSelectRect.Size = new(0, Size.Y);
     }
 
     private void SetProgressRectBounds(ColorRect rect, float tStart, float tEnd, float totalTime)
     {
-        rect.Position = new(rectLen * tStart / totalTime, 0);
-        rect.Size = new(rectLen * (tEnd - tStart) / totalTime, RectH);
+        rect.Position = new(Size.X * tStart / totalTime, 0);
+        rect.Size = new(Size.X * (tEnd - tStart) / totalTime, Size.Y);
     }
 
     public void SetProgress(MIDIPlayer p, float time)
@@ -72,7 +66,6 @@ public partial class ProgressBar : Node2D
         SetProgressRectBounds(rangeSelectRect, s, e, p.TotalTimeSeconds);
     }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
         if (MIDIManager.Instance.State != MIDIManager.MIDIManagerState.Playing) return;

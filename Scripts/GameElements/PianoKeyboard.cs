@@ -1,20 +1,19 @@
 using Godot;
 using System.Collections.Generic;
-using System.Diagnostics;
 
-public partial class PianoKeyboard : Node2D
+public partial class PianoKeyboard : Control
 {
     public Vector2 NoteGridSize { get; private set; }
-    public Vector2 NoteSize { get; private set; }
+    public Vector2 WhiteNoteSize { get; private set; }
     public Vector2 BlackNoteSize { get; private set; }
 
     public float NoteGap { get; private set; } = 4;
     public int Whites { get; } = 61 - 25;
 
-    const float bw = 1 / 2f;
-    const float left = -bw * 2 / 3;
-    const float mid = -bw / 2;
-    const float right = -bw * 1 / 3;
+    const float blackWidth = 1 / 2f;
+    const float leftOffset = -blackWidth * 2 / 3;
+    const float midOffset = -blackWidth / 2;
+    const float rightOffset = -blackWidth * 1 / 3;
 
     readonly List<ColorRect> noteRects = [];
 
@@ -61,24 +60,23 @@ public partial class PianoKeyboard : Node2D
         var pos = whitePos % 7;
         return pos switch
         {
-            0 or 3 => (true, left),
-            1 or 5 => (true, right),
-            4 => (true, mid),
+            0 or 3 => (true, leftOffset),
+            1 or 5 => (true, rightOffset),
+            4 => (true, midOffset),
             _ => (false, 0)
         };
 
     }
 
-    // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         midiManager.Piano.KeyChange += SetKey;
 
-        var w = GetViewportRect().Size.X / Whites;
+        var w = Size.X / Whites;
 
-        NoteGridSize = new(w, 250);
-        NoteSize = NoteGridSize - Vector2.Right * NoteGap;
-        BlackNoteSize = new(NoteSize.X / 2, NoteSize.Y * 2 / 3);
+        NoteGridSize = new(w, Size.Y);
+        WhiteNoteSize = NoteGridSize - Vector2.Right * NoteGap;
+        BlackNoteSize = new(WhiteNoteSize.X / 2, WhiteNoteSize.Y * 2 / 3);
 
         Position = new(0, GetViewportRect().Size.Y);
 
@@ -87,8 +85,8 @@ public partial class PianoKeyboard : Node2D
             var whiteRect = new ColorRect
             {
                 Color = Colors.White,
-                Position = new Vector2(w * i + NoteGap / 2, -NoteSize.Y),
-                Size = new Vector2(NoteSize.X, NoteSize.Y),
+                Position = new Vector2(w * i + NoteGap / 2, -WhiteNoteSize.Y),
+                Size = new Vector2(WhiteNoteSize.X, WhiteNoteSize.Y),
                 ZIndex = -1
             };
             AddChild(whiteRect);
@@ -101,7 +99,7 @@ public partial class PianoKeyboard : Node2D
                 var rect = new ColorRect()
                 {
                     Color = Colors.Black,
-                    Position = new Vector2(w * i + w + noteOffset * w, -NoteSize.Y),
+                    Position = new Vector2(w * i + w + noteOffset * w, -WhiteNoteSize.Y),
                     Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y)
                 };
 
