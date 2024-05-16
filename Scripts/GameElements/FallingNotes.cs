@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-public partial class MusicSheet : Node2D
+public partial class FallingNotes : Node2D
 {
     private MIDIManager midiManager;
 
-    private Vector2 MusicSheetOffset = new(0, 250);
-    private Vector2 MusicSheetSize;
+    private Vector2 CanvasOffset = new(0, 250);
+    private Vector2 CanvasSize;
 
     [Export]
-    private CompressedTexture2D noteWhiteTexture;
+    private CompressedTexture2D whiteNoteTexture;
 
     [Export]
-    private CompressedTexture2D noteBlackTexture;
+    private CompressedTexture2D blackNoteTexture;
 
     private float timeSpan = 3;
     private int currentGroup = 0;
@@ -23,7 +23,7 @@ public partial class MusicSheet : Node2D
     private float noteGap = 8;
 
     [Export]
-    private Piano piano;
+    private PianoKeyboard piano;
     private Vector2 NoteSize;
     private Vector2 BlackNoteSize;
 
@@ -38,7 +38,7 @@ public partial class MusicSheet : Node2D
         NoteSize = new(piano.NoteSize.X, 50);
         BlackNoteSize = new(piano.BlackNoteSize.X, 50);
 
-        MusicSheetSize = GetViewportRect().Size - MusicSheetOffset - Vector2.Up * -80;
+        CanvasSize = GetViewportRect().Size - CanvasOffset - Vector2.Up * -80;
 
         midiManager = MIDIManager.Instance;
     }
@@ -67,11 +67,11 @@ public partial class MusicSheet : Node2D
 
         foreach (var k in group.Keys)
         {
-            var isBlack = Piano.IsBlack(k);
+            var isBlack = PianoKeyboard.IsBlack(k);
 
             var rect = new Sprite2D()
             {
-                Texture = isBlack ? noteBlackTexture : noteWhiteTexture,
+                Texture = isBlack ? blackNoteTexture : whiteNoteTexture,
                 Position = new Vector2(0, 0),
                 Scale = (isBlack ? BlackNoteSize : NoteSize) / 200,
                 ZIndex = -10
@@ -134,17 +134,17 @@ public partial class MusicSheet : Node2D
 
         foreach (var (k, v) in notes)
         {
-            var verticalPos = (v.Time - pm.CurrentTimeMilis) / 1000f / timeSpan * MusicSheetSize.Y;
+            var verticalPos = (v.Time - pm.CurrentTimeMilis) / 1000f / timeSpan * CanvasSize.Y;
             foreach (var n in v.notes)
             {
                 var keyPos = (byte)(n.Key - 36);
-                var whiteIndex = Piano.GetWhiteIndex(keyPos);
+                var whiteIndex = PianoKeyboard.GetWhiteIndex(keyPos);
 
-                var (_, noteOffset) = Piano.GetNoteOffset(whiteIndex);
+                var (_, noteOffset) = PianoKeyboard.GetNoteOffset(whiteIndex);
 
-                var totalOffset = Piano.IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
+                var totalOffset = PianoKeyboard.IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
 
-                n.rect.Position = new Vector2(whiteIndex / 36f * MusicSheetSize.X + totalOffset, 80 + MusicSheetSize.Y - verticalPos - NoteSize.Y / 2);
+                n.rect.Position = new Vector2(whiteIndex / 36f * CanvasSize.X + totalOffset, 80 + CanvasSize.Y - verticalPos - NoteSize.Y / 2);
             }
         }
 

@@ -37,7 +37,7 @@ public partial class MIDIPlayer
 
     public PlayerSettings Settings { get => settings; }
 
-    private KeyLightsManager keyLightsManager;
+    private PianoKeyLighting keyLightsManager;
     private KeyState piano;
 
     public List<SimpleTimedKeyGroup> NoteListAbsTime { get; private set; }
@@ -153,7 +153,7 @@ public partial class MIDIPlayer
         return groups.SkipWhile(g => g.Time < timeRange.Item1 * 1000).TakeWhile(g => g.Time <= timeRange.Item2 * 1000).ToList();
     }
 
-    public void Play(KeyLightsManager keyLightsManager, (float, float)? range = null)
+    public void Play(PianoKeyLighting keyLightsManager, (float, float)? range = null)
     {
         if (music == null)
             throw new ArgumentException("MIDI file is not loaded.");

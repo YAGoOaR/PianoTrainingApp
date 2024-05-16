@@ -38,9 +38,9 @@ namespace PianoTrainer.Scripts.MIDI
         }
     }
 
-    public class LightState(KeyLights lights) : KeyState
+    public class LightState(KeyboardInterface lights) : KeyState
     {
-        private readonly KeyLights lights = lights;
+        private readonly KeyboardInterface lights = lights;
         private Queue<byte> lightQueue = [];
 
         public bool UpdateNote(SimpleMsg msg)

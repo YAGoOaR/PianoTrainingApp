@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-    public class KeyLightsManager : IDisposable
+    public class PianoKeyLighting : IDisposable
     {
         public event Action PreTick;
         private event Action<List<byte>> DesiredStateUpdate;
@@ -38,7 +38,7 @@ namespace PianoTrainer.Scripts.MIDI
             }
         }
 
-        private readonly KeylightHolder keyLightsHolder;
+        private readonly KeyboardConnectionHolder keyLightsHolder;
 
         public int TickTime { get; } = 25;
 
@@ -48,14 +48,14 @@ namespace PianoTrainer.Scripts.MIDI
 
         public TaskCompletionSource StopSignal { get; }
 
-        public KeyLightsManager(KeyLights lights)
+        public PianoKeyLighting(KeyboardInterface lights)
         {
             LightsState = new(lights);
             StopSignal = new();
 
             var started = new TaskCompletionSource();
 
-            keyLightsHolder = new KeylightHolder(lights, started);
+            keyLightsHolder = new KeyboardConnectionHolder(lights, started);
 
             started.Task.Wait();
 
@@ -109,7 +109,8 @@ namespace PianoTrainer.Scripts.MIDI
                     LightsState.Set4Lights(activeLights);
                 }
                 rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
-            } else
+            }
+            else
             {
                 LightsState.Set4Lights(finalState);
             }

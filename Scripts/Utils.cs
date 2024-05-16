@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace PianoTrainer.Scripts.MIDI
+namespace PianoTrainer.Scripts
 {
     internal static class Utils
     {

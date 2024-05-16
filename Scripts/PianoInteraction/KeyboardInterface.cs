@@ -3,7 +3,7 @@ using System;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-    public class KeyLights(IMidiOutput piano)
+    public class KeyboardInterface(IMidiOutput piano)
     {
         private readonly IMidiOutput piano = piano;
 

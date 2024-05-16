@@ -1,18 +1,17 @@
 ﻿
-using CoreMidi;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-    internal class KeylightHolder : IDisposable
+    internal class KeyboardConnectionHolder : IDisposable
     {
         private readonly TaskCompletionSource stopSignal;
 
         private const int period = 50;
 
-        static void LightLoop(KeyLights lights, TaskCompletionSource started, TaskCompletionSource stopSignal)
+        static void HoldLoop(KeyboardInterface lights, TaskCompletionSource started, TaskCompletionSource stopSignal)
         {
             lights.SendHold();
             Thread.Sleep(period);
@@ -25,13 +24,13 @@ namespace PianoTrainer.Scripts.MIDI
             }
         }
 
-        public KeylightHolder(KeyLights lights, TaskCompletionSource started)
+        public KeyboardConnectionHolder(KeyboardInterface lights, TaskCompletionSource started)
         {
             stopSignal = new();
 
-            Thread lightLoop = new(() => LightLoop(lights, started, stopSignal));
+            Thread holdLoop = new(() => HoldLoop(lights, started, stopSignal));
 
-            lightLoop.Start();
+            holdLoop.Start();
         }
 
         public void Dispose()

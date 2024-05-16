@@ -1,9 +1,8 @@
 using Godot;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
-public partial class Piano : Node2D
+public partial class PianoKeyboard : Node2D
 {
     public Vector2 NoteGridSize { get; private set; }
     public Vector2 NoteSize { get; private set; }

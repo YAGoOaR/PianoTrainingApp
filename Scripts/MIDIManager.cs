@@ -21,7 +21,7 @@ public partial class MIDIManager : Node2D
     [Export]
     public FallingNotes MSheet { get; private set; }
 
-    public KeyLightsManager LightsManager { get; private set; }
+    public PianoKeyLighting LightsManager { get; private set; }
 
     public GameSettings Settings { get; private set; }
 
@@ -57,8 +57,8 @@ public partial class MIDIManager : Node2D
             output = await new OutputPortManager("CASIO USB-MIDI").OpenPort();
             input = await new InputPortManager("CASIO USB-MIDI").OpenPort();
 
-            var lights = new KeyLights(output);
-            LightsManager = new KeyLightsManager(lights);
+            var lights = new KeyboardInterface(output);
+            LightsManager = new PianoKeyLighting(lights);
 
             input.MessageReceived += OnMessage;
 
