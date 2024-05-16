@@ -30,7 +30,7 @@ public class MidiUtils()
         return (int)(currentTempo / 1000 * deltaTime / deltaTimeSpec / tempo_ratio);
     }
 
-    public static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio=1f) =>
+    public static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio = 1f) =>
     (
         new(
             m.Event.Msb,

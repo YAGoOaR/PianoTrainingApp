@@ -121,7 +121,8 @@ public partial class MIDIPlayer
             if (m.DeltaTime == 0)
             {
                 eventAccumulator.Add(m.Key);
-            } else
+            }
+            else
             {
                 if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator));
                 eventAccumulator = [m.Key];
@@ -164,7 +165,7 @@ public partial class MIDIPlayer
         var keyMessages = ChangeStartTime(
              keyMIDIMessages
                 .Select(m => MIDIMsgToSimpleMsg(m, currentTempo, music.DeltaTimeSpec, settings.tempoRatio))
-                .ToList(), 
+                .ToList(),
              settings.StartOffset
         );
 
@@ -180,7 +181,7 @@ public partial class MIDIPlayer
 
         settings.timeRange = range;
         NoteListAbsTime = groupSpan;
-        PlayManager.Setup(NoteListAbsTime, range is (float s, float) ? (int)(s*1000f) : 0);
+        PlayManager.Setup(NoteListAbsTime, range is (float s, float) ? (int)(s * 1000f) : 0);
     }
 
     public void Process(double delta)

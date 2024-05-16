@@ -32,7 +32,7 @@ internal partial class Menu : Node2D
     {
         Settings = new GameSettings();
 
-        midis = [..Directory.GetFiles(directoryPath, "*.mid"), ..Directory.GetFiles(directoryPath, "*.midi")];
+        midis = [.. Directory.GetFiles(directoryPath, "*.mid"), .. Directory.GetFiles(directoryPath, "*.midi")];
 
         foreach (string midiFile in midis)
         {

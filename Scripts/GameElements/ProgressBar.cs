@@ -31,7 +31,7 @@ public partial class ProgressBar : Node2D
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
-	{
+    {
         rectLen = GetViewportRect().Size.X;
 
         bgRect.Size = new(rectLen, RectH);

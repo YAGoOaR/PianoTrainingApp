@@ -6,7 +6,7 @@ using System.Linq;
 public partial class Piano : Node2D
 {
     public Vector2 NoteGridSize { get; private set; }
-    public Vector2 NoteSize {  get; private set; }
+    public Vector2 NoteSize { get; private set; }
     public Vector2 BlackNoteSize { get; private set; }
 
     public float NoteGap { get; private set; } = 4;
@@ -43,7 +43,7 @@ public partial class Piano : Node2D
 
         var isBlack = IsBlack(key);
 
-        var whiteKeyInOctave = key % 12 - (isBlack ? 1: 0);
+        var whiteKeyInOctave = key % 12 - (isBlack ? 1 : 0);
 
         int whiteKeyPosition = 0;
         for (byte i = 0; i < whiteKeyInOctave; i++)
@@ -67,19 +67,19 @@ public partial class Piano : Node2D
             4 => (true, mid),
             _ => (false, 0)
         };
-        
+
     }
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
-	{
+    {
         midiManager.Piano.KeyChange += SetKey;
 
-		var w = GetViewportRect().Size.X / Whites;
+        var w = GetViewportRect().Size.X / Whites;
 
         NoteGridSize = new(w, 250);
         NoteSize = NoteGridSize - Vector2.Right * NoteGap;
-        BlackNoteSize = new(NoteSize.X / 2, NoteSize.Y * 2/3);
+        BlackNoteSize = new(NoteSize.X / 2, NoteSize.Y * 2 / 3);
 
         Position = new(0, GetViewportRect().Size.Y);
 
@@ -88,7 +88,7 @@ public partial class Piano : Node2D
             var whiteRect = new ColorRect
             {
                 Color = Colors.White,
-                Position = new Vector2(w * i + NoteGap/2, -NoteSize.Y),
+                Position = new Vector2(w * i + NoteGap / 2, -NoteSize.Y),
                 Size = new Vector2(NoteSize.X, NoteSize.Y),
                 ZIndex = -1
             };
@@ -110,7 +110,7 @@ public partial class Piano : Node2D
                 noteRects.Add(rect);
             }
         }
-	}
+    }
 
     public void SetKey(byte key, bool state) => changes.Enqueue((key, state));
 

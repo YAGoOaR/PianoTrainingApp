@@ -19,7 +19,7 @@ public partial class MIDIManager : Node2D
     public ProgressBar PBar { get; private set; }
 
     [Export]
-    public MusicSheet MSheet { get; private set; }
+    public FallingNotes MSheet { get; private set; }
 
     public KeyLightsManager LightsManager { get; private set; }
 

@@ -65,8 +65,7 @@ namespace PianoTrainer.Scripts.MIDI
                 if (lightQueue.ToHashSet().Contains(keyOn))
                 {
                     return false;
-                }
-                else
+                } else
                 {
                     if (lightQueue.Count > 3)
                     {

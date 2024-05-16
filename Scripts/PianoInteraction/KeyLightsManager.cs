@@ -96,11 +96,11 @@ namespace PianoTrainer.Scripts.MIDI
         {
             PreTick?.Invoke();
 
-            List<byte> finalState = [..ActiveNotes, ..Blinks];
+            List<byte> finalState = [.. ActiveNotes, .. Blinks];
 
             if (finalState.Count > 4)
             {
-                List<byte> selected = [..ActiveNotes, ..Blinks.Take(Math.Max(0, 4 - ActiveNotes.Count))];
+                List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, 4 - ActiveNotes.Count))];
 
                 var activeLights = Rotate(selected, rollCycle).Take(4).ToList();
 
@@ -109,8 +109,7 @@ namespace PianoTrainer.Scripts.MIDI
                     LightsState.Set4Lights(activeLights);
                 }
                 rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
-            }
-            else
+            } else
             {
                 LightsState.Set4Lights(finalState);
             }
