@@ -3,6 +3,8 @@ using PianoTrainer.Scripts.MIDI;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static PianoKeyManager;
+using static PianoTrainer.Scripts.Utils;
 
 public partial class FallingNotes : Control
 {
@@ -10,8 +12,9 @@ public partial class FallingNotes : Control
     [Export] private CompressedTexture2D blackNoteTexture;
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
-    [Export] private float NoteHeight = 50;
+    [Export] private float noteHeight = 50;
     [Export] private float timeSpan = 3;
+    [Export] private float noteTextureScale = 200f;
 
     private MIDIManager midiManager;
     
@@ -51,17 +54,17 @@ public partial class FallingNotes : Control
 
         foreach (var k in group.Keys)
         {
-            var isBlack = PianoKeyboard.IsBlack(k);
+            var isBlack = IsBlack(k);
 
-            Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, NoteHeight);
-            Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, NoteHeight);
+            Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, noteHeight);
+            Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, noteHeight);
 
             var rect = new Sprite2D()
             {
                 Texture = isBlack ? blackNoteTexture : whiteNoteTexture,
                 Position = new Vector2(0, 0),
-                Scale = (isBlack ? BlackNoteSize : WhiteNoteSize) / 200,
-                ZIndex = -10
+                Scale = (isBlack ? BlackNoteSize : WhiteNoteSize) / noteTextureScale,
+                ZIndex = -1
             };
             AddChild(rect);
 
@@ -99,7 +102,7 @@ public partial class FallingNotes : Control
 
             Dictionary<int, SimpleTimedKeyGroup> groupAcc = [];
 
-            for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].Time < pm.CurrentTimeMilis + timeSpan * 1000; i++)
+            for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].Time < pm.CurrentTimeMilis + timeSpan * MilisToSecond; i++)
             {
                 groupAcc.Add(i, selectedGroups[i]);
             }
@@ -121,17 +124,17 @@ public partial class FallingNotes : Control
 
         foreach (var (k, v) in notes)
         {
-            var verticalPos = (v.Time - pm.CurrentTimeMilis) / 1000f / timeSpan * Size.Y;
+            var verticalPos = (v.Time - pm.CurrentTimeMilis) * SecondToMilis / timeSpan * Size.Y;
             foreach (var n in v.notes)
             {
-                var keyPos = (byte)(n.Key - 36);
-                var whiteIndex = PianoKeyboard.GetWhiteIndex(keyPos);
+                var keyPos = MIDIIndexToKey(n.Key);
+                var whiteIndex = GetWhiteIndex(keyPos);
 
-                var (_, noteOffset) = PianoKeyboard.GetNoteOffset(whiteIndex);
+                var (_, noteOffset) = GetNoteOffset(whiteIndex);
 
-                var totalOffset = PianoKeyboard.IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + piano.BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
+                var totalOffset = IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + piano.BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
 
-                n.rect.Position = new Vector2(whiteIndex / 36f * Size.X + totalOffset, Size.Y - verticalPos - NoteHeight / 2);
+                n.rect.Position = new Vector2(whiteIndex / (float)Whites * Size.X + totalOffset, Size.Y - verticalPos - noteHeight / 2);
             }
         }
 

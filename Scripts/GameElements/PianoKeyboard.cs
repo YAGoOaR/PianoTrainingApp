@@ -1,5 +1,7 @@
 using Godot;
 using System.Collections.Generic;
+using System.Diagnostics;
+using static PianoKeyManager;
 
 public partial class PianoKeyboard : Control
 {
@@ -8,12 +10,6 @@ public partial class PianoKeyboard : Control
     public Vector2 BlackNoteSize { get; private set; }
 
     public float NoteGap { get; private set; } = 4;
-    public int Whites { get; } = 61 - 25;
-
-    const float blackWidth = 1 / 2f;
-    const float leftOffset = -blackWidth * 2 / 3;
-    const float midOffset = -blackWidth / 2;
-    const float rightOffset = -blackWidth * 1 / 3;
 
     readonly List<ColorRect> noteRects = [];
 
@@ -21,52 +17,6 @@ public partial class PianoKeyboard : Control
 
     [Export]
     MIDIManager midiManager;
-
-    private enum KeyType
-    {
-        White,
-        Black,
-        Missing
-    }
-
-    public static bool IsBlack(byte idx) => (idx % 12) switch
-    {
-        1 or 3 or 6 or 8 or 10 => true,
-        _ => false,
-    };
-
-    public static byte GetWhiteIndex(byte key)
-    {
-        var octave = key / 12;
-
-        var isBlack = IsBlack(key);
-
-        var whiteKeyInOctave = key % 12 - (isBlack ? 1 : 0);
-
-        int whiteKeyPosition = 0;
-        for (byte i = 0; i < whiteKeyInOctave; i++)
-        {
-            if (!IsBlack(i))
-            {
-                whiteKeyPosition++;
-            }
-        }
-
-        return (byte)(octave * 7 + whiteKeyPosition);
-    }
-
-    public static (bool, float) GetNoteOffset(byte whitePos)
-    {
-        var pos = whitePos % 7;
-        return pos switch
-        {
-            0 or 3 => (true, leftOffset),
-            1 or 5 => (true, rightOffset),
-            4 => (true, midOffset),
-            _ => (false, 0)
-        };
-
-    }
 
     public override void _Ready()
     {
@@ -76,7 +26,7 @@ public partial class PianoKeyboard : Control
 
         NoteGridSize = new(w, Size.Y);
         WhiteNoteSize = NoteGridSize - Vector2.Right * NoteGap;
-        BlackNoteSize = new(WhiteNoteSize.X / 2, WhiteNoteSize.Y * 2 / 3);
+        BlackNoteSize = WhiteNoteSize * BlackNoteSizeRatio;
 
         Position = new(0, GetViewportRect().Size.Y);
 
@@ -117,7 +67,7 @@ public partial class PianoKeyboard : Control
         {
             var (key, state) = changes.Dequeue();
 
-            byte k = (byte)(key - 36);
+            byte k = MIDIIndexToKey(key);
             noteRects[k].Color = state ? Colors.Red : (IsBlack(k) ? Colors.Black : Colors.White);
         }
     }
