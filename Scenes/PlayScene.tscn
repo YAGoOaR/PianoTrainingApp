@@ -1,66 +1,48 @@
-[gd_scene load_steps=6 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=8 format=3 uid="uid://b8h3lrgadghix"]
 
-[ext_resource type="Script" path="res://Scenes/RangeSelection.cs" id="3_7rf0n"]
+[ext_resource type="Script" path="res://Scripts/GameElements/RangeSelection.cs" id="3_7rf0n"]
 [ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_ji2ot"]
 [ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
+[ext_resource type="Texture2D" uid="uid://hdkxnhmijj2v" path="res://Textures/Note.png" id="4_idkj6"]
 [ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
+[ext_resource type="Texture2D" uid="uid://dt88cg8wu5m45" path="res://Textures/Note2.png" id="6_328y4"]
 [ext_resource type="Script" path="res://Scripts/GameElements/ProgressBar.cs" id="6_t5trx"]
 
-[node name="PlayScene" type="Node2D"]
+[node name="PlayScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("PBar", "MSheet")]
 script = ExtResource("3_ji2ot")
-PBar = NodePath("../ProgressBar")
-MSheet = NodePath("../MusicSheet")
+PBar = NodePath("../Control/ProgressBar")
+MSheet = NodePath("../FallingNotes")
 
-[node name="ProgressBar" type="Node2D" parent="." node_paths=PackedStringArray("MIDIManager", "Txt", "bgRect", "progressRect", "rangeRect", "rangeSelectRect")]
-script = ExtResource("6_t5trx")
-MIDIManager = NodePath("../MidiManager")
-Txt = NodePath("../Control/RichTextLabel")
-bgRect = NodePath("Background")
-progressRect = NodePath("Progress")
-rangeRect = NodePath("Range")
-rangeSelectRect = NodePath("Selection")
-RangeRectColor = Color(1, 1, 0, 0.423529)
-RangeSelectRectColor = Color(0.4, 0.752941, 0.886275, 0.654902)
-
-[node name="Background" type="ColorRect" parent="ProgressBar"]
-offset_right = 1918.0
-offset_bottom = 80.0
-color = Color(0.196078, 0.196078, 0.196078, 1)
-script = ExtResource("3_7rf0n")
-
-[node name="Progress" type="ColorRect" parent="ProgressBar"]
-offset_right = 502.0
-offset_bottom = 80.0
-mouse_filter = 2
-color = Color(0.0666667, 0.839216, 0.0784314, 1)
-
-[node name="Range" type="ColorRect" parent="ProgressBar"]
-offset_right = 441.0
-offset_bottom = 80.0
-mouse_filter = 2
-color = Color(1, 1, 0, 0.423529)
-
-[node name="Selection" type="ColorRect" parent="ProgressBar"]
-offset_right = 369.0
-offset_bottom = 80.0
-mouse_filter = 2
-color = Color(0.4, 0.752941, 0.886275, 0.654902)
-
-[node name="Piano" type="Node2D" parent="." node_paths=PackedStringArray("midiManager")]
-script = ExtResource("4_4ebec")
-midiManager = NodePath("../MidiManager")
-
-[node name="MusicSheet" type="Node2D" parent="." node_paths=PackedStringArray("piano")]
+[node name="FallingNotes" type="Control" parent="." node_paths=PackedStringArray("piano", "progressBar")]
+layout_mode = 1
+anchor_top = 0.062
+anchor_right = 1.0
+anchor_bottom = 0.756
+offset_top = 0.719994
+offset_bottom = -0.640015
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("5_ga1et")
-piano = NodePath("../Piano")
+whiteNoteTexture = ExtResource("4_idkj6")
+blackNoteTexture = ExtResource("6_328y4")
+piano = NodePath("../Control/Piano")
+progressBar = NodePath("../Control/ProgressBar")
 
 [node name="Control" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Control"]
 layout_mode = 0
@@ -68,5 +50,78 @@ offset_right = 79.0
 offset_bottom = 26.0
 text = "0.00"
 
-[connection signal="RangeSelected" from="ProgressBar/Background" to="MidiManager" method="SelectRange"]
-[connection signal="SelectionMoved" from="ProgressBar/Background" to="MidiManager" method="RangeSelectionMoved"]
+[node name="ProgressBar" type="Control" parent="Control" node_paths=PackedStringArray("MIDIManager", "Txt", "bgRect", "progressRect", "rangeRect", "rangeSelectRect")]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 90.0
+grow_horizontal = 2
+script = ExtResource("6_t5trx")
+MIDIManager = NodePath("../../MidiManager")
+Txt = NodePath("../RichTextLabel")
+bgRect = NodePath("Background")
+progressRect = NodePath("Progress")
+rangeRect = NodePath("Range")
+rangeSelectRect = NodePath("Selection")
+RangeRectColor = Color(1, 1, 0, 0.423529)
+RangeSelectRectColor = Color(0.4, 0.752941, 0.886275, 0.654902)
+
+[node name="Background" type="ColorRect" parent="Control/ProgressBar" node_paths=PackedStringArray("progressBar")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.196078, 0.196078, 0.196078, 1)
+script = ExtResource("3_7rf0n")
+progressBar = NodePath("..")
+
+[node name="Progress" type="ColorRect" parent="Control/ProgressBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1420.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0666667, 0.839216, 0.0784314, 1)
+
+[node name="Range" type="ColorRect" parent="Control/ProgressBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1489.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 0, 0.423529)
+
+[node name="Selection" type="ColorRect" parent="Control/ProgressBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1584.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.4, 0.752941, 0.886275, 0.654902)
+
+[node name="Piano" type="ReferenceRect" parent="Control" node_paths=PackedStringArray("midiManager")]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -352.0
+grow_horizontal = 2
+grow_vertical = 0
+border_width = 3.0
+script = ExtResource("4_4ebec")
+midiManager = NodePath("../../MidiManager")
+
+[connection signal="RangeSelected" from="Control/ProgressBar/Background" to="MidiManager" method="SelectRange"]
+[connection signal="SelectionMoved" from="Control/ProgressBar/Background" to="MidiManager" method="RangeSelectionMoved"]

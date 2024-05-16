@@ -10,6 +10,9 @@ public partial class RangeSelection : ColorRect
         SetProcessInput(true);
     }
 
+    [Export]
+    private Control progressBar;
+
     [Signal]
     public delegate void RangeSelectedEventHandler(float start, float end);
 
@@ -26,19 +29,21 @@ public partial class RangeSelection : ColorRect
         {
             if (mouseButton.ButtonIndex == MouseButton.Left)
             {
-                if (mouseButton.Position.Y < ProgressBar.RectH)
+                if (mouseButton.Position.Y < progressBar.Size.Y)
                 {
                     if (mouseButton.Pressed)
                     {
                         clickStart = mouseButton.Position.X;
                         clicked = true;
-                    } else if (clicked && mouseButton.Position.X > clickStart)
+                    }
+                    else if (clicked && mouseButton.Position.X > clickStart)
                     {
                         clicked = false;
                         EmitSignal(SignalName.RangeSelected, clickStart / rectLen, mouseButton.Position.X / rectLen);
                         EmitSignal(SignalName.SelectionMoved, 0, 0);
                     }
-                } else if (!mouseButton.Pressed)
+                }
+                else if (!mouseButton.Pressed)
                 {
                     clicked = false;
                     EmitSignal(SignalName.SelectionMoved, 0, 0);
