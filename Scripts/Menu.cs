@@ -1,10 +1,8 @@
 using Godot;
 using System.IO;
-using System.Text.Json;
 
-internal partial class Menu : Node2D
+internal partial class Menu : Control
 {
-    private string directoryPath = @"C:\Users\yagooar\Desktop\midi_files";
 
     [Export]
     private string playScenePath = "res://Scenes/PlayScene.tscn";
@@ -16,23 +14,49 @@ internal partial class Menu : Node2D
     private Texture2D icon;
 
     [Export]
-    private TextEdit DisplayText;
+    private TextEdit SongPath;
+
+    [Export]
+    private TextEdit FolderPath;
+
+    [Export]
+    private FileDialog fileDialog;
 
     private string[] midis;
 
-    private GameSettings Settings;
+    private GameSettings settings;
 
     public void OnItemSelect(int idx)
     {
-        Settings.Settings.MusicPath = midis[idx];
-        DisplayText.Text = midis[idx];
+        var path = midis[idx];
+        settings.Settings.MusicPath = path;
+        SongPath.Text = path;
+        settings.Save();
     }
 
     public override void _Ready()
     {
-        Settings = new GameSettings();
+        settings = new GameSettings();
 
-        midis = [.. Directory.GetFiles(directoryPath, "*.mid"), .. Directory.GetFiles(directoryPath, "*.midi")];
+        var musicDir = settings.Settings.MusicFolder;
+
+        SongPath.Text = settings.Settings.MusicPath;
+        FolderPath.Text = musicDir;
+
+        if (string.IsNullOrEmpty(musicDir))
+        {
+            fileDialog.Show();
+            return;
+        }
+
+        UpdateItems(musicDir);
+    }
+
+    public void UpdateItems(string folder)
+    {
+        itemList.Clear();
+
+        midis = [.. Directory.GetFiles(folder, "*.mid"), .. Directory.GetFiles(folder, "*.midi")];
 
         foreach (string midiFile in midis)
         {
@@ -40,21 +64,32 @@ internal partial class Menu : Node2D
         }
     }
 
-    public void UpdateText()
-    {
-        DisplayText.Text = Settings.Settings.MusicPath;
-    }
-
     public void OnPlayPressed()
     {
-        GameSettings.GSettings s = Settings.Settings;
-        File.WriteAllText(Settings.SettingsPath, JsonSerializer.Serialize(s));
         GetTree().ChangeSceneToFile(playScenePath);
+    }
+
+    public void OnBrowsePressed()
+    {
+        if (!string.IsNullOrEmpty(settings.Settings.MusicFolder))
+        {
+            fileDialog.CurrentPath = settings.Settings.MusicFolder;
+        }
+
+        fileDialog.Show();
     }
 
     public void OnQuitPressed()
     {
         GetTree().Quit();
+    }
+
+    public void OnFolderSelect(string folder)
+    {
+        settings.Settings.MusicFolder = folder;
+        UpdateItems(folder);
+        FolderPath.Text = folder;
+        settings.Save();
     }
 
     public override void _Input(InputEvent @event)
