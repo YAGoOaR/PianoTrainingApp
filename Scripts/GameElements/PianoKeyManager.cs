@@ -15,7 +15,7 @@ public static class PianoKeyManager
     const byte MIDIIndexOffset = 36;
 
     /// <summary>
-    /// Black key count on the entire keyboard
+    /// Key count on the entire keyboard
     /// </summary>
     public static int KeyboardRange { get; } = 61;
 
@@ -59,6 +59,7 @@ public static class PianoKeyManager
     /// <summary>
     /// Returns the index of the closest key to the given one.
     /// </summary>
+    /// /// <param name="key">Piano key index.</param>
     public static byte GetWhiteIndex(byte key)
     {
         var octavePos = key / octave;
@@ -80,8 +81,9 @@ public static class PianoKeyManager
     }
 
     /// <summary>
-    /// Converts piano key indices from keyboard rumeration to MIDI message numeration.
+    /// Converts piano key indices from MIDI message numeration to keyboard rumeration.
     /// </summary>
+    /// /// <param name="key">Midi key index.</param>
     public static byte MIDIIndexToKey(byte key) => (byte)(key - MIDIIndexOffset);
 
 }
