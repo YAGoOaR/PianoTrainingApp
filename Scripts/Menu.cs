@@ -32,7 +32,7 @@ internal partial class Menu : Control
 
     public override void _Ready()
     {
-        settings = new GameSettings();
+        settings = GameSettings.Instance;
 
         var musicDir = settings.Settings.MusicFolder;
 

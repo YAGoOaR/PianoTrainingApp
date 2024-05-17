@@ -50,7 +50,7 @@ public partial class MIDIManager : Node2D
         Instance = this;
         Piano = new KeyState();
         Player = new MIDIPlayer();
-        Settings = new GameSettings();
+        Settings = GameSettings.Instance;
 
         Task.Run(async () =>
         {

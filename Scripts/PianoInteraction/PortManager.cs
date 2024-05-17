@@ -13,10 +13,7 @@ namespace PianoTrainer.Scripts.MIDI
             var ports = typeof(T) == typeof(IMidiInput) ? access.Inputs : access.Outputs;
             var found = from deviceName in ports where deviceName.Name == portName select deviceName;
 
-            if (found.Any())
-            {
-                return found.First();
-            }
+            if (found.Any()) return found.First();
             return null;
         }
 

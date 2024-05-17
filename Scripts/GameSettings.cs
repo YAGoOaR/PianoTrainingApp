@@ -14,31 +14,31 @@ public partial class GameSettings
 
     private const string defaultDevice = "CASIO USB-MIDI";
 
-    public static GameSettings Instance { get; private set; }
-
-    [Signal]
-    public delegate void SettingsLoadedEventHandler();
+    private static GameSettings instance;
+    public static GameSettings Instance
+    {
+        get
+        {
+            instance ??= new();
+            return instance;
+        }
+    }
 
     public GSettings Settings = new() { MusicPath = "" };
-    public GameSettings()
+    private GameSettings()
     {
-        if (Instance != null) throw new System.Exception("Can't create more than one settings instance.");
-        Instance = this;
-        Load();
+        if (!Load()) Save(); // Create a new settings file if does not exist
 
         Settings.PianoDeviceName ??= defaultDevice;
     }
 
-    public void Load()
+    public bool Load()
     {
-        if (File.Exists(SettingsPath))
-        {
-            Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(SettingsPath));
-        }
-        else
-        {
-            Save();
-        }
+        if (!File.Exists(SettingsPath)) return false;
+
+        Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(SettingsPath));
+
+        return true;
     }
 
     public void Save()
