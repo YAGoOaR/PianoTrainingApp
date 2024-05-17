@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using static PianoKeyManager;
 
+// Defines Piano key setup and layout
 public partial class PianoKeyboard : Control
 {
-    public Vector2 NoteGridSize { get; private set; }
+    public Vector2 GridSize { get; private set; }
     public Vector2 WhiteNoteSize { get; private set; }
     public Vector2 BlackNoteSize { get; private set; }
 
@@ -22,20 +23,23 @@ public partial class PianoKeyboard : Control
     {
         midiManager.Piano.KeyChange += SetKey;
 
-        var w = Size.X / Whites;
-
-        NoteGridSize = new(w, Size.Y);
-        WhiteNoteSize = NoteGridSize - Vector2.Right * NoteGap;
+        GridSize = new(Size.X / Whites, Size.Y);
+        WhiteNoteSize = GridSize - Vector2.Right * NoteGap;
         BlackNoteSize = WhiteNoteSize * BlackNoteSizeRatio;
 
         Position = new(0, GetViewportRect().Size.Y);
 
+        SetupKeys();
+    }
+
+    private void SetupKeys()
+    {
         for (byte i = 0; i < Whites; i++)
         {
             var whiteRect = new ColorRect
             {
                 Color = Colors.White,
-                Position = new Vector2(w * i + NoteGap / 2, -WhiteNoteSize.Y),
+                Position = new Vector2(GridSize.X * i + NoteGap / 2, -WhiteNoteSize.Y),
                 Size = new Vector2(WhiteNoteSize.X, WhiteNoteSize.Y),
                 ZIndex = -1
             };
@@ -49,7 +53,7 @@ public partial class PianoKeyboard : Control
                 var rect = new ColorRect()
                 {
                     Color = Colors.Black,
-                    Position = new Vector2(w * i + w + noteOffset * w, -WhiteNoteSize.Y),
+                    Position = new Vector2(GridSize.X * (i + 1 + noteOffset), -WhiteNoteSize.Y),
                     Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y)
                 };
 

@@ -50,12 +50,14 @@ public partial class MIDIManager : Node2D
         Instance = this;
         Piano = new KeyState();
         Player = new MIDIPlayer();
-        Settings = new GameSettings();
+        Settings = GameSettings.Instance;
 
         Task.Run(async () =>
         {
-            output = await new OutputPortManager("CASIO USB-MIDI").OpenPort();
-            input = await new InputPortManager("CASIO USB-MIDI").OpenPort();
+            var device = GameSettings.Instance.Settings.PianoDeviceName;
+
+            output = await new OutputPortManager(device).OpenPort();
+            input = await new InputPortManager(device).OpenPort();
 
             var lights = new KeyboardInterface(output);
             LightsManager = new PianoKeyLighting(lights);
@@ -148,7 +150,7 @@ public partial class MIDIManager : Node2D
 
         Debug.WriteLine("Returned to menu.");
 
-        GetTree().ChangeSceneToFile("res://Scenes/main.tscn");
+        GetTree().ChangeSceneToFile(SceneManager.MenuScene);
         SetState(MIDIManagerState.Exited);
     }
 

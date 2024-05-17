@@ -55,7 +55,6 @@ public partial class ProgressBar : Control
         {
             rangeRect.Size = Vector2.Zero;
             rangeRect.Position = Vector2.Zero;
-            return;
         }
     }
 
@@ -74,7 +73,7 @@ public partial class ProgressBar : Control
 
         if (p != null && p.TotalTimeMilis != 0)
         {
-            var t = p.PlayManager.CurrentTimeMilis / 1000f;
+            var t = p.PlayManager.TimeMilis / 1000f;
             SetProgress(p, t);
             Txt.Text = $"{t:0.00}";
         }

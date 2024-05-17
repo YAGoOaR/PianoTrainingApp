@@ -3,10 +3,6 @@ using System.IO;
 
 internal partial class Menu : Control
 {
-
-    [Export]
-    private string playScenePath = "res://Scenes/PlayScene.tscn";
-
     [Export]
     private ItemList itemList;
 
@@ -36,7 +32,7 @@ internal partial class Menu : Control
 
     public override void _Ready()
     {
-        settings = new GameSettings();
+        settings = GameSettings.Instance;
 
         var musicDir = settings.Settings.MusicFolder;
 
@@ -66,7 +62,7 @@ internal partial class Menu : Control
 
     public void OnPlayPressed()
     {
-        GetTree().ChangeSceneToFile(playScenePath);
+        GetTree().ChangeSceneToFile(SceneManager.GameScene);
     }
 
     public void OnBrowsePressed()

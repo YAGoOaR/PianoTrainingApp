@@ -87,9 +87,12 @@ public partial class MIDIPlayer
             {
                 await Task.Delay(Math.Max(0, PlayManager.TimeToNextKey - settings.BlinkSlowOffset));
 
-                while (!lightsEnabled && (PlayManager.State.CurrentMessageGroup == s.CurrentMessageGroup))
+                while (!lightsEnabled && (PlayManager.State.CurrentGroup == s.CurrentGroup))
                 {
-                    var interval = PlayManager.TimeToNextKey > settings.BlinkOffset ? settings.BlinkSlowInterval : settings.BlinkInterval;
+                    var interval = PlayManager.TimeToNextKey > settings.BlinkOffset 
+                        ? settings.BlinkSlowInterval 
+                        : settings.BlinkInterval;
+
                     foreach (var k in keys)
                     {
                         keyLightsManager.AddBlink(k, interval);

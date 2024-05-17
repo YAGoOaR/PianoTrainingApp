@@ -1,7 +1,6 @@
 using Godot;
 using PianoTrainer.Scripts.MIDI;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using static PianoKeyManager;
 using static PianoTrainer.Scripts.Utils;
@@ -18,12 +17,10 @@ public partial class FallingNotes : Control
 
     private MIDIManager midiManager;
 
-    private int currentGroup = 0;
-
     private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
 
-    private readonly Dictionary<int, NoteGroup> notes = [];
+    private readonly Dictionary<int, NoteGroup> currentNotes = [];
 
     public override void _Ready()
     {
@@ -32,7 +29,7 @@ public partial class FallingNotes : Control
 
     public void Init()
     {
-        foreach (var (k, noteGroup) in notes)
+        foreach (var (_, noteGroup) in currentNotes)
         {
             foreach (var note in noteGroup.notes)
             {
@@ -40,12 +37,12 @@ public partial class FallingNotes : Control
             }
         }
 
-        notes.Clear();
+        currentNotes.Clear();
     }
 
     public void AddNoteGroup(int groupIndex, SimpleTimedKeyGroup group)
     {
-        if (notes.ContainsKey(groupIndex))
+        if (currentNotes.ContainsKey(groupIndex))
         {
             throw new System.Exception("Group already exists!");
         }
@@ -73,70 +70,74 @@ public partial class FallingNotes : Control
 
         var time = group.Time;
 
-        notes[groupIndex] = new(time, newNotes);
+        currentNotes[groupIndex] = new(time, newNotes);
     }
 
     public void RemoveNoteGroup(int groupIndex)
     {
-        var noteGroup = notes[groupIndex];
+        var noteGroup = currentNotes[groupIndex];
 
         foreach (var note in noteGroup.notes)
         {
             note.rect.QueueFree();
         }
 
-        notes.Remove(groupIndex);
+        currentNotes.Remove(groupIndex);
     }
 
     public override void _Process(double delta)
     {
+        UpdateTimeline();
+        UpdateNotePositions();
+    }
+
+    private void UpdateTimeline()
+    {
         var midiPlayer = midiManager.Player;
 
-        var pm = midiPlayer.PlayManager;
+        if (midiPlayer == null || midiPlayer.TotalTimeMilis == 0) return;
 
-        if (midiPlayer != null && midiPlayer.TotalTimeMilis != 0)
+        var (allNoteGroups, timeline) = (midiPlayer.NoteListAbsTime, midiPlayer.PlayManager);
+
+        var currentGroup = Mathf.Max(timeline.State.CurrentGroup, 0);
+
+        var selectedGroups = allNoteGroups
+            .Skip(currentGroup)
+            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * MilisToSecond)
+            .ToDictionary(el => el.Time, el => el);
+
+        UpdateNotes(selectedGroups);
+    }
+
+    private void UpdateNotes(Dictionary<int, SimpleTimedKeyGroup> newNotes)
+    {
+        var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
+        foreach (var g in notesToAdd) AddNoteGroup(g.Key, g.Value);
+
+        var notesToRemove = currentNotes.Where(ng => !newNotes.ContainsKey(ng.Key));
+        foreach (var g in notesToRemove) RemoveNoteGroup(g.Key);
+    }
+
+    private void UpdateNotePositions()
+    {
+        var pm = midiManager.Player.PlayManager;
+
+        foreach (var (_, noteGroup) in currentNotes)
         {
-            currentGroup = Mathf.Max(0, pm.State.CurrentMessageGroup);
-
-            var selectedGroups = midiPlayer.NoteListAbsTime;
-
-            Dictionary<int, SimpleTimedKeyGroup> groupAcc = [];
-
-            for (int i = currentGroup; i < selectedGroups.Count && selectedGroups[i].Time < pm.CurrentTimeMilis + timeSpan * MilisToSecond; i++)
+            var verticalPos = (noteGroup.Time - pm.TimeMilis) * SecondToMilis / timeSpan * Size.Y;
+            foreach (var note in noteGroup.notes)
             {
-                groupAcc.Add(i, selectedGroups[i]);
-            }
-
-            var newGroups = groupAcc.Where(g => !notes.ContainsKey(g.Key));
-
-            foreach (var g in newGroups)
-            {
-                AddNoteGroup(g.Key, g.Value);
-            }
-
-            var extraNotes = notes.Where(ng => !groupAcc.ContainsKey(ng.Key));
-
-            foreach (var g in extraNotes)
-            {
-                RemoveNoteGroup(g.Key);
-            }
-        }
-
-        foreach (var (k, v) in notes)
-        {
-            var verticalPos = (v.Time - pm.CurrentTimeMilis) * SecondToMilis / timeSpan * Size.Y;
-            foreach (var n in v.notes)
-            {
-                var keyPos = MIDIIndexToKey(n.Key);
+                var keyPos = MIDIIndexToKey(note.Key);
                 var whiteIndex = GetWhiteIndex(keyPos);
 
                 var (_, noteOffset) = GetNoteOffset(whiteIndex);
 
-                var totalOffset = IsBlack(n.Key) ? (noteOffset * piano.NoteGridSize.X + piano.NoteGridSize.X + piano.BlackNoteSize.X / 2) : (piano.NoteGap / 2 + piano.NoteGridSize.X / 2);
+                var totalOffset = IsBlack(note.Key)
+                    ? (noteOffset * piano.GridSize.X + piano.GridSize.X + piano.BlackNoteSize.X / 2)
+                    : (piano.NoteGap / 2 + piano.GridSize.X / 2);
 
-                n.rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - noteHeight / 2);
+                note.rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - noteHeight / 2);
             }
         }
-
     }
 }

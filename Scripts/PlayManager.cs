@@ -9,7 +9,7 @@ namespace PianoTrainer.Scripts
     {
         public HashSet<byte> DesiredKeys { get; set; } = [];
         public int NextMessageGroup { get; set; } = 0;
-        public int CurrentMessageGroup { get; set; } = -1;
+        public int CurrentGroup { get; set; } = -1;
         public int MessageDelta { get; set; } = 0;
         public int TotalMessagesTime { get; set; } = 0;
         public int startTime = 0;
@@ -29,7 +29,7 @@ namespace PianoTrainer.Scripts
 
         private bool complete = false;
 
-        public int CurrentTimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
+        public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
         public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
 
         public float TimeSinceLastKey { get; private set; } = 0;
@@ -68,16 +68,19 @@ namespace PianoTrainer.Scripts
                 return;
             }
 
-            var pGroup = State.CurrentMessageGroup == -1 ? new(State.startTime, []) : EventGroups[State.CurrentMessageGroup];
+            var prevGroup = State.CurrentGroup == -1
+                ? new(State.startTime, [])
+                : EventGroups[State.CurrentGroup];
+
             var group = EventGroups[State.NextMessageGroup];
 
             State = new()
             {
-                TotalMessagesTime = pGroup.Time,
+                TotalMessagesTime = prevGroup.Time,
                 DesiredKeys = group.Keys,
-                MessageDelta = group.Time - pGroup.Time,
+                MessageDelta = group.Time - prevGroup.Time,
 
-                CurrentMessageGroup = State.NextMessageGroup,
+                CurrentGroup = State.NextMessageGroup,
                 NextMessageGroup = State.NextMessageGroup + 1
             };
 

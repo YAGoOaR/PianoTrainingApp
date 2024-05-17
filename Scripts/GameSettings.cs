@@ -8,28 +8,37 @@ public partial class GameSettings
     {
         public string MusicFolder { get; set; }
         public string MusicPath { get; set; }
+        public string PianoDeviceName { get; set; }
     }
     public string SettingsPath { get; set; } = @"./player_settings.json";
 
-    [Signal]
-    public delegate void SettingsLoadedEventHandler();
+    private const string defaultDevice = "CASIO USB-MIDI";
 
-    public GSettings Settings = new() { MusicPath = "" };
-    public GameSettings()
+    private static GameSettings instance;
+    public static GameSettings Instance
     {
-        Load();
+        get
+        {
+            instance ??= new();
+            return instance;
+        }
     }
 
-    public void Load()
+    public GSettings Settings = new() { MusicPath = "" };
+    private GameSettings()
     {
-        if (File.Exists(SettingsPath))
-        {
-            Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(SettingsPath));
-        }
-        else
-        {
-            Save();
-        }
+        if (!Load()) Save(); // Create a new settings file if does not exist
+
+        Settings.PianoDeviceName ??= defaultDevice;
+    }
+
+    public bool Load()
+    {
+        if (!File.Exists(SettingsPath)) return false;
+
+        Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(SettingsPath));
+
+        return true;
     }
 
     public void Save()
