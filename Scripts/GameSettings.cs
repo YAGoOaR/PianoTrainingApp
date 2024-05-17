@@ -8,8 +8,13 @@ public partial class GameSettings
     {
         public string MusicFolder { get; set; }
         public string MusicPath { get; set; }
+        public string PianoDeviceName { get; set; }
     }
     public string SettingsPath { get; set; } = @"./player_settings.json";
+
+    private const string defaultDevice = "CASIO USB-MIDI";
+
+    public static GameSettings Instance { get; private set; }
 
     [Signal]
     public delegate void SettingsLoadedEventHandler();
@@ -17,7 +22,11 @@ public partial class GameSettings
     public GSettings Settings = new() { MusicPath = "" };
     public GameSettings()
     {
+        if (Instance != null) throw new System.Exception("Can't create more than one settings instance.");
+        Instance = this;
         Load();
+
+        Settings.PianoDeviceName ??= defaultDevice;
     }
 
     public void Load()
