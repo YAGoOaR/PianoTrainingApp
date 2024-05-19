@@ -3,8 +3,21 @@ using System.Text.Json;
 
 public partial class GameSettings
 {
+    public struct PlayerSettings()
+    {
+        public int KeyTimeOffset { get; } = 100;
+        public int StartOffset { get; } = 2000;
+        public int BlinkStartOffset { get; } = 3000;
+        public int BlinkInterval { get; } = 80;
+        public int BlinkSlowInterval { get; } = 200;
+        public int BlinkFastStartOffset { get; } = 1000;
+        public int BlinkOutdateTime { get; } = 300;
+    }
+
     public struct GSettings
     {
+        public PlayerSettings playerSettings;
+
         public string MusicFolder { get; set; }
         public string MusicPath { get; set; }
         public string PianoDeviceName { get; set; }
@@ -23,7 +36,7 @@ public partial class GameSettings
         }
     }
 
-    public GSettings Settings = new() { MusicPath = "" };
+    public GSettings Settings = new() { MusicPath = "", playerSettings = new()};
     private GameSettings()
     {
         if (!Load()) Save(); // Create a new settings file if does not exist

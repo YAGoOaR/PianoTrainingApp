@@ -3,6 +3,7 @@ using Commons.Music.Midi;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace PianoTrainer.Scripts.MIDI;
@@ -16,6 +17,52 @@ public record SimpleTimedKeyGroup(int Time, HashSet<byte> Keys);
 public class MidiUtils()
 {
     const int defaultTempo = 500000;
+
+    public static List<SimpleTimedKeyGroup> ExtractKeyGroups(List<SimpleTimedKey> keyOnMessages)
+    {
+        List<SimpleTimedKeyGroup> keyEvents = [];
+
+        int eventDelay = 0;
+        HashSet<byte> eventAccumulator = [];
+
+        for (int i = 0; i < keyOnMessages.Count; i++)
+        {
+            var msg = keyOnMessages[i];
+
+            if (msg.DeltaTime == 0)
+            {
+                eventAccumulator.Add(msg.Key);
+            }
+            else
+            {
+                if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator));
+                eventAccumulator = [msg.Key];
+                eventDelay = msg.DeltaTime;
+            }
+        }
+
+        keyEvents.Add(new(eventDelay, eventAccumulator));
+        return keyEvents;
+    }
+
+    public static List<SimpleTimedKeyGroup> KeyGroupsToAbsTime(List<SimpleTimedKeyGroup> keyEvents)
+    {
+        int timeAcc = 0;
+        List<SimpleTimedKeyGroup> eventsAbsTime = [];
+
+        foreach (var msg in keyEvents)
+        {
+            timeAcc += msg.Time;
+            eventsAbsTime.Add(new(timeAcc, msg.Keys));
+        }
+
+        return eventsAbsTime;
+    }
+
+    public static List<SimpleTimedKeyGroup> FindKeyGroupSpan(List<SimpleTimedKeyGroup> groups, (float, float) timeRange)
+    {
+        return groups.SkipWhile(g => g.Time < timeRange.Item1 * 1000).TakeWhile(g => g.Time <= timeRange.Item2 * 1000).ToList();
+    }
 
     public static List<SimpleTimedMsg> ChangeStartTime(List<SimpleTimedMsg> keyOnMessages, int startOffset)
     {
@@ -106,6 +153,44 @@ public class MidiUtils()
             }
         }
         return (rest, currentTempo);
+    }
+
+    public static void ListDevices()
+    {
+        Debug.WriteLine("Available input devices:");
+        MidiAccessManager.Default.Inputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
+        Debug.WriteLine("");
+
+        Debug.WriteLine("Available output devices:");
+        MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
+        Debug.WriteLine("");
+    }
+
+    public static (List<SimpleTimedKeyGroup>, int) ParseMusic(MidiMusic music, Func<byte, bool> keyAcceptCriteria)
+    {
+        var allMessages = MergeTracks(music.Tracks);
+
+        var (keyMIDIMessages, currentTempo) = SetupMetadata(allMessages);
+
+        var keyMessages = keyMIDIMessages
+            .Select(msg => MIDIMsgToSimpleMsg(msg, currentTempo, music.DeltaTimeSpec))
+            .ToList();
+
+        var groups = KeyGroupsToAbsTime(ExtractKeyGroups(ExtractKeyOnMessages(keyMessages, keyAcceptCriteria)));
+
+        return (groups, groups.Last().Time);
+    }
+
+    public static MidiMusic LoadMIDI(string filename)
+    {
+        if (!File.Exists(filename))
+        {
+            throw new FileNotFoundException($"File {filename} not found.");
+        }
+
+        var music = MidiMusic.Read(File.OpenRead(filename));
+        Debug.WriteLine($"Tracks count: {music.Tracks.Count}");
+        return music;
     }
 
 }

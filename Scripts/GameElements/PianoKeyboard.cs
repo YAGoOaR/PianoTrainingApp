@@ -16,7 +16,7 @@ public partial class PianoKeyboard : Control
     readonly Queue<(byte, bool)> changes = [];
 
     [Export]
-    MIDIManager midiManager;
+    GameManager midiManager;
 
     public override void _Ready()
     {
