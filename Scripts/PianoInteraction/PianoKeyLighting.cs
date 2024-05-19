@@ -17,7 +17,7 @@ namespace PianoTrainer.Scripts.MIDI
         public List<byte> _blinks = [];
         public List<byte> Blinks
         {
-            get { return _blinks; }
+            get => _blinks;
             set
             {
                 _blinks = value;
@@ -29,7 +29,7 @@ namespace PianoTrainer.Scripts.MIDI
 
         public List<byte> ActiveNotes
         {
-            get { return _activeNotes; }
+            get => _activeNotes;
             set
             {
                 _activeNotes = value;

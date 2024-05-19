@@ -19,10 +19,9 @@ namespace PianoTrainer.Scripts.MIDI
             if (!IsAcceptable(keyChange.Key))
                 throw new ArgumentOutOfRangeException($"Key can't be {keyChange.Key}. Min value: {MinKey}; Max value: {MaxKey}.");
 
-            if (keyChange.State)
-                return State.Add(keyChange.Key);
-            else
-                return State.Remove(keyChange.Key);
+            return keyChange.State 
+                ? State.Add(keyChange.Key) 
+                : State.Remove(keyChange.Key);
         }
 
         public virtual bool SetKey(SimpleMsg keyChange)
@@ -102,11 +101,12 @@ namespace PianoTrainer.Scripts.MIDI
         public void RemoveKey(byte key)
         {
             if (UpdateNote(new(key, false)))
+            {
                 lock (lightQueue)
                 {
                     lightQueue = new(lightQueue.Where(x => x != key));
                 }
-
+            }
         }
 
         public void ResetKeys()

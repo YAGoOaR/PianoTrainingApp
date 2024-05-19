@@ -2,14 +2,7 @@ using Godot;
 
 public partial class RangeSelection : ColorRect
 {
-    private float rectLen;
-
-    public override void _Ready()
-    {
-        rectLen = GetViewportRect().Size.X;
-        SetProcessInput(true);
-    }
-
+    
     [Export]
     private Control progressBar;
 
@@ -21,6 +14,13 @@ public partial class RangeSelection : ColorRect
 
     float clickStart = 0;
     bool clicked = false;
+    private float rectLen;
+
+    public override void _Ready()
+    {
+        rectLen = GetViewportRect().Size.X;
+        SetProcessInput(true);
+    }
 
     public override void _Input(InputEvent @event)
     {

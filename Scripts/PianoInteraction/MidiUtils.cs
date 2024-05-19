@@ -52,7 +52,8 @@ public class MidiUtils()
 
                 messagesOn.Add(new(msg.Key, dT));
                 t = 0;
-            } else
+            }
+            else
             {
                 t += msg.DeltaTime;
             }
@@ -98,7 +99,8 @@ public class MidiUtils()
             {
                 currentTempo = MidiMetaType.GetTempo(m.Event.ExtraData, m.Event.ExtraDataOffset);
                 Debug.WriteLine($"Set current tempo to {currentTempo}");
-            } else if (m.Event.EventType == MidiEvent.NoteOn || m.Event.EventType == MidiEvent.NoteOff)
+            }
+            else if (m.Event.EventType == MidiEvent.NoteOn || m.Event.EventType == MidiEvent.NoteOff)
             {
                 rest.Add(m);
             }
