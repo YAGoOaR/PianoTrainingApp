@@ -106,7 +106,7 @@ namespace PianoTrainer.Scripts
 
         public void Update(float dT)
         {
-            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * 1000f, State.MessageDelta);
+            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondToMilis, State.MessageDelta);
         }
     }
 }

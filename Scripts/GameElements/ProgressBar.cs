@@ -1,4 +1,5 @@
 using Godot;
+using PianoTrainer.Scripts;
 using PianoTrainer.Scripts.MIDI;
 
 public partial class ProgressBar : Control
@@ -73,7 +74,7 @@ public partial class ProgressBar : Control
 
         if (player != null && player.TotalTimeMilis != 0)
         {
-            var time = player.PlayManager.TimeMilis / 1000f;
+            var time = player.PlayManager.TimeMilis * Utils.MilisToSecond;
             SetProgress(player, time);
             Txt.Text = $"{time:0.00}";
         }

@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static PianoKeyManager;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-    public class KeyState(byte minKey = 36, byte maxKey = 36 + 61)
+    public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
     {
         public event Action<byte, bool> KeyChange;
         public byte MinKey { get; } = minKey;
@@ -39,6 +40,7 @@ namespace PianoTrainer.Scripts.MIDI
     {
         private readonly KeyboardInterface lights = lights;
         private Queue<byte> lightQueue = [];
+        public const byte maxKeysDisplayed = 4;
 
         public bool UpdateNote(SimpleMsg msg)
         {
@@ -54,7 +56,7 @@ namespace PianoTrainer.Scripts.MIDI
         {
             lock (lightQueue)
             {
-                while (lightQueue.Count > 4)
+                while (lightQueue.Count > maxKeysDisplayed)
                 {
                     var extra = lightQueue.Dequeue();
                     UpdateNote(new(extra, false));
@@ -64,7 +66,7 @@ namespace PianoTrainer.Scripts.MIDI
                     return false;
                 } else
                 {
-                    if (lightQueue.Count > 3)
+                    if (lightQueue.Count >= maxKeysDisplayed)
                     {
                         var extra = lightQueue.Dequeue();
                         UpdateNote(new(extra, false));
@@ -75,9 +77,9 @@ namespace PianoTrainer.Scripts.MIDI
             }
         }
 
-        public void Set4Lights(List<byte> keysOn)
+        public void SetMultipleLights(List<byte> keysOn)
         {
-            if (keysOn.Count > 4)
+            if (keysOn.Count > maxKeysDisplayed)
             {
                 throw new ArgumentException("Wrong method usage");
             }

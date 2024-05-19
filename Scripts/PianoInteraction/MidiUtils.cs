@@ -15,6 +15,8 @@ public record SimpleTimedKeyGroup(int Time, HashSet<byte> Keys);
 
 public class MidiUtils()
 {
+    const int defaultTempo = 500000;
+
     public static List<SimpleTimedMsg> ChangeStartTime(List<SimpleTimedMsg> keyOnMessages, int startOffset)
     {
         if (keyOnMessages.Count > 0)
@@ -27,7 +29,7 @@ public class MidiUtils()
 
     public static int GetContextDeltaTime(int currentTempo, int deltaTimeSpec, int deltaTime, float tempo_ratio = 1f)
     {
-        return (int)(currentTempo / 1000 * deltaTime / deltaTimeSpec / tempo_ratio);
+        return (int)(currentTempo * Utils.MilisToSecond * deltaTime / deltaTimeSpec / tempo_ratio);
     }
 
     public static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio = 1f) =>
@@ -89,7 +91,7 @@ public class MidiUtils()
     public static (List<MidiMessage>, int) SetupMetadata(IEnumerable<MidiMessage> messages)
     {
         List<MidiMessage> rest = [];
-        var currentTempo = 500000;
+        var currentTempo = defaultTempo;
 
         foreach (var msg in messages)
         {

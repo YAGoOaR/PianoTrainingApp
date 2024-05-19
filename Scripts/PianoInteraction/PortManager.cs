@@ -7,14 +7,15 @@ namespace PianoTrainer.Scripts.MIDI
 {
     internal abstract class PortManager<T>(string portName) where T : IMidiPort
     {
+        private const int waitTime = 1000;
+
         private static IMidiPortDetails GetPort(string portName)
         {
             var access = MidiAccessManager.Default;
             var ports = typeof(T) == typeof(IMidiInput) ? access.Inputs : access.Outputs;
             var found = from deviceName in ports where deviceName.Name == portName select deviceName;
 
-            if (found.Any()) return found.First();
-            return null;
+            return found.Any() ? found.First() : null;
         }
 
         protected async Task<IMidiPortDetails> GetPortDetails()
@@ -30,7 +31,7 @@ namespace PianoTrainer.Scripts.MIDI
                 {
                     while (details == null)
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(waitTime);
                         details = GetPort(portName);
                     }
                     return details;

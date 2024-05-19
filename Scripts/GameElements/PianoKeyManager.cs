@@ -4,16 +4,6 @@ public static class PianoKeyManager
 {
     public static Vector2 BlackNoteSizeRatio { get; } = new(1f / 2f, 2f / 3f);
 
-    // Piano keyboard layout parameters
-    const float blackWidth = 1 / 2f;
-    const float leftKeyOffset = -blackWidth * 2 / 3;
-    const float midKeyOffset = -blackWidth / 2;
-    const float rightKeyOffset = -blackWidth * 1 / 3;
-
-    const byte octave = 12;
-    const byte octaveWhites = 7;
-    const byte MIDIIndexOffset = 36;
-
     /// <summary>
     /// Key count on the entire keyboard
     /// </summary>
@@ -28,6 +18,17 @@ public static class PianoKeyManager
     /// White key count on the entire keyboard
     /// </summary>
     public static int Whites { get; } = KeyboardRange - Blacks;
+
+    public const byte octave = 12;
+    public const byte octaveWhites = 7;
+    public const byte MIDIIndexOffset = 36;
+    public const byte defaultKeyCount = 61;
+
+    // Piano keyboard layout parameters
+    public const float blackWidth = 1 / 2f;
+    public const float leftKeyOffset = -blackWidth * 2 / 3;
+    public const float midKeyOffset = -blackWidth / 2;
+    public const float rightKeyOffset = -blackWidth * 1 / 3;
 
     /// <summary>
     /// Returns the offset of a black note on the piano keyboard. If key is not black, (false, 0) is returned.

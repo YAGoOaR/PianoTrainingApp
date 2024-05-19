@@ -43,7 +43,7 @@ public partial class MIDIPlayer
 
     public int TotalTimeMilis { get; private set; } = 0;
 
-    public float TotalTimeSeconds { get => TotalTimeMilis / 1000f; }
+    public float TotalTimeSeconds { get => TotalTimeMilis * Utils.MilisToSecond; }
 
     public PlayManager PlayManager { get; private set; } = new();
 
@@ -183,7 +183,7 @@ public partial class MIDIPlayer
 
         settings.timeRange = range;
         NoteListAbsTime = groupSpan;
-        PlayManager.Setup(NoteListAbsTime, range is (float start, float) ? (int)(start * 1000f) : 0);
+        PlayManager.Setup(NoteListAbsTime, range is (float start, float) ? (int)(start * Utils.SecondToMilis) : 0);
     }
 
     public void Process(double delta)

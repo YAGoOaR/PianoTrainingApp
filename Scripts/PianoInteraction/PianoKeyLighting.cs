@@ -97,21 +97,23 @@ namespace PianoTrainer.Scripts.MIDI
 
             List<byte> finalState = [.. ActiveNotes, .. Blinks];
 
-            if (finalState.Count > 4)
-            {
-                List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, 4 - ActiveNotes.Count))];
+            byte maxKeys = LightState.maxKeysDisplayed;
 
-                var activeLights = Rotate(selected, rollCycle).Take(4).ToList();
+            if (finalState.Count > maxKeys)
+            {
+                List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, maxKeys - ActiveNotes.Count))];
+
+                var activeLights = Rotate(selected, rollCycle).Take(maxKeys).ToList();
 
                 lock (LightsState)
                 {
-                    LightsState.Set4Lights(activeLights);
+                    LightsState.SetMultipleLights(activeLights);
                 }
                 rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
             }
             else
             {
-                LightsState.Set4Lights(finalState);
+                LightsState.SetMultipleLights(finalState);
             }
         }
 
