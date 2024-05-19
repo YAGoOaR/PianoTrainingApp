@@ -1,13 +1,12 @@
 ﻿
-using CoreMidi;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using static PianoKeyManager;
 
 namespace PianoTrainer.Scripts.MIDI
 {
-    public class KeyState(byte minKey = 36, byte maxKey = 36 + 61)
+    public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
     {
         public event Action<byte, bool> KeyChange;
         public byte MinKey { get; } = minKey;
@@ -21,10 +20,9 @@ namespace PianoTrainer.Scripts.MIDI
             if (!IsAcceptable(keyChange.Key))
                 throw new ArgumentOutOfRangeException($"Key can't be {keyChange.Key}. Min value: {MinKey}; Max value: {MaxKey}.");
 
-            if (keyChange.State)
-                return State.Add(keyChange.Key);
-            else
-                return State.Remove(keyChange.Key);
+            return keyChange.State 
+                ? State.Add(keyChange.Key) 
+                : State.Remove(keyChange.Key);
         }
 
         public virtual bool SetKey(SimpleMsg keyChange)
@@ -42,6 +40,7 @@ namespace PianoTrainer.Scripts.MIDI
     {
         private readonly KeyboardInterface lights = lights;
         private Queue<byte> lightQueue = [];
+        public const byte maxKeysDisplayed = 4;
 
         public bool UpdateNote(SimpleMsg msg)
         {
@@ -57,7 +56,7 @@ namespace PianoTrainer.Scripts.MIDI
         {
             lock (lightQueue)
             {
-                while (lightQueue.Count > 4)
+                while (lightQueue.Count > maxKeysDisplayed)
                 {
                     var extra = lightQueue.Dequeue();
                     UpdateNote(new(extra, false));
@@ -67,7 +66,7 @@ namespace PianoTrainer.Scripts.MIDI
                     return false;
                 } else
                 {
-                    if (lightQueue.Count > 3)
+                    if (lightQueue.Count >= maxKeysDisplayed)
                     {
                         var extra = lightQueue.Dequeue();
                         UpdateNote(new(extra, false));
@@ -78,9 +77,9 @@ namespace PianoTrainer.Scripts.MIDI
             }
         }
 
-        public void Set4Lights(List<byte> keysOn)
+        public void SetMultipleLights(List<byte> keysOn)
         {
-            if (keysOn.Count > 4)
+            if (keysOn.Count > maxKeysDisplayed)
             {
                 throw new ArgumentException("Wrong method usage");
             }
@@ -104,17 +103,17 @@ namespace PianoTrainer.Scripts.MIDI
         public void RemoveKey(byte key)
         {
             if (UpdateNote(new(key, false)))
+            {
                 lock (lightQueue)
                 {
                     lightQueue = new(lightQueue.Where(x => x != key));
                 }
-
+            }
         }
 
-        public void Panic()
+        public void ResetKeys()
         {
             Reset();
-            lights.Panic();
         }
 
         public void Reset()

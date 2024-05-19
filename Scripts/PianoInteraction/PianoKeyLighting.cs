@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -18,7 +17,7 @@ namespace PianoTrainer.Scripts.MIDI
         public List<byte> _blinks = [];
         public List<byte> Blinks
         {
-            get { return _blinks; }
+            get => _blinks;
             set
             {
                 _blinks = value;
@@ -30,7 +29,7 @@ namespace PianoTrainer.Scripts.MIDI
 
         public List<byte> ActiveNotes
         {
-            get { return _activeNotes; }
+            get => _activeNotes;
             set
             {
                 _activeNotes = value;
@@ -98,21 +97,23 @@ namespace PianoTrainer.Scripts.MIDI
 
             List<byte> finalState = [.. ActiveNotes, .. Blinks];
 
-            if (finalState.Count > 4)
-            {
-                List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, 4 - ActiveNotes.Count))];
+            byte maxKeys = LightState.maxKeysDisplayed;
 
-                var activeLights = Rotate(selected, rollCycle).Take(4).ToList();
+            if (finalState.Count > maxKeys)
+            {
+                List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, maxKeys - ActiveNotes.Count))];
+
+                var activeLights = Rotate(selected, rollCycle).Take(maxKeys).ToList();
 
                 lock (LightsState)
                 {
-                    LightsState.Set4Lights(activeLights);
+                    LightsState.SetMultipleLights(activeLights);
                 }
                 rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
             }
             else
             {
-                LightsState.Set4Lights(finalState);
+                LightsState.SetMultipleLights(finalState);
             }
         }
 
@@ -139,7 +140,7 @@ namespace PianoTrainer.Scripts.MIDI
             ClearKeys();
         }
 
-        public void ClearKeys() => LightsState.Panic();
+        public void ClearKeys() => LightsState.ResetKeys();
 
         public void Reset()
         {

@@ -1,4 +1,5 @@
 using Godot;
+using PianoTrainer.Scripts;
 using PianoTrainer.Scripts.MIDI;
 
 public partial class ProgressBar : Control
@@ -58,24 +59,24 @@ public partial class ProgressBar : Control
         }
     }
 
-    public void SetSelectionPreview(MIDIPlayer p, (float, float) range)
+    public void SetSelectionPreview(MIDIPlayer player, (float, float) range)
     {
-        (float s, float e) = range;
-        if (s > e) return;
-        SetProgressRectBounds(rangeSelectRect, s, e, p.TotalTimeSeconds);
+        (float start, float end) = range;
+        if (start > end) return;
+        SetProgressRectBounds(rangeSelectRect, start, end, player.TotalTimeSeconds);
     }
 
     public override void _Process(double delta)
     {
         if (MIDIManager.Instance.State != MIDIManager.MIDIManagerState.Playing) return;
 
-        var p = MIDIManager.Player;
+        var player = MIDIManager.Player;
 
-        if (p != null && p.TotalTimeMilis != 0)
+        if (player != null && player.TotalTimeMilis != 0)
         {
-            var t = p.PlayManager.TimeMilis / 1000f;
-            SetProgress(p, t);
-            Txt.Text = $"{t:0.00}";
+            var time = player.PlayManager.TimeMilis * Utils.MilisToSecond;
+            SetProgress(player, time);
+            Txt.Text = $"{time:0.00}";
         }
     }
 }
