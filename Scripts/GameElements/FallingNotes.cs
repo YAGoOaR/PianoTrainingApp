@@ -103,7 +103,7 @@ public partial class FallingNotes : Control
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
-            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * MilisToSecond)
+            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondToMilis)
             .ToDictionary(el => el.Time, el => el);
 
         UpdateNotes(selectedGroups);
@@ -124,7 +124,7 @@ public partial class FallingNotes : Control
 
         foreach (var (_, noteGroup) in currentNotes)
         {
-            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * SecondToMilis / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * MilisToSecond / timeSpan * Size.Y;
             foreach (var note in noteGroup.notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);
