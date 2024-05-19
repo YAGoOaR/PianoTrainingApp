@@ -1,8 +1,6 @@
 ﻿
-using CoreMidi;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace PianoTrainer.Scripts.MIDI
@@ -111,10 +109,9 @@ namespace PianoTrainer.Scripts.MIDI
 
         }
 
-        public void Panic()
+        public void ResetKeys()
         {
             Reset();
-            lights.Panic();
         }
 
         public void Reset()

@@ -15,10 +15,5 @@ namespace PianoTrainer.Scripts.MIDI
         {
             piano.Send([MidiEvent.SysEx1, 68, 126, 126, 127, 0, 3, MidiEvent.EndSysEx], 0, 8, 0);
         }
-
-        public void Panic()
-        {
-            //TODO: IMPLEMENT
-        }
     }
 }

@@ -1,6 +1,5 @@
 using Godot;
 using System.Collections.Generic;
-using System.Diagnostics;
 using static PianoKeyManager;
 
 // Defines Piano key setup and layout

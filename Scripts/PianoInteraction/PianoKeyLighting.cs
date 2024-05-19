@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -139,7 +138,7 @@ namespace PianoTrainer.Scripts.MIDI
             ClearKeys();
         }
 
-        public void ClearKeys() => LightsState.Panic();
+        public void ClearKeys() => LightsState.ResetKeys();
 
         public void Reset()
         {
