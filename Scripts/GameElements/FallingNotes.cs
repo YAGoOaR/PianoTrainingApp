@@ -120,11 +120,11 @@ public partial class FallingNotes : Control
 
     private void UpdateNotePositions()
     {
-        var pm = midiManager.Player.PlayManager;
+        var timeline = midiManager.Player.PlayManager;
 
         foreach (var (_, noteGroup) in currentNotes)
         {
-            var verticalPos = (noteGroup.Time - pm.TimeMilis) * SecondToMilis / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * SecondToMilis / timeSpan * Size.Y;
             foreach (var note in noteGroup.notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);

@@ -48,9 +48,7 @@ public class MidiUtils()
         {
             if (msg.State && keyFitCriteria(msg.Key))
             {
-                var dT = t + msg.DeltaTime;
-
-                messagesOn.Add(new(msg.Key, dT));
+                messagesOn.Add(new(msg.Key, t + msg.DeltaTime));
                 t = 0;
             }
             else
@@ -74,9 +72,9 @@ public class MidiUtils()
 
         while (counts.Any(x => x > 0))
         {
-            var (idx, q) = messageLists.Select((x, i) => (i, x)).OrderBy(x => x.x.Count > 0 ? timelines[x.i] + x.x.First().DeltaTime : int.MaxValue).First();
+            var (idx, queue) = messageLists.Select((x, i) => (i, x)).OrderBy(x => x.x.Count > 0 ? timelines[x.i] + x.x.First().DeltaTime : int.MaxValue).First();
 
-            var msg = q.Dequeue();
+            var msg = queue.Dequeue();
             var dt = msg.DeltaTime + timelines[idx] - msgTimeline;
             var msgCorrected = new MidiMessage(dt, msg.Event);
             timelines[idx] += msg.DeltaTime;
@@ -93,16 +91,16 @@ public class MidiUtils()
         List<MidiMessage> rest = [];
         var currentTempo = 500000;
 
-        foreach (var m in messages)
+        foreach (var msg in messages)
         {
-            if (m.Event.StatusByte == byte.MaxValue && m.Event.Msb == 81)
+            if (msg.Event.StatusByte == byte.MaxValue && msg.Event.Msb == 81)
             {
-                currentTempo = MidiMetaType.GetTempo(m.Event.ExtraData, m.Event.ExtraDataOffset);
+                currentTempo = MidiMetaType.GetTempo(msg.Event.ExtraData, msg.Event.ExtraDataOffset);
                 Debug.WriteLine($"Set current tempo to {currentTempo}");
             }
-            else if (m.Event.EventType == MidiEvent.NoteOn || m.Event.EventType == MidiEvent.NoteOff)
+            else if (msg.Event.EventType == MidiEvent.NoteOn || msg.Event.EventType == MidiEvent.NoteOff)
             {
-                rest.Add(m);
+                rest.Add(msg);
             }
         }
         return (rest, currentTempo);

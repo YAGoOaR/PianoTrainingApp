@@ -54,7 +54,7 @@ public partial class MIDIPlayer
         keyLightsManager = manager.LightsManager;
         piano = manager.Piano;
 
-        piano.KeyChange += (k, s) => PlayManager.OnKeyChange(piano.State);
+        piano.KeyChange += (_, _) => PlayManager.OnKeyChange(piano.State);
 
         PlayManager.OnComplete += () =>
         {
@@ -65,11 +65,11 @@ public partial class MIDIPlayer
             });
         };
 
-        PlayManager.OnTargetChanged += (s) =>
+        PlayManager.OnTargetChanged += (state) =>
         {
             keyLightsManager.Reset();
 
-            List<byte> keys = new(s.DesiredKeys);
+            List<byte> keys = new(state.DesiredKeys);
 
             bool lightsEnabled = false;
 
@@ -86,7 +86,7 @@ public partial class MIDIPlayer
             {
                 await Task.Delay(Math.Max(0, PlayManager.TimeToNextKey - settings.BlinkSlowOffset));
 
-                while (!lightsEnabled && (PlayManager.State.CurrentGroup == s.CurrentGroup))
+                while (!lightsEnabled && (PlayManager.State.CurrentGroup == state.CurrentGroup))
                 {
                     var interval = PlayManager.TimeToNextKey > settings.BlinkOffset 
                         ? settings.BlinkSlowInterval 
@@ -118,17 +118,17 @@ public partial class MIDIPlayer
 
         for (int i = 0; i < keyOnMessages.Count; i++)
         {
-            var m = keyOnMessages[i];
+            var msg = keyOnMessages[i];
 
-            if (m.DeltaTime == 0)
+            if (msg.DeltaTime == 0)
             {
-                eventAccumulator.Add(m.Key);
+                eventAccumulator.Add(msg.Key);
             }
             else
             {
                 if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator));
-                eventAccumulator = [m.Key];
-                eventDelay = m.DeltaTime;
+                eventAccumulator = [msg.Key];
+                eventDelay = msg.DeltaTime;
             }
         }
 
@@ -141,10 +141,10 @@ public partial class MIDIPlayer
         int timeAcc = 0;
         List<SimpleTimedKeyGroup> eventsAbsTime = [];
 
-        foreach (var m in keyEvents)
+        foreach (var msg in keyEvents)
         {
-            timeAcc += m.Time;
-            eventsAbsTime.Add(new(timeAcc, m.Keys));
+            timeAcc += msg.Time;
+            eventsAbsTime.Add(new(timeAcc, msg.Keys));
         }
 
         return eventsAbsTime;
@@ -183,7 +183,7 @@ public partial class MIDIPlayer
 
         settings.timeRange = range;
         NoteListAbsTime = groupSpan;
-        PlayManager.Setup(NoteListAbsTime, range is (float s, float) ? (int)(s * 1000f) : 0);
+        PlayManager.Setup(NoteListAbsTime, range is (float start, float) ? (int)(start * 1000f) : 0);
     }
 
     public void Process(double delta)
