@@ -1,6 +1,7 @@
 
 using Commons.Music.Midi;
 using PianoTrainer.Scripts;
+using PianoTrainer.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

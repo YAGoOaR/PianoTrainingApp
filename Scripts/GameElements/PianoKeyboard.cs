@@ -1,4 +1,5 @@
 using Godot;
+using PianoTrainer.Game;
 using System.Collections.Generic;
 using static PianoKeyManager;
 

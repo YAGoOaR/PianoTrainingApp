@@ -1,4 +1,5 @@
 using Godot;
+using PianoTrainer.Game;
 using PianoTrainer.MIDI;
 using PianoTrainer.Scripts.GameElements;
 using System.Collections.Generic;
