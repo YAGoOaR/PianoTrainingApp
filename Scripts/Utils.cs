@@ -1,11 +1,9 @@
 ﻿
-namespace PianoTrainer.Scripts
+namespace PianoTrainer.Scripts;
+
+internal static class Utils
 {
-    internal static class Utils
-    {
+    public static float MsToSeconds { get; } = 1 / 1000f;
 
-        public static float MilisToSecond { get; } = 1 / 1000f;
-
-        public static float SecondToMilis { get; } = 1000f;
-    }
+    public static float SecondsToMs { get; } = 1000f;
 }

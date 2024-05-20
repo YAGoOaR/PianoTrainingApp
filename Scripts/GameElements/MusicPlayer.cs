@@ -1,9 +1,10 @@
-﻿using System;
+﻿using PianoTrainer.MIDI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using PianoTrainer.Scripts.MIDI;
+using System.Threading.Tasks;
 
-namespace PianoTrainer.Scripts
+namespace PianoTrainer.Scripts.GameElements
 {
     public struct PlayManagerState()
     {
@@ -15,7 +16,7 @@ namespace PianoTrainer.Scripts
         public int startTime = 0;
     }
 
-    public class PlayManager()
+    public class MusicPlayer()
     {
         public List<SimpleTimedKeyGroup> EventGroups { get; private set; } = [];
 
@@ -29,6 +30,10 @@ namespace PianoTrainer.Scripts
 
         private bool complete = false;
 
+        public int TotalTimeMilis { get; private set; } = 0;
+
+        public float TotalTimeSeconds { get => TotalTimeMilis * Utils.MsToSeconds; }
+
         public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
         public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
 
@@ -36,23 +41,28 @@ namespace PianoTrainer.Scripts
 
         public enum PlayState
         {
-            Ready,
+            Playing,
             Stopped,
         }
-        PlayState playState = PlayState.Stopped;
+        public PlayState PlayingState { get; private set; } = PlayState.Stopped;
 
-        public void Setup(List<SimpleTimedKeyGroup> keyMessages, int startTime)
+        public void Setup(ParsedMusic music)
         {
-            EventGroups = keyMessages;
-            State = new() { startTime = startTime };
-            playState = PlayState.Ready;
+            EventGroups = music.Notes;
+            State = new();
+            TotalTimeMilis = music.TotalTime;
+        }
 
+        public void Play()
+        {
+            if (PlayingState != PlayState.Stopped) return;
             NextTarget();
+            PlayingState = PlayState.Playing;
         }
 
         public void Stop()
         {
-            playState = PlayState.Stopped;
+            PlayingState = PlayState.Stopped;
             State = new();
             OnStopped?.Invoke();
         }
@@ -92,7 +102,7 @@ namespace PianoTrainer.Scripts
 
         public void OnKeyChange(HashSet<byte> pressedKeys)
         {
-            if (playState == PlayState.Stopped) return;
+            if (PlayingState == PlayState.Stopped) return;
 
             nonreadyKeys = nonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
@@ -101,12 +111,18 @@ namespace PianoTrainer.Scripts
             complete = true;
             nonreadyKeys = new(pressedKeys);
 
+            Task.Run(async () =>
+            {
+                await Task.Delay(Math.Max(0, TimeToNextKey));
+                NextTarget();
+            });
+
             OnComplete?.Invoke();
         }
 
         public void Update(float dT)
         {
-            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondToMilis, State.MessageDelta);
+            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondsToMs, State.MessageDelta);
         }
     }
 }

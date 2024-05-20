@@ -1,5 +1,7 @@
 using Godot;
-using PianoTrainer.Scripts.MIDI;
+using PianoTrainer.Game;
+using PianoTrainer.MIDI;
+using PianoTrainer.Scripts.GameElements;
 using System.Collections.Generic;
 using System.Linq;
 using static PianoKeyManager;
@@ -15,7 +17,7 @@ public partial class FallingNotes : Control
     [Export] private float timeSpan = 3;
     [Export] private float noteTextureScale = 200f;
 
-    private MIDIManager midiManager;
+    private GameManager gameManager;
 
     private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
@@ -24,10 +26,10 @@ public partial class FallingNotes : Control
 
     public override void _Ready()
     {
-        midiManager = MIDIManager.Instance;
+        gameManager = GameManager.Instance;
     }
 
-    public void Init()
+    public void Clear()
     {
         foreach (var (_, noteGroup) in currentNotes)
         {
@@ -93,17 +95,17 @@ public partial class FallingNotes : Control
 
     private void UpdateTimeline()
     {
-        var midiPlayer = midiManager.Player;
+        var musicPlayer = gameManager.MusicPlayer;
 
-        if (midiPlayer == null || midiPlayer.TotalTimeMilis == 0) return;
+        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
 
-        var (allNoteGroups, timeline) = (midiPlayer.NoteListAbsTime, midiPlayer.PlayManager);
+        var (allNoteGroups, timeline) = (musicPlayer.EventGroups, musicPlayer);
 
         var currentGroup = Mathf.Max(timeline.State.CurrentGroup, 0);
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
-            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondToMilis)
+            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondsToMs)
             .ToDictionary(el => el.Time, el => el);
 
         UpdateNotes(selectedGroups);
@@ -120,11 +122,11 @@ public partial class FallingNotes : Control
 
     private void UpdateNotePositions()
     {
-        var timeline = midiManager.Player.PlayManager;
+        var timeline = gameManager.MusicPlayer;
 
         foreach (var (_, noteGroup) in currentNotes)
         {
-            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * MilisToSecond / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);

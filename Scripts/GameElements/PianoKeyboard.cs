@@ -1,4 +1,5 @@
 using Godot;
+using PianoTrainer.Game;
 using System.Collections.Generic;
 using static PianoKeyManager;
 
@@ -16,7 +17,7 @@ public partial class PianoKeyboard : Control
     readonly Queue<(byte, bool)> changes = [];
 
     [Export]
-    MIDIManager midiManager;
+    GameManager midiManager;
 
     public override void _Ready()
     {

@@ -2,7 +2,7 @@ using Godot;
 
 public static class PianoKeyManager
 {
-    public static Vector2 BlackNoteSizeRatio { get; } = new(1f / 2f, 2f / 3f);
+    public static Vector2 BlackNoteSizeRatio { get; } = new(1 / 2f, 2 / 3f);
 
     /// <summary>
     /// Key count on the entire keyboard

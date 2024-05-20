@@ -24,7 +24,7 @@ public partial class RangeSelection : ColorRect
 
     public override void _Input(InputEvent @event)
     {
-        // TODO: Optimize
+        // TODO: Refactor
         if (@event is InputEventMouseButton mouseButton)
         {
             if (mouseButton.ButtonIndex == MouseButton.Left)

@@ -1,12 +1,9 @@
 using Godot;
+using PianoTrainer.Game;
 using PianoTrainer.Scripts;
-using PianoTrainer.Scripts.MIDI;
 
 public partial class ProgressBar : Control
 {
-    [Export]
-    private MIDIManager MIDIManager { get; set; }
-
     [Export]
     private RichTextLabel Txt { get; set; }
 
@@ -25,10 +22,13 @@ public partial class ProgressBar : Control
     [Export]
     private Color RangeSelectRectColor { get; set; } = Colors.White;
 
+    private GameManager gameManager;
+
     private bool active = false;
 
     public override void _Ready()
     {
+        gameManager = GameManager.Instance;
         bgRect.Size = new(Size.X, Size.Y);
         progressRect.Size = new(0, Size.Y);
         rangeRect.Size = new(0, Size.Y);
@@ -41,16 +41,19 @@ public partial class ProgressBar : Control
         rect.Size = new(Size.X * (tEnd - tStart) / totalTime, Size.Y);
     }
 
-    public void SetProgress(MIDIPlayer p, float time)
+    public void SetProgress(float time)
     {
-        SetProgressRectBounds(progressRect, 0, time, p.TotalTimeSeconds);
+        var player = gameManager.MusicPlayer;
+        SetProgressRectBounds(progressRect, 0, time, player.TotalTimeSeconds);
     }
 
-    public void SetTimeRange(MIDIPlayer p, (float, float)? range)
+    public void SetTimeRange((float, float)? range)
     {
+        var player = gameManager.MusicPlayer;
+
         if (range is (float s, float e))
         {
-            SetProgressRectBounds(rangeRect, s, e, p.TotalTimeSeconds);
+            SetProgressRectBounds(rangeRect, s, e, player.TotalTimeSeconds);
         }
         else
         {
@@ -59,23 +62,23 @@ public partial class ProgressBar : Control
         }
     }
 
-    public void SetSelectionPreview(MIDIPlayer player, (float, float) range)
+    public void SetSelectionPreview((float, float) range)
     {
         (float start, float end) = range;
         if (start > end) return;
-        SetProgressRectBounds(rangeSelectRect, start, end, player.TotalTimeSeconds);
+        SetProgressRectBounds(rangeSelectRect, start, end, gameManager.MusicPlayer.TotalTimeSeconds);
     }
 
     public override void _Process(double delta)
     {
-        if (MIDIManager.Instance.State != MIDIManager.MIDIManagerState.Playing) return;
+        if (GameManager.Instance.State != GameManager.GameState.Running) return;
 
-        var player = MIDIManager.Player;
+        var player = gameManager.MusicPlayer;
 
         if (player != null && player.TotalTimeMilis != 0)
         {
-            var time = player.PlayManager.TimeMilis * Utils.MilisToSecond;
-            SetProgress(player, time);
+            var time = player.TimeMilis * Utils.MsToSeconds;
+            SetProgress(time);
             Txt.Text = $"{time:0.00}";
         }
     }
