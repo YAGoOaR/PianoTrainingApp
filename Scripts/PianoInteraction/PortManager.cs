@@ -42,6 +42,8 @@ namespace PianoTrainer.Scripts.MIDI
                 return details;
             }
         }
+
+        public abstract void ListDevices();
     }
 
     internal class InputPortManager(string portName) : PortManager<IMidiInput>(portName)
@@ -53,6 +55,13 @@ namespace PianoTrainer.Scripts.MIDI
 
             return await access.OpenInputAsync(details.Id);
         }
+
+        public override void ListDevices()
+        {
+            Debug.WriteLine("Available input devices:");
+            MidiAccessManager.Default.Inputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
+            Debug.WriteLine("");
+        }
     }
 
     internal class OutputPortManager(string portName) : PortManager<IMidiOutput>(portName)
@@ -63,6 +72,13 @@ namespace PianoTrainer.Scripts.MIDI
             var details = await GetPortDetails();
 
             return await access.OpenOutputAsync(details.Id);
+        }
+
+        public override void ListDevices()
+        {
+            Debug.WriteLine("Available output devices:");
+            MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
+            Debug.WriteLine("");
         }
     }
 

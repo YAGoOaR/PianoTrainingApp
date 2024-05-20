@@ -1,10 +1,10 @@
-﻿using System;
+﻿using PianoTrainer.MIDI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PianoTrainer.Scripts.MIDI;
 
-namespace PianoTrainer.Scripts
+namespace PianoTrainer.Scripts.GameElements
 {
     public struct PlayManagerState()
     {
@@ -32,7 +32,7 @@ namespace PianoTrainer.Scripts
 
         public int TotalTimeMilis { get; private set; } = 0;
 
-        public float TotalTimeSeconds { get => TotalTimeMilis * Utils.MilisToSecond; }
+        public float TotalTimeSeconds { get => TotalTimeMilis * Utils.MsToSeconds; }
 
         public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
         public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
@@ -41,21 +41,23 @@ namespace PianoTrainer.Scripts
 
         public enum PlayState
         {
-            Ready,
+            Playing,
             Stopped,
         }
         public PlayState PlayingState { get; private set; } = PlayState.Stopped;
 
-        public void Setup(List<SimpleTimedKeyGroup> keyMessages, int totalTime)
+        public void Setup(ParsedMusic music)
         {
-            EventGroups = keyMessages;
-
+            EventGroups = music.Notes;
             State = new();
-            PlayingState = PlayState.Ready;
+            TotalTimeMilis = music.TotalTime;
+        }
 
-            TotalTimeMilis = totalTime;
-
+        public void Play()
+        {
+            if (PlayingState != PlayState.Stopped) return;
             NextTarget();
+            PlayingState = PlayState.Playing;
         }
 
         public void Stop()
@@ -120,7 +122,7 @@ namespace PianoTrainer.Scripts
 
         public void Update(float dT)
         {
-            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondToMilis, State.MessageDelta);
+            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondsToMs, State.MessageDelta);
         }
     }
 }

@@ -1,22 +1,14 @@
 using Godot;
+using PianoTrainer.Settings;
 using System.IO;
 
 internal partial class Menu : Control
 {
-    [Export]
-    private ItemList itemList;
-
-    [Export]
-    private Texture2D icon;
-
-    [Export]
-    private TextEdit SongPath;
-
-    [Export]
-    private TextEdit FolderPath;
-
-    [Export]
-    private FileDialog fileDialog;
+    [Export] private ItemList itemList;
+    [Export] private Texture2D icon;
+    [Export] private TextEdit SongPath;
+    [Export] private TextEdit FolderPath;
+    [Export] private FileDialog fileDialog;
 
     private string[] midis;
 
@@ -62,7 +54,7 @@ internal partial class Menu : Control
 
     public void OnPlayPressed()
     {
-        GetTree().ChangeSceneToFile(SceneManager.GameScene);
+        GetTree().ChangeSceneToFile(GameSettings.GameScene);
     }
 
     public void OnBrowsePressed()
@@ -90,14 +82,7 @@ internal partial class Menu : Control
 
     public override void _Input(InputEvent @event)
     {
-        if (@event.IsActionPressed("ui_accept"))
-        {
-            OnPlayPressed();
-        }
-
-        if (@event.IsActionPressed("ui_cancel"))
-        {
-            OnQuitPressed();
-        }
+        if (@event.IsActionPressed("ui_accept")) OnPlayPressed();
+        else if (@event.IsActionPressed("ui_cancel")) OnQuitPressed();
     }
 }

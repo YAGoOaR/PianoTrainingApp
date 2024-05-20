@@ -70,13 +70,13 @@ public partial class ProgressBar : Control
 
     public override void _Process(double delta)
     {
-        if (GameManager.Instance.State != GameManager.GameState.Playing) return;
+        if (GameManager.Instance.State != GameManager.GameState.Running) return;
 
         var player = gameManager.MusicPlayer;
 
         if (player != null && player.TotalTimeMilis != 0)
         {
-            var time = player.TimeMilis * Utils.MilisToSecond;
+            var time = player.TimeMilis * Utils.MsToSeconds;
             SetProgress(time);
             Txt.Text = $"{time:0.00}";
         }

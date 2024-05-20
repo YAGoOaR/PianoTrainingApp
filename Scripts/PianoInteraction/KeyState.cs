@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static PianoKeyManager;
+using PianoTrainer.MIDI;
 
 namespace PianoTrainer.Scripts.MIDI
 {
@@ -13,11 +14,11 @@ namespace PianoTrainer.Scripts.MIDI
         public byte MaxKey { get; } = maxKey;
         public HashSet<byte> State { get; } = [];
 
-        public bool IsAcceptable(byte key) => key >= MinKey && key <= MaxKey;
+        public bool HasKey(byte key) => key >= MinKey && key <= MaxKey;
 
         protected bool SilentSetKey(SimpleMsg keyChange)
         {
-            if (!IsAcceptable(keyChange.Key))
+            if (!HasKey(keyChange.Key))
                 throw new ArgumentOutOfRangeException($"Key can't be {keyChange.Key}. Min value: {MinKey}; Max value: {MaxKey}.");
 
             return keyChange.State 

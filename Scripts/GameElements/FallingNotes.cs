@@ -1,6 +1,6 @@
 using Godot;
-using PianoTrainer.Scripts;
-using PianoTrainer.Scripts.MIDI;
+using PianoTrainer.MIDI;
+using PianoTrainer.Scripts.GameElements;
 using System.Collections.Generic;
 using System.Linq;
 using static PianoKeyManager;
@@ -104,7 +104,7 @@ public partial class FallingNotes : Control
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
-            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondToMilis)
+            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondsToMs)
             .ToDictionary(el => el.Time, el => el);
 
         UpdateNotes(selectedGroups);
@@ -125,7 +125,7 @@ public partial class FallingNotes : Control
 
         foreach (var (_, noteGroup) in currentNotes)
         {
-            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * MilisToSecond / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);
