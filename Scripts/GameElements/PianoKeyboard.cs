@@ -1,7 +1,11 @@
 using Godot;
-using PianoTrainer.Game;
+using PianoTrainer.Scripts.Devices;
+using PianoTrainer.Scripts.PianoInteraction;
 using System.Collections.Generic;
-using static PianoKeyManager;
+
+using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
+
+namespace PianoTrainer.Scripts.GameElements;
 
 // Defines Piano key setup and layout
 public partial class PianoKeyboard : Control
@@ -14,14 +18,14 @@ public partial class PianoKeyboard : Control
 
     readonly List<ColorRect> noteRects = [];
 
-    readonly Queue<(byte, bool)> changes = [];
+    readonly Queue<SimpleMsg> changes = [];
 
     [Export]
-    GameManager midiManager;
+    GameManager gameManager;
 
     public override void _Ready()
     {
-        midiManager.Piano.KeyChange += SetKey;
+        DeviceManager.Instance.DefaultPiano.Piano.KeyChange += SetKey;
 
         GridSize = new(Size.X / Whites, Size.Y);
         WhiteNoteSize = GridSize - Vector2.Right * NoteGap;
@@ -63,7 +67,7 @@ public partial class PianoKeyboard : Control
         }
     }
 
-    public void SetKey(byte key, bool state) => changes.Enqueue((key, state));
+    public void SetKey(SimpleMsg msg) => changes.Enqueue(msg);
 
     public override void _Process(double delta)
     {

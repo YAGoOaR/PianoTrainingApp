@@ -1,32 +1,17 @@
-using Commons.Music.Midi;
 using Godot;
-using PianoTrainer.MIDI;
+using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
-using PianoTrainer.Scripts.MIDI;
 using PianoTrainer.Scripts.PianoInteraction;
-using PianoTrainer.Settings;
 using System.Threading.Tasks;
 
-namespace PianoTrainer.Game;
+namespace PianoTrainer.Scripts;
 
+/// <summary>
+/// The main class that handles the game flow.
+/// </summary>
 public partial class GameManager : Node2D
 {
-    public static GameManager Instance { get; private set; }
-
-    public KeyState Piano { get; private set; }
-
-    [Export]
-    public ProgressBar PBar { get; private set; }
-
-    [Export]
-    public FallingNotes FallingNotes { get; private set; }
-
-    public PianoKeyLighting Lights { get; private set; }
-
-    public MusicPlayer MusicPlayer { get; private set; } = new();
-
-    private IMidiOutput output;
-    private IMidiInput input;
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     public enum GameState
     {
@@ -39,63 +24,34 @@ public partial class GameManager : Node2D
 
     public GameState State { get; private set; } = GameState.Preparing;
 
+    // Called when game scene is loaded
     public override void _Ready()
     {
-        Instance = this;
+        NoteHints.Init();
 
-        Piano = new();
+        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: DeviceManager.Instance.DefaultPiano.Piano.HasKey);
 
-        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: Piano.HasKey);
+        musicPlayer.Setup(parsedMusic);
 
-        MusicPlayer.Setup(parsedMusic);
-
-        SetupDevice();
+        SetupDevices();
     }
 
-    public Task SetupDevice() => Task.Run(async () =>
+    public Task SetupDevices() => Task.Run(async () =>
     {
-        var device = GameSettings.Instance.Settings.PianoDeviceName;
-
-        output = await new OutputPortManager(device).OpenPort();
-        input = await new InputPortManager(device).OpenPort();
-
-        var lightsPort = new KeyboardInterface(output);
-        Lights = new PianoKeyLighting(lightsPort);
-
-        var keyHints = new NoteHints(Lights, MusicPlayer);
-
-        input.MessageReceived += OnMessage;
-
-        Piano.KeyChange += (_, _) => MusicPlayer.OnKeyChange(Piano.State);
-
-        MusicPlayer.OnTargetChanged += keyHints.OnTargetCompleted;
-        MusicPlayer.OnStopped += () => Lights.Reset();
-
+        await DeviceManager.Instance.ConnectAllDevices();
         State = GameState.Ready;
     });
 
-    public void OnMessage(object input, MidiReceivedEventArgs message)
-    {
-        var msgType = message.Data[0];
-
-        bool isNoteData = msgType == MidiEvent.NoteOn || msgType == MidiEvent.NoteOff;
-
-        if (isNoteData)
-        {
-            byte note = message.Data[1];
-            Piano.SetKey(new(note, msgType == MidiEvent.NoteOn));
-        }
-    }
-
+    // Called each game frame.
     public override void _Process(double delta)
     {
         if (State == GameState.Running)
         {
-            MusicPlayer.Update((float)delta);
+            musicPlayer.Update((float)delta);
         }
         else if (State == GameState.Ready)
         {
-            MusicPlayer.Play();
+            musicPlayer.Play();
             State = GameState.Running;
         }
         else if (State == GameState.Stopped)
@@ -113,12 +69,8 @@ public partial class GameManager : Node2D
         }
     }
 
-    public void Update(double delta) => MusicPlayer.Update((float)delta);
-
     public override void _ExitTree()
     {
-        Lights.Dispose();
-        output.Dispose();
-        input.Dispose();
+        DeviceManager.DisconnectDevices();
     }
 }

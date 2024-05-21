@@ -1,30 +1,32 @@
 using Godot;
 
-public static class PianoKeyManager
+namespace PianoTrainer.Scripts.PianoInteraction;
+
+public static class PianoKeys
 {
     public static Vector2 BlackNoteSizeRatio { get; } = new(1 / 2f, 2 / 3f);
 
     /// <summary>
-    /// Key count on the entire keyboard
+    /// Key count on the entire keyboard.
     /// </summary>
     public static int KeyboardRange { get; } = 61;
 
     /// <summary>
-    /// Black key count on the entire keyboard
+    /// Black key count on the entire keyboard.
     /// </summary>
     public static int Blacks { get; } = 25;
 
     /// <summary>
-    /// White key count on the entire keyboard
+    /// White key count on the entire keyboard.
     /// </summary>
     public static int Whites { get; } = KeyboardRange - Blacks;
 
+    // Piano keyboard layout parameters
     public const byte octave = 12;
     public const byte octaveWhites = 7;
     public const byte MIDIIndexOffset = 36;
     public const byte defaultKeyCount = 61;
 
-    // Piano keyboard layout parameters
     public const float blackWidth = 1 / 2f;
     public const float leftKeyOffset = -blackWidth * 2 / 3;
     public const float midKeyOffset = -blackWidth / 2;
@@ -82,7 +84,7 @@ public static class PianoKeyManager
     }
 
     /// <summary>
-    /// Converts piano key indices from MIDI message numeration to keyboard rumeration.
+    /// Converts piano key indices from MIDI message numeration to keyboard numeration.
     /// </summary>
     /// /// <param name="key">Midi key index.</param>
     public static byte MIDIIndexToKey(byte key) => (byte)(key - MIDIIndexOffset);

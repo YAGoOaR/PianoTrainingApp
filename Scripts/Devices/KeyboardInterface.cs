@@ -1,8 +1,8 @@
 ﻿using Commons.Music.Midi;
-using PianoTrainer.MIDI;
+using PianoTrainer.Scripts.PianoInteraction;
 using System;
 
-namespace PianoTrainer.Scripts.MIDI;
+namespace PianoTrainer.Scripts.Devices;
 
 public class KeyboardInterface(IMidiOutput piano)
 {

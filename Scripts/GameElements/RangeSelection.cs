@@ -1,5 +1,7 @@
 using Godot;
 
+namespace PianoTrainer.Scripts.GameElements;
+
 public partial class RangeSelection : ColorRect
 {
     
@@ -54,8 +56,7 @@ public partial class RangeSelection : ColorRect
                 EmitSignal(SignalName.RangeSelected, 0, 1);
             }
         }
-
-        if (@event is InputEventMouseMotion motion && selectionActive)
+        else if (@event is InputEventMouseMotion motion && selectionActive)
         {
             EmitSignal(SignalName.SelectionMoved, clickStartTime / rectLen, motion.Position.X / rectLen);
         }

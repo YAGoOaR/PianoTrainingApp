@@ -1,8 +1,9 @@
 using System.IO;
 using System.Text.Json;
 
-namespace PianoTrainer.Settings;
+namespace PianoTrainer.Scripts;
 
+// Singleton class to handle settings 
 public partial class GameSettings
 {
     public static string MenuScene { get; } = "res://Scenes/main.tscn";
@@ -29,7 +30,8 @@ public partial class GameSettings
         public string MusicPath { get; set; }
         public string PianoDeviceName { get; set; }
     }
-   
+    public GSettings Settings = new() { MusicPath = "", PlayerSettings = new() };
+
     private static GameSettings instance;
     public static GameSettings Instance
     {
@@ -40,7 +42,6 @@ public partial class GameSettings
         }
     }
 
-    public GSettings Settings = new() { MusicPath = "", PlayerSettings = new()};
     private GameSettings()
     {
         if (!Load()) Save(); // Create a new settings file if does not exist

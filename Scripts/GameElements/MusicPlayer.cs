@@ -1,12 +1,16 @@
-﻿using PianoTrainer.MIDI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PianoTrainer.Scripts.GameElements
+using PianoTrainer.Scripts.PianoInteraction;
+
+namespace PianoTrainer.Scripts.GameElements;
+
+// Singleton class that handles music flow
+public class MusicPlayer
 {
-    public struct PlayManagerState()
+    public struct MusicPlayerState()
     {
         public HashSet<byte> DesiredKeys { get; set; } = [];
         public int NextMessageGroup { get; set; } = 0;
@@ -16,113 +20,121 @@ namespace PianoTrainer.Scripts.GameElements
         public int startTime = 0;
     }
 
-    public class MusicPlayer()
+    public List<SimpleTimedKeyGroup> Notes { get; set; } = [];
+
+    public float TotalSeconds { get => totalTimeMilis * Utils.MsToSeconds; }
+    public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
+
+    public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
+    public float TimeSinceLastKey { get; private set; } = 0;
+
+    public MusicPlayerState State { get; private set; } = new();
+
+    public event Action<MusicPlayerState> OnTargetChanged;
+    public event Action OnStopped;
+
+    private int totalTimeMilis = 0;
+    private HashSet<byte> nonreadyKeys = [];
+    private bool complete = false;
+
+    public enum PlayState
     {
-        public List<SimpleTimedKeyGroup> EventGroups { get; private set; } = [];
+        Playing,
+        Stopped,
+    }
+    public PlayState PlayingState { get; private set; } = PlayState.Stopped;
 
-        private HashSet<byte> nonreadyKeys = [];
-
-        public PlayManagerState State { get; private set; } = new();
-
-        public event Action<PlayManagerState> OnTargetChanged;
-        public event Action OnComplete;
-        public event Action OnStopped;
-
-        private bool complete = false;
-
-        public int TotalTimeMilis { get; private set; } = 0;
-
-        public float TotalTimeSeconds { get => TotalTimeMilis * Utils.MsToSeconds; }
-
-        public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
-        public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
-
-        public float TimeSinceLastKey { get; private set; } = 0;
-
-        public enum PlayState
+    private static MusicPlayer instance;
+    public static MusicPlayer Instance
+    {
+        get
         {
-            Playing,
-            Stopped,
+            instance ??= new();
+            return instance;
         }
-        public PlayState PlayingState { get; private set; } = PlayState.Stopped;
+    }
 
-        public void Setup(ParsedMusic music)
+    private MusicPlayer() { }
+
+    public void Setup(ParsedMusic music)
+    {
+        Notes = music.Notes;
+        State = new();
+        totalTimeMilis = music.TotalTime;
+
+        complete = false;
+        nonreadyKeys = [];
+        PlayingState = PlayState.Stopped;
+        TimeSinceLastKey = 0;
+    }
+
+    public void Play()
+    {
+        if (PlayingState != PlayState.Stopped) return;
+        NextTarget();
+        PlayingState = PlayState.Playing;
+    }
+
+    public void Stop()
+    {
+        PlayingState = PlayState.Stopped;
+        State = new();
+        OnStopped?.Invoke();
+    }
+
+    public void NextTarget()
+    {
+        if (Notes.Count == 0) throw new Exception("PlayManager is not initialized");
+
+        if (State.NextMessageGroup > Notes.Count - 1)
         {
-            EventGroups = music.Notes;
-            State = new();
-            TotalTimeMilis = music.TotalTime;
-        }
-
-        public void Play()
-        {
-            if (PlayingState != PlayState.Stopped) return;
-            NextTarget();
-            PlayingState = PlayState.Playing;
-        }
-
-        public void Stop()
-        {
-            PlayingState = PlayState.Stopped;
-            State = new();
-            OnStopped?.Invoke();
-        }
-
-        public void NextTarget()
-        {
-            if (EventGroups.Count == 0) throw new Exception("PlayManager is not initialized");
-
-            if (State.NextMessageGroup > EventGroups.Count - 1)
-            {
-                Stop();
-                OnTargetChanged?.Invoke(State);
-                return;
-            }
-
-            var prevGroup = State.CurrentGroup == -1
-                ? new(State.startTime, [])
-                : EventGroups[State.CurrentGroup];
-
-            var group = EventGroups[State.NextMessageGroup];
-
-            State = new()
-            {
-                TotalMessagesTime = prevGroup.Time,
-                DesiredKeys = group.Keys,
-                MessageDelta = group.Time - prevGroup.Time,
-
-                CurrentGroup = State.NextMessageGroup,
-                NextMessageGroup = State.NextMessageGroup + 1
-            };
-
-            TimeSinceLastKey = 0;
+            Stop();
             OnTargetChanged?.Invoke(State);
-
-            complete = false;
+            return;
         }
 
-        public void OnKeyChange(HashSet<byte> pressedKeys)
+        var prevGroup = State.CurrentGroup == -1
+            ? new(State.startTime, [])
+            : Notes[State.CurrentGroup];
+
+        var group = Notes[State.NextMessageGroup];
+
+        State = new()
         {
-            if (PlayingState == PlayState.Stopped) return;
+            TotalMessagesTime = prevGroup.Time,
+            DesiredKeys = group.Keys,
+            MessageDelta = group.Time - prevGroup.Time,
 
-            nonreadyKeys = nonreadyKeys.Intersect(pressedKeys).ToHashSet();
+            CurrentGroup = State.NextMessageGroup,
+            NextMessageGroup = State.NextMessageGroup + 1
+        };
 
-            if (complete || State.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
+        TimeSinceLastKey = 0;
+        OnTargetChanged?.Invoke(State);
 
-            complete = true;
-            nonreadyKeys = new(pressedKeys);
+        complete = false;
+    }
 
-            Task.Run(async () =>
-            {
-                await Task.Delay(Math.Max(0, TimeToNextKey));
-                NextTarget();
-            });
+    public void OnKeyChange(HashSet<byte> pressedKeys)
+    {
+        if (PlayingState == PlayState.Stopped) return;
 
-            OnComplete?.Invoke();
-        }
+        nonreadyKeys = nonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
-        public void Update(float dT)
+        if (complete || State.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
+
+        complete = true;
+        nonreadyKeys = new(pressedKeys);
+
+        Task.Run(async () =>
         {
-            TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondsToMs, State.MessageDelta);
-        }
+            await Task.Delay(Math.Max(0, TimeToNextKey));
+            NextTarget();
+        });
+    }
+
+    public void Update(float dT)
+    {
+        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondsToMs, State.MessageDelta);
     }
 }
