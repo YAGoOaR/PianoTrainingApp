@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts;
 
+/// <summary>
+/// The main class that handles the game flow.
+/// </summary>
 public partial class GameManager : Node2D
 {
     public static GameManager Instance { get; private set; }
@@ -27,6 +30,7 @@ public partial class GameManager : Node2D
 
     public GameState State { get; private set; } = GameState.Preparing;
 
+    // Called when game scene is loaded
     public override void _Ready()
     {
         Instance = this;
@@ -40,6 +44,7 @@ public partial class GameManager : Node2D
         SetupDevice();
     }
 
+    // Opens I/O MIDI ports to devices and sets events asynchronously
     public Task SetupDevice() => Task.Run(async () =>
     {
         var device = GameSettings.Instance.Settings.PianoDeviceName;
@@ -62,6 +67,7 @@ public partial class GameManager : Node2D
         State = GameState.Ready;
     });
 
+    // Handles MIDI messages that come from piano device
     public void OnMessage(object _, MidiReceivedEventArgs message)
     {
         var msgType = message.Data[0];
@@ -75,6 +81,7 @@ public partial class GameManager : Node2D
         }
     }
 
+    // Called each game frame.
     public override void _Process(double delta)
     {
         if (State == GameState.Running)
