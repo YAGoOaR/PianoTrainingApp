@@ -11,7 +11,7 @@ internal class KeyboardConnectionHolder
 
     private const int period = 50;
 
-    static void HoldLoop(KeyboardInterface lights, TaskCompletionSource stopSignal)
+    static void HoldLoop(LightsMIDIInterface lights, TaskCompletionSource stopSignal)
     {
         lights.SendHold();
         Thread.Sleep(period);
@@ -23,7 +23,7 @@ internal class KeyboardConnectionHolder
         }
     }
 
-    public KeyboardConnectionHolder(KeyboardInterface lights)
+    public KeyboardConnectionHolder(LightsMIDIInterface lights)
     {
         stopSignal = new();
 
