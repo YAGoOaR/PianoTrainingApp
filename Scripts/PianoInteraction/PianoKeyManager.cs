@@ -1,5 +1,7 @@
 using Godot;
 
+namespace PianoTrainer.Scripts.PianoInteraction;
+
 public static class PianoKeyManager
 {
     public static Vector2 BlackNoteSizeRatio { get; } = new(1 / 2f, 2 / 3f);

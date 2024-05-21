@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
-using PianoTrainer.Scripts.MIDI;
 using PianoTrainer.Scripts.GameElements;
-using PianoTrainer.Settings;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 

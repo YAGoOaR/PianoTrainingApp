@@ -1,14 +1,12 @@
 
-using Commons.Music.Midi;
-using PianoTrainer.Scripts;
-using PianoTrainer.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Commons.Music.Midi;
 
-namespace PianoTrainer.MIDI;
+namespace PianoTrainer.Scripts.PianoInteraction;
 
 public record SimpleMsg(byte Key, bool State);
 public record SimpleTimedMsg(byte Key, bool State, int DeltaTime) : SimpleMsg(Key, State);

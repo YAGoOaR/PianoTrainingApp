@@ -1,13 +1,10 @@
 using Commons.Music.Midi;
 using Godot;
-using PianoTrainer.MIDI;
 using PianoTrainer.Scripts.GameElements;
-using PianoTrainer.Scripts.MIDI;
 using PianoTrainer.Scripts.PianoInteraction;
-using PianoTrainer.Settings;
 using System.Threading.Tasks;
 
-namespace PianoTrainer.Game;
+namespace PianoTrainer.Scripts;
 
 public partial class GameManager : Node2D
 {

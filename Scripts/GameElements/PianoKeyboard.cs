@@ -1,7 +1,9 @@
 using Godot;
-using PianoTrainer.Game;
 using System.Collections.Generic;
-using static PianoKeyManager;
+
+using static PianoTrainer.Scripts.PianoInteraction.PianoKeyManager;
+
+namespace PianoTrainer.Scripts.GameElements;
 
 // Defines Piano key setup and layout
 public partial class PianoKeyboard : Control

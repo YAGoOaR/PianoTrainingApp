@@ -1,6 +1,7 @@
 using Godot;
-using PianoTrainer.Settings;
 using System.IO;
+
+namespace PianoTrainer.Scripts.Menu;
 
 internal partial class Menu : Control
 {

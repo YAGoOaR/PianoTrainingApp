@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace PianoTrainer.Settings;
+namespace PianoTrainer.Scripts;
 
 // Singleton class to handle settings 
 public partial class GameSettings

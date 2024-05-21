@@ -1,5 +1,7 @@
 using Godot;
 
+namespace PianoTrainer.Scripts.GameElements;
+
 public partial class RangeSelection : ColorRect
 {
     

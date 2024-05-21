@@ -1,7 +1,6 @@
 using Godot;
-using PianoTrainer.Game;
-using PianoTrainer.Scripts;
-using PianoTrainer.Scripts.GameElements;
+
+namespace PianoTrainer.Scripts.GameElements;
 
 public partial class ProgressBar : Control
 {

@@ -3,83 +3,81 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace PianoTrainer.Scripts.MIDI
+namespace PianoTrainer.Scripts.PianoInteraction;
+
+internal abstract class PortManager<T>(string portName) where T : IMidiPort
 {
-    internal abstract class PortManager<T>(string portName) where T : IMidiPort
+    private const int waitTime = 1000;
+
+    private static IMidiPortDetails GetPort(string portName)
     {
-        private const int waitTime = 1000;
+        var access = MidiAccessManager.Default;
+        var ports = typeof(T) == typeof(IMidiInput) ? access.Inputs : access.Outputs;
+        var found = from deviceName in ports where deviceName.Name == portName select deviceName;
 
-        private static IMidiPortDetails GetPort(string portName)
+        return found.Any() ? found.First() : null;
+    }
+
+    protected async Task<IMidiPortDetails> GetPortDetails()
+    {
+        var details = GetPort(portName);
+
+        if (details == null)
         {
-            var access = MidiAccessManager.Default;
-            var ports = typeof(T) == typeof(IMidiInput) ? access.Inputs : access.Outputs;
-            var found = from deviceName in ports where deviceName.Name == portName select deviceName;
+            Debug.WriteLine($"Port \"{portName}\" not found!");
+            Debug.WriteLine($"Waiting for device to be available.");
 
-            return found.Any() ? found.First() : null;
-        }
-
-        protected async Task<IMidiPortDetails> GetPortDetails()
-        {
-            var details = GetPort(portName);
-
-            if (details == null)
+            return await Task.Run(async () =>
             {
-                Debug.WriteLine($"Port \"{portName}\" not found!");
-                Debug.WriteLine($"Waiting for device to be available.");
-
-                return await Task.Run(async () =>
+                while (details == null)
                 {
-                    while (details == null)
-                    {
-                        await Task.Delay(waitTime);
-                        details = GetPort(portName);
-                    }
-                    return details;
-                });
-            }
-            else
-            {
+                    await Task.Delay(waitTime);
+                    details = GetPort(portName);
+                }
                 return details;
-            }
+            });
         }
-
-        public abstract void ListDevices();
+        else
+        {
+            return details;
+        }
     }
 
-    internal class InputPortManager(string portName) : PortManager<IMidiInput>(portName)
+    public abstract void ListDevices();
+}
+
+internal class InputPortManager(string portName) : PortManager<IMidiInput>(portName)
+{
+    public async Task<IMidiInput> OpenPort()
     {
-        public async Task<IMidiInput> OpenPort()
-        {
-            var access = MidiAccessManager.Default;
-            var details = await GetPortDetails();
+        var access = MidiAccessManager.Default;
+        var details = await GetPortDetails();
 
-            return await access.OpenInputAsync(details.Id);
-        }
-
-        public override void ListDevices()
-        {
-            Debug.WriteLine("Available input devices:");
-            MidiAccessManager.Default.Inputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
-            Debug.WriteLine("");
-        }
+        return await access.OpenInputAsync(details.Id);
     }
 
-    internal class OutputPortManager(string portName) : PortManager<IMidiOutput>(portName)
+    public override void ListDevices()
     {
-        public async Task<IMidiOutput> OpenPort()
-        {
-            var access = MidiAccessManager.Default;
-            var details = await GetPortDetails();
+        Debug.WriteLine("Available input devices:");
+        MidiAccessManager.Default.Inputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
+        Debug.WriteLine("");
+    }
+}
 
-            return await access.OpenOutputAsync(details.Id);
-        }
+internal class OutputPortManager(string portName) : PortManager<IMidiOutput>(portName)
+{
+    public async Task<IMidiOutput> OpenPort()
+    {
+        var access = MidiAccessManager.Default;
+        var details = await GetPortDetails();
 
-        public override void ListDevices()
-        {
-            Debug.WriteLine("Available output devices:");
-            MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
-            Debug.WriteLine("");
-        }
+        return await access.OpenOutputAsync(details.Id);
     }
 
+    public override void ListDevices()
+    {
+        Debug.WriteLine("Available output devices:");
+        MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
+        Debug.WriteLine("");
+    }
 }

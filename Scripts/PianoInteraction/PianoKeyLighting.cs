@@ -5,148 +5,147 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace PianoTrainer.Scripts.MIDI
+namespace PianoTrainer.Scripts.PianoInteraction;
+
+public class PianoKeyLighting : IDisposable
 {
-    public class PianoKeyLighting : IDisposable
+    public event Action PreTick;
+    private event Action<List<byte>> DesiredStateUpdate;
+
+    public LightState LightsState { get; }
+
+    public List<byte> _blinks = [];
+    public List<byte> Blinks
     {
-        public event Action PreTick;
-        private event Action<List<byte>> DesiredStateUpdate;
-
-        public LightState LightsState { get; }
-
-        public List<byte> _blinks = [];
-        public List<byte> Blinks
+        get => _blinks;
+        set
         {
-            get => _blinks;
-            set
+            _blinks = value;
+            DesiredStateUpdate?.Invoke(value);
+        }
+    }
+
+    public List<byte> _activeNotes = [];
+
+    public List<byte> ActiveNotes
+    {
+        get => _activeNotes;
+        set
+        {
+            _activeNotes = value;
+            DesiredStateUpdate?.Invoke(value);
+        }
+    }
+
+    private readonly KeyboardConnectionHolder keyLightsHolder;
+
+    public int TickTime { get; } = 25;
+
+    private int rollCycle = 0;
+
+    private readonly Thread tickThread;
+
+    public TaskCompletionSource StopSignal { get; }
+
+    public PianoKeyLighting(KeyboardInterface lights)
+    {
+        LightsState = new(lights);
+        StopSignal = new();
+
+        var started = new TaskCompletionSource();
+
+        keyLightsHolder = new KeyboardConnectionHolder(lights, started);
+
+        started.Task.Wait();
+
+        tickThread = new Thread(async () =>
+        {
+            while (!StopSignal.Task.IsCompleted)
             {
-                _blinks = value;
-                DesiredStateUpdate?.Invoke(value);
+                OnTick();
+                await Task.Delay(TickTime);
+            }
+        });
+        tickThread.Start();
+        DesiredStateUpdate += OnDesiredStateUpdate;
+        ClearKeys();
+    }
+
+    public static IEnumerable<T> Rotate<T>(IEnumerable<T> list, int offset)
+    {
+        return list.Skip(offset).Concat(list.Take(offset)).ToList();
+    }
+
+    public void SetKeys(List<byte> keys)
+    {
+        ActiveNotes = keys;
+
+        lock (LightsState)
+        {
+            foreach (byte key in keys)
+            {
+                LightsState.SetLight(key);
             }
         }
+    }
 
-        public List<byte> _activeNotes = [];
+    private void OnDesiredStateUpdate(List<byte> state) => rollCycle = 0;
 
-        public List<byte> ActiveNotes
+    public void OnTick()
+    {
+        PreTick?.Invoke();
+
+        List<byte> finalState = [.. ActiveNotes, .. Blinks];
+
+        byte maxKeys = LightState.maxKeysDisplayed;
+
+        if (finalState.Count > maxKeys)
         {
-            get => _activeNotes;
-            set
-            {
-                _activeNotes = value;
-                DesiredStateUpdate?.Invoke(value);
-            }
-        }
+            List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, maxKeys - ActiveNotes.Count))];
 
-        private readonly KeyboardConnectionHolder keyLightsHolder;
-
-        public int TickTime { get; } = 25;
-
-        private int rollCycle = 0;
-
-        private readonly Thread tickThread;
-
-        public TaskCompletionSource StopSignal { get; }
-
-        public PianoKeyLighting(KeyboardInterface lights)
-        {
-            LightsState = new(lights);
-            StopSignal = new();
-
-            var started = new TaskCompletionSource();
-
-            keyLightsHolder = new KeyboardConnectionHolder(lights, started);
-
-            started.Task.Wait();
-
-            tickThread = new Thread(async () =>
-            {
-                while (!StopSignal.Task.IsCompleted)
-                {
-                    OnTick();
-                    await Task.Delay(TickTime);
-                }
-            });
-            tickThread.Start();
-            DesiredStateUpdate += OnDesiredStateUpdate;
-            ClearKeys();
-        }
-
-        public static IEnumerable<T> Rotate<T>(IEnumerable<T> list, int offset)
-        {
-            return list.Skip(offset).Concat(list.Take(offset)).ToList();
-        }
-
-        public void SetKeys(List<byte> keys)
-        {
-            ActiveNotes = keys;
+            var activeLights = Rotate(selected, rollCycle).Take(maxKeys).ToList();
 
             lock (LightsState)
             {
-                foreach (byte key in keys)
-                {
-                    LightsState.SetLight(key);
-                }
+                LightsState.SetMultipleLights(activeLights);
             }
+            rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
         }
-
-        private void OnDesiredStateUpdate(List<byte> state) => rollCycle = 0;
-
-        public void OnTick()
+        else
         {
-            PreTick?.Invoke();
+            LightsState.SetMultipleLights(finalState);
+        }
+    }
 
-            List<byte> finalState = [.. ActiveNotes, .. Blinks];
+    public void AddBlink(byte key, int blinkTime = 50)
+    {
+        Blinks = [key, .. Blinks];
 
-            byte maxKeys = LightState.maxKeysDisplayed;
+        Task.Run(async () =>
+        {
+            await Task.Delay(blinkTime);
 
-            if (finalState.Count > maxKeys)
+            lock (LightsState)
             {
-                List<byte> selected = [.. ActiveNotes, .. Blinks.Take(Math.Max(0, maxKeys - ActiveNotes.Count))];
-
-                var activeLights = Rotate(selected, rollCycle).Take(maxKeys).ToList();
-
-                lock (LightsState)
-                {
-                    LightsState.SetMultipleLights(activeLights);
-                }
-                rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
+                Blinks = Blinks.Where(x => x != key).ToList();
             }
-            else
-            {
-                LightsState.SetMultipleLights(finalState);
-            }
-        }
+        });
+    }
 
-        public void AddBlink(byte key, int blinkTime = 50)
-        {
-            Blinks = [key, .. Blinks];
+    public void Dispose()
+    {
+        LightsState.Reset();
+        StopSignal.TrySetResult();
+        keyLightsHolder.Dispose();
+        ClearKeys();
+    }
 
-            Task.Run(async () =>
-            {
-                await Task.Delay(blinkTime);
+    public void ClearKeys() => LightsState.ResetKeys();
 
-                lock (LightsState)
-                {
-                    Blinks = Blinks.Where(x => x != key).ToList();
-                }
-            });
-        }
-
-        public void Dispose()
-        {
-            LightsState.Reset();
-            StopSignal.TrySetResult();
-            keyLightsHolder.Dispose();
-            ClearKeys();
-        }
-
-        public void ClearKeys() => LightsState.ResetKeys();
-
-        public void Reset()
-        {
-            LightsState.Reset();
-            ActiveNotes = [];
-            Blinks = [];
-        }
+    public void Reset()
+    {
+        LightsState.Reset();
+        ActiveNotes = [];
+        Blinks = [];
     }
 }
