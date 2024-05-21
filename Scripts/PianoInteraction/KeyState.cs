@@ -2,14 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PianoTrainer.Scripts.Devices;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
-using static PianoKeyManager;
+using static PianoKeys;
 
 public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
 {
-    public event Action<byte, bool> KeyChange;
+    public virtual event Action<SimpleMsg> KeyChange;
     public byte MinKey { get; } = minKey;
     public byte MaxKey { get; } = maxKey;
     public HashSet<byte> State { get; } = [];
@@ -30,28 +31,19 @@ public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffs
     {
         if (SilentSetKey(keyChange))
         {
-            KeyChange?.Invoke(keyChange.Key, keyChange.State);
+            KeyChange?.Invoke(keyChange);
             return true;
         }
         return false;
     }
 }
 
-public class LightState(KeyboardInterface lights) : KeyState
+public class LightState() : KeyState
 {
-    private readonly KeyboardInterface lights = lights;
     private Queue<byte> lightQueue = [];
     public const byte maxKeysDisplayed = 4;
 
-    public bool UpdateNote(SimpleMsg msg)
-    {
-        if (base.SetKey(msg))
-        {
-            lights.SendProprietary(msg);
-            return true;
-        }
-        return false;
-    }
+    public bool UpdateNote(SimpleMsg msg) => base.SetKey(msg);
 
     public bool SetLight(byte keyOn)
     {

@@ -61,6 +61,11 @@ public class MusicPlayer
         Notes = music.Notes;
         State = new();
         totalTimeMilis = music.TotalTime;
+
+        complete = false;
+        nonreadyKeys = [];
+        PlayingState = PlayState.Stopped;
+        TimeSinceLastKey = 0;
     }
 
     public void Play()

@@ -4,15 +4,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using PianoTrainer.Scripts.PianoInteraction;
 
-namespace PianoTrainer.Scripts.PianoInteraction;
+namespace PianoTrainer.Scripts.Devices;
 
-public class PianoKeyLighting : IDisposable
+public class PianoKeyLighting
 {
     public event Action PreTick;
     private event Action<List<byte>> DesiredStateUpdate;
 
-    public LightState LightsState { get; }
+    private readonly LightState lightsState;
 
     public List<byte> _blinks = [];
     public List<byte> Blinks
@@ -37,8 +38,6 @@ public class PianoKeyLighting : IDisposable
         }
     }
 
-    private readonly KeyboardConnectionHolder keyLightsHolder;
-
     public int TickTime { get; } = 25;
 
     private int rollCycle = 0;
@@ -47,16 +46,10 @@ public class PianoKeyLighting : IDisposable
 
     public TaskCompletionSource StopSignal { get; }
 
-    public PianoKeyLighting(KeyboardInterface lights)
+    public PianoKeyLighting(LightState lights)
     {
-        LightsState = new(lights);
+        lightsState = lights;
         StopSignal = new();
-
-        var started = new TaskCompletionSource();
-
-        keyLightsHolder = new KeyboardConnectionHolder(lights, started);
-
-        started.Task.Wait();
 
         tickThread = new Thread(async () =>
         {
@@ -80,11 +73,11 @@ public class PianoKeyLighting : IDisposable
     {
         ActiveNotes = keys;
 
-        lock (LightsState)
+        lock (lightsState)
         {
             foreach (byte key in keys)
             {
-                LightsState.SetLight(key);
+                lightsState.SetLight(key);
             }
         }
     }
@@ -105,15 +98,15 @@ public class PianoKeyLighting : IDisposable
 
             var activeLights = Rotate(selected, rollCycle).Take(maxKeys).ToList();
 
-            lock (LightsState)
+            lock (lightsState)
             {
-                LightsState.SetMultipleLights(activeLights);
+                lightsState.SetMultipleLights(activeLights);
             }
             rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
         }
         else
         {
-            LightsState.SetMultipleLights(finalState);
+            lightsState.SetMultipleLights(finalState);
         }
     }
 
@@ -125,7 +118,7 @@ public class PianoKeyLighting : IDisposable
         {
             await Task.Delay(blinkTime);
 
-            lock (LightsState)
+            lock (lightsState)
             {
                 Blinks = Blinks.Where(x => x != key).ToList();
             }
@@ -134,17 +127,16 @@ public class PianoKeyLighting : IDisposable
 
     public void Dispose()
     {
-        LightsState.ResetKeys();
+        lightsState.ResetKeys();
         StopSignal.TrySetResult();
-        keyLightsHolder.Dispose();
-        ClearKeys();
+        Reset();
     }
 
-    public void ClearKeys() => LightsState.ResetKeys();
+    public void ClearKeys() => lightsState.ResetKeys();
 
     public void Reset()
     {
-        LightsState.ResetKeys();
+        lightsState.ResetKeys();
         ActiveNotes = [];
         Blinks = [];
     }

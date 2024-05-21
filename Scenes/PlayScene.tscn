@@ -107,7 +107,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.4, 0.752941, 0.886275, 0.654902)
 
-[node name="Piano" type="ReferenceRect" parent="Control" node_paths=PackedStringArray("midiManager")]
+[node name="Piano" type="ReferenceRect" parent="Control"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -118,7 +118,6 @@ grow_horizontal = 2
 grow_vertical = 0
 border_width = 3.0
 script = ExtResource("4_4ebec")
-midiManager = NodePath("../../GameManager")
 
 [connection signal="RangeSelected" from="Control/ProgressBar/Background" to="GameManager" method="SelectRange"]
 [connection signal="SelectionMoved" from="Control/ProgressBar/Background" to="GameManager" method="RangeSelectionMoved"]

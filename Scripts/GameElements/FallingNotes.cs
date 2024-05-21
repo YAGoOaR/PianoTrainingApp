@@ -4,7 +4,7 @@ using System.Linq;
 
 using static PianoTrainer.Scripts.Utils;
 using PianoTrainer.Scripts.PianoInteraction;
-using static PianoTrainer.Scripts.PianoInteraction.PianoKeyManager;
+using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 

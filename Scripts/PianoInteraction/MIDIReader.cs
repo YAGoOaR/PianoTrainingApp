@@ -33,9 +33,11 @@ public partial class MIDIReader
 
         var keyMessages = keyMIDIMessages
             .Select(msg => MIDIMsgToSimpleMsg(msg, currentTempo, music.DeltaTimeSpec))
-            .ToList();
-
-        var groups = KeyGroupsToAbsTime(ExtractKeyGroups(ExtractKeyOnMessages(keyMessages, keyAcceptCriteria)));
+            .ToList()
+            .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
+            .Pipe(ExtractKeyGroups)
+            .Pipe((groups) => ChangeStartTime(groups, gameSettings.Settings.PlayerSettings.StartOffset))
+            .Pipe(KeyGroupsToAbsTime);
 
         return new (groups, groups.Last().Time);
     }
@@ -156,6 +158,7 @@ public partial class MIDIReader
         foreach (var msg in keyEvents)
         {
             timeAcc += msg.Time;
+            if (msg.Keys.Count == 0) continue;
             eventsAbsTime.Add(new(timeAcc, msg.Keys));
         }
 
@@ -174,14 +177,14 @@ public partial class MIDIReader
         return music;
     }
 
-    private static List<SimpleTimedMsg> ChangeStartTime(List<SimpleTimedMsg> keyOnMessages, int startOffset)
+    private static List<SimpleTimedKeyGroup> ChangeStartTime(List<SimpleTimedKeyGroup> keyGroups, int startOffset)
     {
-        if (keyOnMessages.Count > 0)
+        if (keyGroups.Count > 0)
         {
-            var (firstMsg, rest) = (keyOnMessages.First(), keyOnMessages[1..]);
-            return [new(firstMsg.Key, firstMsg.State, startOffset), .. rest];
+            var (firstMsg, rest) = (keyGroups.First(), keyGroups[1..]);
+            return [new(0, []), new(startOffset, firstMsg.Keys), .. rest];
         }
-        return keyOnMessages;
+        return keyGroups;
     }
 
     private static List<SimpleTimedKeyGroup> FindKeyGroupSpan(List<SimpleTimedKeyGroup> groups, (float, float) timeRange)

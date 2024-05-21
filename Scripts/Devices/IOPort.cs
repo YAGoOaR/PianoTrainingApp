@@ -3,11 +3,13 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace PianoTrainer.Scripts.PianoInteraction;
+namespace PianoTrainer.Scripts.Devices;
 
-internal abstract class PortManager<T>(string portName) where T : IMidiPort
+public abstract class IOPort<T>(string portName) where T : IMidiPort
 {
     private const int waitTime = 1000;
+
+    protected IMidiPort port = null;
 
     private static bool GetPort(string portName, out IMidiPortDetails port)
     {
@@ -30,7 +32,7 @@ internal abstract class PortManager<T>(string portName) where T : IMidiPort
 
             await Task.Run(async () =>
             {
-                while (!GetPort(portName, out details)) 
+                while (!GetPort(portName, out details))
                     await Task.Delay(waitTime);
             });
         }
@@ -38,41 +40,40 @@ internal abstract class PortManager<T>(string portName) where T : IMidiPort
         return details;
     }
 
-    public abstract void ListDevices();
+    public Task ClosePort()
+    {
+        Task closingTask = port?.CloseAsync();
+
+        port = null;
+
+        return closingTask;
+    }
 }
 
-internal class InputPortManager(string portName) : PortManager<IMidiInput>(portName)
+public class InputPort(string portName) : IOPort<IMidiInput>(portName)
 {
     public async Task<IMidiInput> OpenPort()
     {
         var access = MidiAccessManager.Default;
         var details = await GetPortDetails();
 
-        return await access.OpenInputAsync(details.Id);
-    }
+        var port = await access.OpenInputAsync(details.Id);
 
-    public override void ListDevices()
-    {
-        Debug.WriteLine("Available input devices:");
-        MidiAccessManager.Default.Inputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
-        Debug.WriteLine("");
+        base.port = port;
+        return port;
     }
 }
 
-internal class OutputPortManager(string portName) : PortManager<IMidiOutput>(portName)
+public class OutputPort(string portName) : IOPort<IMidiOutput>(portName)
 {
     public async Task<IMidiOutput> OpenPort()
     {
         var access = MidiAccessManager.Default;
         var details = await GetPortDetails();
 
-        return await access.OpenOutputAsync(details.Id);
-    }
+        var port = await access.OpenOutputAsync(details.Id);
 
-    public override void ListDevices()
-    {
-        Debug.WriteLine("Available output devices:");
-        MidiAccessManager.Default.Outputs.ToList().ForEach(x => Debug.WriteLine(x.Name));
-        Debug.WriteLine("");
+        base.port = port;
+        return port;
     }
 }

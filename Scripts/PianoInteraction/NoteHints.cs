@@ -2,17 +2,42 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using PianoTrainer.Scripts.GameElements;
+using PianoTrainer.Scripts.Devices;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
-public class NoteHints(PianoKeyLighting lightController)
+public class NoteHints
 {
     private static GameSettings.PlayerSettings PlayerSettings { get => GameSettings.Instance.Settings.PlayerSettings; }
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private readonly PianoKeyLighting lights;
+
+    private static NoteHints instance;
+    public static NoteHints Instance
+    {
+        get
+        {
+            instance ??= new();
+            return instance;
+        }
+    }
+
+    private NoteHints()
+    {
+        lights = new PianoKeyLighting(DeviceManager.Instance.DefaultLights.Ligths);
+
+        musicPlayer.OnTargetChanged += OnTargetCompleted;
+        musicPlayer.OnStopped += lights.Reset;
+    }
+
+    public static void Init()
+    {
+        instance ??= new();
+    }
 
     public void OnTargetCompleted(MusicPlayer.MusicPlayerState state)
     {
-        lightController.Reset();
+        lights.Reset();
 
         List<byte> keys = new(state.DesiredKeys);
 
@@ -28,7 +53,7 @@ public class NoteHints(PianoKeyLighting lightController)
     private Task LateNotePressHint(List<byte> keys, int timeToPress) => Task.Run(async () =>
     {
         await Task.Delay(Math.Max(0, timeToPress - PlayerSettings.KeyTimeOffset));
-        lightController.SetKeys(keys);
+        lights.SetKeys(keys);
     });
 
     // Blinking light hint
@@ -44,9 +69,9 @@ public class NoteHints(PianoKeyLighting lightController)
 
             foreach (var k in keys)
             {
-                lightController.AddBlink(k, interval);
+                lights.AddBlink(k, interval);
             }
-            await Task.Delay(PlayerSettings.BlinkInterval + interval + lightController.TickTime);
+            await Task.Delay(PlayerSettings.BlinkInterval + interval + lights.TickTime);
         }
     });
 }

@@ -3,19 +3,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PianoTrainer.Scripts.PianoInteraction;
+namespace PianoTrainer.Scripts.Devices;
 
-internal class KeyboardConnectionHolder : IDisposable
+internal class KeyboardConnectionHolder
 {
     private readonly TaskCompletionSource stopSignal;
 
     private const int period = 50;
 
-    static void HoldLoop(KeyboardInterface lights, TaskCompletionSource started, TaskCompletionSource stopSignal)
+    static void HoldLoop(KeyboardInterface lights, TaskCompletionSource stopSignal)
     {
         lights.SendHold();
         Thread.Sleep(period);
-        started.SetResult();
 
         while (!stopSignal.Task.IsCompleted)
         {
@@ -24,11 +23,11 @@ internal class KeyboardConnectionHolder : IDisposable
         }
     }
 
-    public KeyboardConnectionHolder(KeyboardInterface lights, TaskCompletionSource started)
+    public KeyboardConnectionHolder(KeyboardInterface lights)
     {
         stopSignal = new();
 
-        Thread holdLoop = new(() => HoldLoop(lights, started, stopSignal));
+        Thread holdLoop = new(() => HoldLoop(lights, stopSignal));
 
         holdLoop.Start();
     }

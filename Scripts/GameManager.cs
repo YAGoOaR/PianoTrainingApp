@@ -1,5 +1,5 @@
-using Commons.Music.Midi;
 using Godot;
+using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
 using PianoTrainer.Scripts.PianoInteraction;
 using System.Threading.Tasks;
@@ -11,12 +11,7 @@ namespace PianoTrainer.Scripts;
 /// </summary>
 public partial class GameManager : Node2D
 {
-    public KeyState Piano { get; private set; }
-
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    private IMidiOutput output;
-    private IMidiInput input;
-    private PianoKeyLighting lights;
 
     public enum GameState
     {
@@ -32,50 +27,20 @@ public partial class GameManager : Node2D
     // Called when game scene is loaded
     public override void _Ready()
     {
-        Piano = new();
+        NoteHints.Init();
 
-        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: Piano.HasKey);
+        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: DeviceManager.Instance.DefaultPiano.Piano.HasKey);
 
         musicPlayer.Setup(parsedMusic);
 
-        SetupDevice();
+        SetupDevices();
     }
 
-    // Opens I/O MIDI ports to devices and sets events asynchronously
-    public Task SetupDevice() => Task.Run(async () =>
+    public Task SetupDevices() => Task.Run(async () =>
     {
-        var device = GameSettings.Instance.Settings.PianoDeviceName;
-
-        output = await new OutputPortManager(device).OpenPort();
-        input = await new InputPortManager(device).OpenPort();
-
-        lights = new PianoKeyLighting(new(output));
-
-        var keyHints = new NoteHints(lights);
-
-        input.MessageReceived += OnMessage;
-
-        Piano.KeyChange += (_, _) => musicPlayer.OnKeyChange(Piano.State);
-
-        musicPlayer.OnTargetChanged += keyHints.OnTargetCompleted;
-        musicPlayer.OnStopped += lights.Reset;
-
+        await DeviceManager.Instance.ConnectAllDevices();
         State = GameState.Ready;
     });
-
-    // Handles MIDI messages that come from piano device
-    public void OnMessage(object _, MidiReceivedEventArgs message)
-    {
-        var msgType = message.Data[0];
-
-        bool isNoteData = msgType == MidiEvent.NoteOn || msgType == MidiEvent.NoteOff;
-
-        if (isNoteData)
-        {
-            byte note = message.Data[1];
-            Piano.SetKey(new(note, msgType == MidiEvent.NoteOn));
-        }
-    }
 
     // Called each game frame.
     public override void _Process(double delta)
@@ -106,8 +71,6 @@ public partial class GameManager : Node2D
 
     public override void _ExitTree()
     {
-        lights.Dispose();
-        output.Dispose();
-        input.Dispose();
+        DeviceManager.DisconnectDevices();
     }
 }
