@@ -18,9 +18,11 @@ public partial class MIDIReader
 {
     const int defaultTempo = 500000;
 
+    private static readonly GameSettings gameSettings = GameSettings.Instance;
+
     public static ParsedMusic LoadSelectedMusic(Func<byte, bool> noteFilter)
     {
-        var midiMusic = LoadMIDI(GameSettings.Instance.Settings.MusicPath);
+        var midiMusic = LoadMIDI(gameSettings.Settings.MusicPath);
 
         return ParseMusic(midiMusic, noteFilter);
     }
@@ -31,7 +33,7 @@ public partial class MIDIReader
 
         var (keyMIDIMessages, currentTempo) = SetupMetadata(allMessages);
 
-        var keyMessages = keyMIDIMessages
+        var groups = keyMIDIMessages
             .Select(msg => MIDIMsgToSimpleMsg(msg, currentTempo, music.DeltaTimeSpec))
             .ToList()
             .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
