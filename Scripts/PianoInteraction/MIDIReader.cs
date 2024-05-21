@@ -191,6 +191,6 @@ public partial class MIDIReader
 
     private static List<SimpleTimedKeyGroup> FindKeyGroupSpan(List<SimpleTimedKeyGroup> groups, (float, float) timeRange)
     {
-        return groups.SkipWhile(g => g.Time < timeRange.Item1 * 1000).TakeWhile(g => g.Time <= timeRange.Item2 * 1000).ToList();
+        return groups.SkipWhile(g => g.Time < timeRange.Item1 * Utils.SecondsToMs).TakeWhile(g => g.Time <= timeRange.Item2 * Utils.SecondsToMs).ToList();
     }
 }
