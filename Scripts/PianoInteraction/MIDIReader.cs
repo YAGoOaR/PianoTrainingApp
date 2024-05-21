@@ -18,9 +18,11 @@ public partial class MIDIReader
 {
     const int defaultTempo = 500000;
 
+    private static readonly GameSettings gameSettings = GameSettings.Instance;
+
     public static ParsedMusic LoadSelectedMusic(Func<byte, bool> noteFilter)
     {
-        var midiMusic = LoadMIDI(GameSettings.Instance.Settings.MusicPath);
+        var midiMusic = LoadMIDI(gameSettings.Settings.MusicPath);
 
         return ParseMusic(midiMusic, noteFilter);
     }
@@ -31,11 +33,13 @@ public partial class MIDIReader
 
         var (keyMIDIMessages, currentTempo) = SetupMetadata(allMessages);
 
-        var keyMessages = keyMIDIMessages
+        var groups = keyMIDIMessages
             .Select(msg => MIDIMsgToSimpleMsg(msg, currentTempo, music.DeltaTimeSpec))
-            .ToList();
-
-        var groups = KeyGroupsToAbsTime(ExtractKeyGroups(ExtractKeyOnMessages(keyMessages, keyAcceptCriteria)));
+            .ToList()
+            .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
+            .Pipe(ExtractKeyGroups)
+            .Pipe(KeyGroupsToAbsTime)
+            .Pipe((groups) => ChangeStartTime(groups, gameSettings.Settings.PlayerSettings.StartOffset));
 
         return new (groups, groups.Last().Time);
     }
@@ -174,12 +178,12 @@ public partial class MIDIReader
         return music;
     }
 
-    private static List<SimpleTimedMsg> ChangeStartTime(List<SimpleTimedMsg> keyOnMessages, int startOffset)
+    private static List<SimpleTimedKeyGroup> ChangeStartTime(List<SimpleTimedKeyGroup> keyOnMessages, int startOffset)
     {
         if (keyOnMessages.Count > 0)
         {
             var (firstMsg, rest) = (keyOnMessages.First(), keyOnMessages[1..]);
-            return [new(firstMsg.Key, firstMsg.State, startOffset), .. rest];
+            return [new(startOffset, firstMsg.Keys), .. rest];
         }
         return keyOnMessages;
     }
