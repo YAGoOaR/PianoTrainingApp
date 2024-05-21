@@ -9,32 +9,29 @@ internal abstract class PortManager<T>(string portName) where T : IMidiPort
 {
     private const int waitTime = 1000;
 
-    private static IMidiPortDetails GetPort(string portName)
+    private static bool GetPort(string portName, out IMidiPortDetails port)
     {
         var access = MidiAccessManager.Default;
         var ports = typeof(T) == typeof(IMidiInput) ? access.Inputs : access.Outputs;
-        var found = from deviceName in ports where deviceName.Name == portName select deviceName;
+        var foundPorts = from deviceName in ports where deviceName.Name == portName select deviceName;
 
-        return found.Any() ? found.First() : null;
+        bool found = foundPorts.Any();
+        port = found ? foundPorts.First() : null;
+
+        return found;
     }
 
     protected async Task<IMidiPortDetails> GetPortDetails()
     {
-        var details = GetPort(portName);
-
-        if (details == null)
+        if (!GetPort(portName, out var details))
         {
             Debug.WriteLine($"Port \"{portName}\" not found!");
             Debug.WriteLine($"Waiting for device to be available.");
 
-            return await Task.Run(async () =>
+            await Task.Run(async () =>
             {
-                while (details == null)
-                {
+                while (!GetPort(portName, out details)) 
                     await Task.Delay(waitTime);
-                    details = GetPort(portName);
-                }
-                return details;
             });
         }
 
