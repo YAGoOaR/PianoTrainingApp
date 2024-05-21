@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=9 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
+[ext_resource type="Script" path="res://Scripts/GameElements/Alerts.cs" id="2_4jih0"]
 [ext_resource type="Script" path="res://Scripts/GameElements/RangeSelection.cs" id="3_7rf0n"]
 [ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
 [ext_resource type="Texture2D" uid="uid://hdkxnhmijj2v" path="res://Textures/Note.png" id="4_idkj6"]
@@ -18,6 +19,12 @@ grow_vertical = 2
 
 [node name="GameManager" type="Node2D" parent="."]
 script = ExtResource("1_u53or")
+
+[node name="Alerts" type="Control" parent="." node_paths=PackedStringArray("deviceDisconnectedPanel", "waitingForDevicePanel")]
+anchors_preset = 0
+script = ExtResource("2_4jih0")
+deviceDisconnectedPanel = NodePath("../DeviceDisconnected")
+waitingForDevicePanel = NodePath("../WaitingForDevice")
 
 [node name="FallingNotes" type="Control" parent="." node_paths=PackedStringArray("piano", "progressBar")]
 layout_mode = 1
@@ -118,6 +125,42 @@ grow_horizontal = 2
 grow_vertical = 0
 border_width = 3.0
 script = ExtResource("4_4ebec")
+
+[node name="DeviceDisconnected" type="PopupPanel" parent="."]
+title = "DEVICE DISCONNECTED"
+position = Vector2i(976, 561)
+size = Vector2i(590, 125)
+always_on_top = true
+transparent = true
+extend_to_title = true
+mouse_passthrough = true
+keep_title_visible = true
+
+[node name="Label" type="Label" parent="DeviceDisconnected"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 586.0
+offset_bottom = 121.0
+text = "Device disconnected!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WaitingForDevice" type="PopupPanel" parent="."]
+title = "DEVICE NOT CONNECTED"
+position = Vector2i(970, 595)
+size = Vector2i(590, 125)
+visible = true
+always_on_top = true
+keep_title_visible = true
+
+[node name="Label" type="Label" parent="WaitingForDevice"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 586.0
+offset_bottom = 121.0
+text = "Waiting for device to be connected..."
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="RangeSelected" from="Control/ProgressBar/Background" to="GameManager" method="SelectRange"]
 [connection signal="SelectionMoved" from="Control/ProgressBar/Background" to="GameManager" method="RangeSelectionMoved"]

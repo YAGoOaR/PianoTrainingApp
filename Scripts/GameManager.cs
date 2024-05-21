@@ -41,6 +41,7 @@ public partial class GameManager : Node2D
     {
         await DeviceManager.Instance.ConnectAllDevices();
         State = GameState.Ready;
+        Alerts.Instance?.waitingForDevicePanel.CallDeferred(Window.MethodName.Hide);
     });
 
     // Called each game frame.

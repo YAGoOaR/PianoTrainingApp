@@ -1,6 +1,7 @@
 ﻿
 using Commons.Music.Midi;
 using PianoTrainer.Scripts.PianoInteraction;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,11 +9,19 @@ namespace PianoTrainer.Scripts.Devices;
 
 public abstract class Device<T> where T : IMidiPort
 {
+    public event Action OnDisconnect;
+
     private static readonly List<Device<T>> devices = [];
 
     public Device()
     {
         devices.Add(this);
+    }
+
+    protected void OnLightsDisconnect()
+    {
+        Stop();
+        OnDisconnect.Invoke();
     }
 
     public abstract Task Stop();
@@ -33,12 +42,14 @@ public abstract class InputDevice(string deviceName) : Device<IMidiInput>
 
     public Task Connect() => Task.Run(async () =>
     {
+        if (port.IsConnected) return;
+
         var portDetails = await port.OpenPort();
 
         portDetails.MessageReceived += OnMessage;
     });
 
-    public override Task Stop() => port.ClosePort();
+    public override Task Stop() => port?.ClosePort();
 }
 
 public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
@@ -76,20 +87,25 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
 
     public override Task Connect() => Task.Run(async () =>
     {
+        if (port.IsConnected) return;
+
         var portDetails = await port.OpenPort();
         lightsInterface = new LightsMIDIInterface(portDetails);
-        Ligths.KeyChange += lightsInterface.SendProprietary;
-        keyLightsHolder = new KeyboardConnectionHolder(lightsInterface);
+        Ligths.KeyChange += OnKeyChange;
+        keyLightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
+        keyLightsHolder.StartLoop();
     });
+
+    private void OnKeyChange(SimpleMsg msg) => lightsInterface.SendProprietary(msg);
 
     public override Task Stop()
     {
-        Ligths.KeyChange -= lightsInterface.SendProprietary;
+        Ligths.KeyChange -= OnKeyChange;
         lightsInterface = null;
 
         keyLightsHolder?.Dispose();
         keyLightsHolder = null;
 
-        return port.ClosePort();
+        return port?.ClosePort();
     }
 }
