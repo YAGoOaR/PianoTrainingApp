@@ -21,8 +21,8 @@ public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffs
         if (!HasKey(keyChange.Key))
             throw new ArgumentOutOfRangeException($"Key can't be {keyChange.Key}. Min value: {MinKey}; Max value: {MaxKey}.");
 
-        return keyChange.State 
-            ? State.Add(keyChange.Key) 
+        return keyChange.State
+            ? State.Add(keyChange.Key)
             : State.Remove(keyChange.Key);
     }
 
@@ -62,19 +62,17 @@ public class LightState(KeyboardInterface lights) : KeyState
                 var extra = lightQueue.Dequeue();
                 UpdateNote(new(extra, false));
             }
-            if (lightQueue.ToHashSet().Contains(keyOn))
+
+            if (lightQueue.ToHashSet().Contains(keyOn)) return false;
+
+            if (lightQueue.Count >= maxKeysDisplayed)
             {
-                return false;
-            } else
-            {
-                if (lightQueue.Count >= maxKeysDisplayed)
-                {
-                    var extra = lightQueue.Dequeue();
-                    UpdateNote(new(extra, false));
-                }
-                lightQueue.Enqueue(keyOn);
-                return UpdateNote(new(keyOn, true));
+                var extra = lightQueue.Dequeue();
+                UpdateNote(new(extra, false));
             }
+            lightQueue.Enqueue(keyOn);
+
+            return UpdateNote(new(keyOn, true));
         }
     }
 
@@ -113,11 +111,6 @@ public class LightState(KeyboardInterface lights) : KeyState
     }
 
     public void ResetKeys()
-    {
-        Reset();
-    }
-
-    public void Reset()
     {
         lock (lightQueue)
         {

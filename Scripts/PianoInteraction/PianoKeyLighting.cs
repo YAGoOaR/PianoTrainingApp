@@ -134,7 +134,7 @@ public class PianoKeyLighting : IDisposable
 
     public void Dispose()
     {
-        LightsState.Reset();
+        LightsState.ResetKeys();
         StopSignal.TrySetResult();
         keyLightsHolder.Dispose();
         ClearKeys();
@@ -144,7 +144,7 @@ public class PianoKeyLighting : IDisposable
 
     public void Reset()
     {
-        LightsState.Reset();
+        LightsState.ResetKeys();
         ActiveNotes = [];
         Blinks = [];
     }

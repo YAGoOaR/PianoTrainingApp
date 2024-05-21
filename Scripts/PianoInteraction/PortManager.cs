@@ -37,10 +37,8 @@ internal abstract class PortManager<T>(string portName) where T : IMidiPort
                 return details;
             });
         }
-        else
-        {
-            return details;
-        }
+
+        return details;
     }
 
     public abstract void ListDevices();

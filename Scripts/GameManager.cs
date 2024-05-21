@@ -11,13 +11,12 @@ namespace PianoTrainer.Scripts;
 /// </summary>
 public partial class GameManager : Node2D
 {
-    public static GameManager Instance { get; private set; }
     public KeyState Piano { get; private set; }
-    public PianoKeyLighting Lights { get; private set; }
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     private IMidiOutput output;
     private IMidiInput input;
+    private PianoKeyLighting lights;
 
     public enum GameState
     {
@@ -33,8 +32,6 @@ public partial class GameManager : Node2D
     // Called when game scene is loaded
     public override void _Ready()
     {
-        Instance = this;
-
         Piano = new();
 
         var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: Piano.HasKey);
@@ -52,17 +49,16 @@ public partial class GameManager : Node2D
         output = await new OutputPortManager(device).OpenPort();
         input = await new InputPortManager(device).OpenPort();
 
-        var lightsPort = new KeyboardInterface(output);
-        Lights = new PianoKeyLighting(lightsPort);
+        lights = new PianoKeyLighting(new(output));
 
-        var keyHints = new NoteHints(Lights);
+        var keyHints = new NoteHints(lights);
 
         input.MessageReceived += OnMessage;
 
         Piano.KeyChange += (_, _) => musicPlayer.OnKeyChange(Piano.State);
 
         musicPlayer.OnTargetChanged += keyHints.OnTargetCompleted;
-        musicPlayer.OnStopped += Lights.Reset;
+        musicPlayer.OnStopped += lights.Reset;
 
         State = GameState.Ready;
     });
@@ -108,11 +104,9 @@ public partial class GameManager : Node2D
         }
     }
 
-    public void Update(double delta) => musicPlayer.Update((float)delta);
-
     public override void _ExitTree()
     {
-        Lights.Dispose();
+        lights.Dispose();
         output.Dispose();
         input.Dispose();
     }
