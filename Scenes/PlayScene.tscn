@@ -16,10 +16,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GameManager" type="Node2D" parent="." node_paths=PackedStringArray("PBar", "FallingNotes")]
+[node name="GameManager" type="Node2D" parent="."]
 script = ExtResource("1_u53or")
-PBar = NodePath("../Control/ProgressBar")
-FallingNotes = NodePath("../FallingNotes")
 
 [node name="FallingNotes" type="Control" parent="." node_paths=PackedStringArray("piano", "progressBar")]
 layout_mode = 1

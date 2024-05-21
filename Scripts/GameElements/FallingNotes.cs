@@ -17,17 +17,12 @@ public partial class FallingNotes : Control
     [Export] private float timeSpan = 3;
     [Export] private float noteTextureScale = 200f;
 
-    private GameManager gameManager;
-
     private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
 
-    public override void _Ready()
-    {
-        gameManager = GameManager.Instance;
-    }
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     public void Clear()
     {
@@ -95,11 +90,9 @@ public partial class FallingNotes : Control
 
     private void UpdateTimeline()
     {
-        var musicPlayer = gameManager.MusicPlayer;
-
         if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
 
-        var (allNoteGroups, timeline) = (musicPlayer.EventGroups, musicPlayer);
+        var (allNoteGroups, timeline) = (musicPlayer.Notes, musicPlayer);
 
         var currentGroup = Mathf.Max(timeline.State.CurrentGroup, 0);
 
@@ -122,11 +115,9 @@ public partial class FallingNotes : Control
 
     private void UpdateNotePositions()
     {
-        var timeline = gameManager.MusicPlayer;
-
         foreach (var (_, noteGroup) in currentNotes)
         {
-            var verticalPos = (noteGroup.Time - timeline.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);

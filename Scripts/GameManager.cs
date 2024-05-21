@@ -12,19 +12,10 @@ namespace PianoTrainer.Game;
 public partial class GameManager : Node2D
 {
     public static GameManager Instance { get; private set; }
-
     public KeyState Piano { get; private set; }
-
-    [Export]
-    public ProgressBar PBar { get; private set; }
-
-    [Export]
-    public FallingNotes FallingNotes { get; private set; }
-
     public PianoKeyLighting Lights { get; private set; }
 
-    public MusicPlayer MusicPlayer { get; private set; } = new();
-
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     private IMidiOutput output;
     private IMidiInput input;
 
@@ -47,7 +38,7 @@ public partial class GameManager : Node2D
 
         var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: Piano.HasKey);
 
-        MusicPlayer.Setup(parsedMusic);
+        musicPlayer.Setup(parsedMusic);
 
         SetupDevice();
     }
@@ -62,19 +53,19 @@ public partial class GameManager : Node2D
         var lightsPort = new KeyboardInterface(output);
         Lights = new PianoKeyLighting(lightsPort);
 
-        var keyHints = new NoteHints(Lights, MusicPlayer);
+        var keyHints = new NoteHints(Lights);
 
         input.MessageReceived += OnMessage;
 
-        Piano.KeyChange += (_, _) => MusicPlayer.OnKeyChange(Piano.State);
+        Piano.KeyChange += (_, _) => musicPlayer.OnKeyChange(Piano.State);
 
-        MusicPlayer.OnTargetChanged += keyHints.OnTargetCompleted;
-        MusicPlayer.OnStopped += () => Lights.Reset();
+        musicPlayer.OnTargetChanged += keyHints.OnTargetCompleted;
+        musicPlayer.OnStopped += Lights.Reset;
 
         State = GameState.Ready;
     });
 
-    public void OnMessage(object input, MidiReceivedEventArgs message)
+    public void OnMessage(object _, MidiReceivedEventArgs message)
     {
         var msgType = message.Data[0];
 
@@ -91,11 +82,11 @@ public partial class GameManager : Node2D
     {
         if (State == GameState.Running)
         {
-            MusicPlayer.Update((float)delta);
+            musicPlayer.Update((float)delta);
         }
         else if (State == GameState.Ready)
         {
-            MusicPlayer.Play();
+            musicPlayer.Play();
             State = GameState.Running;
         }
         else if (State == GameState.Stopped)
@@ -113,7 +104,7 @@ public partial class GameManager : Node2D
         }
     }
 
-    public void Update(double delta) => MusicPlayer.Update((float)delta);
+    public void Update(double delta) => musicPlayer.Update((float)delta);
 
     public override void _ExitTree()
     {

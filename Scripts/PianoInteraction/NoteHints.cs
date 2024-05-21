@@ -7,11 +7,12 @@ using PianoTrainer.Settings;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
-public class NoteHints(PianoKeyLighting lightController, MusicPlayer musicPlayer)
+public class NoteHints(PianoKeyLighting lightController)
 {
     private static GameSettings.PlayerSettings PlayerSettings { get => GameSettings.Instance.Settings.PlayerSettings; }
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
-    public void OnTargetCompleted(PlayManagerState state)
+    public void OnTargetCompleted(MusicPlayer.MusicPlayerState state)
     {
         lightController.Reset();
 
