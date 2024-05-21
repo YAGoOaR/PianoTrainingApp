@@ -1,3 +1,4 @@
+
 using Godot;
 
 namespace PianoTrainer.Scripts.PianoInteraction;

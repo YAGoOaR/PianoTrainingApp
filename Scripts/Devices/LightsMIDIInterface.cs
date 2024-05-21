@@ -1,4 +1,5 @@
-﻿using Commons.Music.Midi;
+﻿
+using Commons.Music.Midi;
 using PianoTrainer.Scripts.PianoInteraction;
 using System;
 

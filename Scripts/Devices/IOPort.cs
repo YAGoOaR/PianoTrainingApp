@@ -1,4 +1,5 @@
-﻿using Commons.Music.Midi;
+﻿
+using Commons.Music.Midi;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;

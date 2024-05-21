@@ -1,7 +1,6 @@
-﻿using Commons.Music.Midi;
+﻿
+using Commons.Music.Midi;
 using PianoTrainer.Scripts.GameElements;
-using PianoTrainer.Scripts.PianoInteraction;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.Devices;

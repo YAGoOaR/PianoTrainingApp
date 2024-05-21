@@ -1,12 +1,12 @@
+
 using Godot;
 using System.Collections.Generic;
 using System.Linq;
-
-using static PianoTrainer.Scripts.Utils;
 using PianoTrainer.Scripts.PianoInteraction;
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
+using static Utils;
 
 public partial class FallingNotes : Control
 {
