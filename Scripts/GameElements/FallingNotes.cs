@@ -1,9 +1,12 @@
 using Godot;
-using PianoTrainer.Scripts.MIDI;
 using System.Collections.Generic;
 using System.Linq;
-using static PianoKeyManager;
+
 using static PianoTrainer.Scripts.Utils;
+using PianoTrainer.Scripts.PianoInteraction;
+using static PianoTrainer.Scripts.PianoInteraction.PianoKeyManager;
+
+namespace PianoTrainer.Scripts.GameElements;
 
 public partial class FallingNotes : Control
 {
@@ -15,19 +18,14 @@ public partial class FallingNotes : Control
     [Export] private float timeSpan = 3;
     [Export] private float noteTextureScale = 200f;
 
-    private MIDIManager midiManager;
-
     private record Note(byte Key, Sprite2D rect);
     private record NoteGroup(int Time, List<Note> notes);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
 
-    public override void _Ready()
-    {
-        midiManager = MIDIManager.Instance;
-    }
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
-    public void Init()
+    public void Clear()
     {
         foreach (var (_, noteGroup) in currentNotes)
         {
@@ -93,17 +91,15 @@ public partial class FallingNotes : Control
 
     private void UpdateTimeline()
     {
-        var midiPlayer = midiManager.Player;
+        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
 
-        if (midiPlayer == null || midiPlayer.TotalTimeMilis == 0) return;
-
-        var (allNoteGroups, timeline) = (midiPlayer.NoteListAbsTime, midiPlayer.PlayManager);
+        var (allNoteGroups, timeline) = (musicPlayer.Notes, musicPlayer);
 
         var currentGroup = Mathf.Max(timeline.State.CurrentGroup, 0);
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
-            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * MilisToSecond)
+            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondsToMs)
             .ToDictionary(el => el.Time, el => el);
 
         UpdateNotes(selectedGroups);
@@ -120,11 +116,9 @@ public partial class FallingNotes : Control
 
     private void UpdateNotePositions()
     {
-        var pm = midiManager.Player.PlayManager;
-
         foreach (var (_, noteGroup) in currentNotes)
         {
-            var verticalPos = (noteGroup.Time - pm.TimeMilis) * SecondToMilis / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);

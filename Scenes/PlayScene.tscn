@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://b8h3lrgadghix"]
 
+[ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
 [ext_resource type="Script" path="res://Scripts/GameElements/RangeSelection.cs" id="3_7rf0n"]
-[ext_resource type="Script" path="res://Scripts/MIDIManager.cs" id="3_ji2ot"]
 [ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
 [ext_resource type="Texture2D" uid="uid://hdkxnhmijj2v" path="res://Textures/Note.png" id="4_idkj6"]
 [ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
@@ -16,10 +16,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MidiManager" type="Node2D" parent="." node_paths=PackedStringArray("PBar", "MSheet")]
-script = ExtResource("3_ji2ot")
-PBar = NodePath("../Control/ProgressBar")
-MSheet = NodePath("../FallingNotes")
+[node name="GameManager" type="Node2D" parent="."]
+script = ExtResource("1_u53or")
 
 [node name="FallingNotes" type="Control" parent="." node_paths=PackedStringArray("piano", "progressBar")]
 layout_mode = 1
@@ -50,14 +48,13 @@ offset_right = 79.0
 offset_bottom = 26.0
 text = "0.00"
 
-[node name="ProgressBar" type="Control" parent="Control" node_paths=PackedStringArray("MIDIManager", "Txt", "bgRect", "progressRect", "rangeRect", "rangeSelectRect")]
+[node name="ProgressBar" type="Control" parent="Control" node_paths=PackedStringArray("Txt", "bgRect", "progressRect", "rangeRect", "rangeSelectRect")]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 90.0
 grow_horizontal = 2
 script = ExtResource("6_t5trx")
-MIDIManager = NodePath("../../MidiManager")
 Txt = NodePath("../RichTextLabel")
 bgRect = NodePath("Background")
 progressRect = NodePath("Progress")
@@ -121,7 +118,7 @@ grow_horizontal = 2
 grow_vertical = 0
 border_width = 3.0
 script = ExtResource("4_4ebec")
-midiManager = NodePath("../../MidiManager")
+midiManager = NodePath("../../GameManager")
 
-[connection signal="RangeSelected" from="Control/ProgressBar/Background" to="MidiManager" method="SelectRange"]
-[connection signal="SelectionMoved" from="Control/ProgressBar/Background" to="MidiManager" method="RangeSelectionMoved"]
+[connection signal="RangeSelected" from="Control/ProgressBar/Background" to="GameManager" method="SelectRange"]
+[connection signal="SelectionMoved" from="Control/ProgressBar/Background" to="GameManager" method="RangeSelectionMoved"]

@@ -1,33 +1,36 @@
 using Godot;
 
+namespace PianoTrainer.Scripts.PianoInteraction;
+
 public static class PianoKeyManager
 {
-    public static Vector2 BlackNoteSizeRatio { get; } = new(1f / 2f, 2f / 3f);
-
-    // Piano keyboard layout parameters
-    const float blackWidth = 1 / 2f;
-    const float leftKeyOffset = -blackWidth * 2 / 3;
-    const float midKeyOffset = -blackWidth / 2;
-    const float rightKeyOffset = -blackWidth * 1 / 3;
-
-    const byte octave = 12;
-    const byte octaveWhites = 7;
-    const byte MIDIIndexOffset = 36;
+    public static Vector2 BlackNoteSizeRatio { get; } = new(1 / 2f, 2 / 3f);
 
     /// <summary>
-    /// Key count on the entire keyboard
+    /// Key count on the entire keyboard.
     /// </summary>
     public static int KeyboardRange { get; } = 61;
 
     /// <summary>
-    /// Black key count on the entire keyboard
+    /// Black key count on the entire keyboard.
     /// </summary>
     public static int Blacks { get; } = 25;
 
     /// <summary>
-    /// White key count on the entire keyboard
+    /// White key count on the entire keyboard.
     /// </summary>
     public static int Whites { get; } = KeyboardRange - Blacks;
+
+    // Piano keyboard layout parameters
+    public const byte octave = 12;
+    public const byte octaveWhites = 7;
+    public const byte MIDIIndexOffset = 36;
+    public const byte defaultKeyCount = 61;
+
+    public const float blackWidth = 1 / 2f;
+    public const float leftKeyOffset = -blackWidth * 2 / 3;
+    public const float midKeyOffset = -blackWidth / 2;
+    public const float rightKeyOffset = -blackWidth * 1 / 3;
 
     /// <summary>
     /// Returns the offset of a black note on the piano keyboard. If key is not black, (false, 0) is returned.
@@ -81,7 +84,7 @@ public static class PianoKeyManager
     }
 
     /// <summary>
-    /// Converts piano key indices from MIDI message numeration to keyboard rumeration.
+    /// Converts piano key indices from MIDI message numeration to keyboard numeration.
     /// </summary>
     /// /// <param name="key">Midi key index.</param>
     public static byte MIDIIndexToKey(byte key) => (byte)(key - MIDIIndexOffset);

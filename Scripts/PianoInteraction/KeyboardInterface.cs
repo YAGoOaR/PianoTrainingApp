@@ -1,24 +1,18 @@
 ﻿using Commons.Music.Midi;
 using System;
 
-namespace PianoTrainer.Scripts.MIDI
+namespace PianoTrainer.Scripts.PianoInteraction;
+
+public class KeyboardInterface(IMidiOutput piano)
 {
-    public class KeyboardInterface(IMidiOutput piano)
+    private readonly IMidiOutput piano = piano;
+
+    public void SendProprietary(SimpleMsg msg)
     {
-        private readonly IMidiOutput piano = piano;
-
-        public void SendProprietary(SimpleMsg msg)
-        {
-            piano.Send([MidiEvent.SysEx1, 68, 126, 126, 127, 2, 0, msg.Key, Convert.ToByte(msg.State), MidiEvent.EndSysEx], 0, 10, 0);
-        }
-        public void SendHold()
-        {
-            piano.Send([MidiEvent.SysEx1, 68, 126, 126, 127, 0, 3, MidiEvent.EndSysEx], 0, 8, 0);
-        }
-
-        public void Panic()
-        {
-            //TODO: IMPLEMENT
-        }
+        piano.Send([MidiEvent.SysEx1, 68, 126, 126, 127, 2, 0, msg.Key, Convert.ToByte(msg.State), MidiEvent.EndSysEx], 0, 10, 0);
+    }
+    public void SendHold()
+    {
+        piano.Send([MidiEvent.SysEx1, 68, 126, 126, 127, 0, 3, MidiEvent.EndSysEx], 0, 8, 0);
     }
 }

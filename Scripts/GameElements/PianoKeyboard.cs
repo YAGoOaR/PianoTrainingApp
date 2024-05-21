@@ -1,7 +1,9 @@
 using Godot;
 using System.Collections.Generic;
-using System.Diagnostics;
-using static PianoKeyManager;
+
+using static PianoTrainer.Scripts.PianoInteraction.PianoKeyManager;
+
+namespace PianoTrainer.Scripts.GameElements;
 
 // Defines Piano key setup and layout
 public partial class PianoKeyboard : Control
@@ -17,7 +19,7 @@ public partial class PianoKeyboard : Control
     readonly Queue<(byte, bool)> changes = [];
 
     [Export]
-    MIDIManager midiManager;
+    GameManager midiManager;
 
     public override void _Ready()
     {

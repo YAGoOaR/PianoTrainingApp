@@ -1,15 +1,10 @@
 using Godot;
 
+namespace PianoTrainer.Scripts.GameElements;
+
 public partial class RangeSelection : ColorRect
 {
-    private float rectLen;
-
-    public override void _Ready()
-    {
-        rectLen = GetViewportRect().Size.X;
-        SetProcessInput(true);
-    }
-
+    
     [Export]
     private Control progressBar;
 
@@ -19,12 +14,19 @@ public partial class RangeSelection : ColorRect
     [Signal]
     public delegate void SelectionMovedEventHandler(float start, float end);
 
-    float clickStart = 0;
-    bool clicked = false;
+    private float clickStartTime = 0;
+    private bool selectionActive = false;
+    private float rectLen;
+
+    public override void _Ready()
+    {
+        rectLen = GetViewportRect().Size.X;
+        SetProcessInput(true);
+    }
 
     public override void _Input(InputEvent @event)
     {
-        // TODO: Optimize
+        // TODO: Refactor
         if (@event is InputEventMouseButton mouseButton)
         {
             if (mouseButton.ButtonIndex == MouseButton.Left)
@@ -33,19 +35,19 @@ public partial class RangeSelection : ColorRect
                 {
                     if (mouseButton.Pressed)
                     {
-                        clickStart = mouseButton.Position.X;
-                        clicked = true;
+                        clickStartTime = mouseButton.Position.X;
+                        selectionActive = true;
                     }
-                    else if (clicked && mouseButton.Position.X > clickStart)
+                    else if (selectionActive && mouseButton.Position.X > clickStartTime)
                     {
-                        clicked = false;
-                        EmitSignal(SignalName.RangeSelected, clickStart / rectLen, mouseButton.Position.X / rectLen);
+                        selectionActive = false;
+                        EmitSignal(SignalName.RangeSelected, clickStartTime / rectLen, mouseButton.Position.X / rectLen);
                         EmitSignal(SignalName.SelectionMoved, 0, 0);
                     }
                 }
                 else if (!mouseButton.Pressed)
                 {
-                    clicked = false;
+                    selectionActive = false;
                     EmitSignal(SignalName.SelectionMoved, 0, 0);
                 }
             }
@@ -54,10 +56,9 @@ public partial class RangeSelection : ColorRect
                 EmitSignal(SignalName.RangeSelected, 0, 1);
             }
         }
-
-        if (@event is InputEventMouseMotion motion && clicked)
+        else if (@event is InputEventMouseMotion motion && selectionActive)
         {
-            EmitSignal(SignalName.SelectionMoved, clickStart / rectLen, motion.Position.X / rectLen);
+            EmitSignal(SignalName.SelectionMoved, clickStartTime / rectLen, motion.Position.X / rectLen);
         }
     }
 }

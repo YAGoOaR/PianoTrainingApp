@@ -1,28 +1,22 @@
 using Godot;
-using PianoTrainer.Scripts.MIDI;
+
+namespace PianoTrainer.Scripts.GameElements;
 
 public partial class ProgressBar : Control
 {
-    [Export]
-    private MIDIManager MIDIManager { get; set; }
-
-    [Export]
-    private RichTextLabel Txt { get; set; }
-
-    [Export]
-    private ColorRect bgRect;
-    [Export]
-    private ColorRect progressRect;
-    [Export]
-    private ColorRect rangeRect;
-    [Export]
-    private ColorRect rangeSelectRect;
+    [Export] private RichTextLabel Txt { get; set; }
+    [Export] private ColorRect bgRect;
+    [Export] private ColorRect progressRect;
+    [Export] private ColorRect rangeRect;
+    [Export] private ColorRect rangeSelectRect;
 
     [Export]
     private Color RangeRectColor { get; set; } = Colors.Yellow;
 
     [Export]
     private Color RangeSelectRectColor { get; set; } = Colors.White;
+
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     private bool active = false;
 
@@ -40,16 +34,16 @@ public partial class ProgressBar : Control
         rect.Size = new(Size.X * (tEnd - tStart) / totalTime, Size.Y);
     }
 
-    public void SetProgress(MIDIPlayer p, float time)
+    public void SetProgress(float time)
     {
-        SetProgressRectBounds(progressRect, 0, time, p.TotalTimeSeconds);
+        SetProgressRectBounds(progressRect, 0, time, musicPlayer.TotalSeconds);
     }
 
-    public void SetTimeRange(MIDIPlayer p, (float, float)? range)
+    public void SetTimeRange((float, float)? range)
     {
         if (range is (float s, float e))
         {
-            SetProgressRectBounds(rangeRect, s, e, p.TotalTimeSeconds);
+            SetProgressRectBounds(rangeRect, s, e, musicPlayer.TotalSeconds);
         }
         else
         {
@@ -58,24 +52,19 @@ public partial class ProgressBar : Control
         }
     }
 
-    public void SetSelectionPreview(MIDIPlayer p, (float, float) range)
+    public void SetSelectionPreview((float, float) range)
     {
-        (float s, float e) = range;
-        if (s > e) return;
-        SetProgressRectBounds(rangeSelectRect, s, e, p.TotalTimeSeconds);
+        (float start, float end) = range;
+        if (start > end) return;
+        SetProgressRectBounds(rangeSelectRect, start, end, musicPlayer.TotalSeconds);
     }
 
     public override void _Process(double delta)
     {
-        if (MIDIManager.Instance.State != MIDIManager.MIDIManagerState.Playing) return;
+        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
 
-        var p = MIDIManager.Player;
-
-        if (p != null && p.TotalTimeMilis != 0)
-        {
-            var t = p.PlayManager.TimeMilis / 1000f;
-            SetProgress(p, t);
-            Txt.Text = $"{t:0.00}";
-        }
+        var time = musicPlayer.TimeMilis * Utils.MsToSeconds;
+        SetProgress(time);
+        Txt.Text = $"{time:0.00}";
     }
 }

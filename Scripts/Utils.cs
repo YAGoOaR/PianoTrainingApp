@@ -1,25 +1,9 @@
 ﻿
-using System.Collections.Generic;
-using System.Diagnostics;
+namespace PianoTrainer.Scripts;
 
-namespace PianoTrainer.Scripts
+internal static class Utils
 {
-    internal static class Utils
-    {
-        public static float SecondToMilis { get; } = 1 / 1000f;
+    public static float MsToSeconds { get; } = 1 / 1000f;
 
-        public static float MilisToSecond { get; } = 1000f;
-
-        public static void DoNothing() { }
-
-        public static string SJ<T>(IEnumerable<T> lst)
-        {
-            return $"[{string.Join(",", lst)}]";
-        }
-
-        public static void PSJ<T>(IEnumerable<T> lst)
-        {
-            Debug.WriteLine(SJ(lst));
-        }
-    }
+    public static float SecondsToMs { get; } = 1000f;
 }
