@@ -18,15 +18,19 @@ public partial class FallingNotes : Control
     [Export] private Theme themeWhiteKey;
     [Export] private Theme themeBlackKey;
 
+    [Export] private Color transparentColor = new(1f, 1f, 1f, 0.6f);
+
     private Font textFont;
 
-    private record Note(byte Key, Panel Rect, float height);
-    private record NoteGroup(int Time, List<Note> Notes);
+    private record Note(byte Key, Panel Rect, int Duration, float Height);
+    private record NoteGroup(int Time, List<Note> Notes, float MaxDuration);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
     private readonly Dictionary<int, NoteGroup> completedNotes = [];
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+
+    
 
     public void Clear()
     {
@@ -55,7 +59,7 @@ public partial class FallingNotes : Control
         var rect = new Panel()
         {
             Size = (isBlack ? BlackNoteSize : WhiteNoteSize) + Vector2.Right * 8,
-            ZIndex = -1,
+            ZIndex = -5,
             Theme = isBlack ? themeBlackKey : themeWhiteKey,
         };
 
@@ -75,7 +79,7 @@ public partial class FallingNotes : Control
         rect.AddChild(txt);
         txt.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        return new Note(key, rect, noteSizeY);
+        return new Note(key, rect, duration, noteSizeY);
     }
 
     private void AddNoteGroup(int groupIndex, TimedNoteGroup group)
@@ -94,19 +98,32 @@ public partial class FallingNotes : Control
 
         var time = group.Time;
 
-        currentNotes[groupIndex] = new(time, newNotes);
+        currentNotes[groupIndex] = new(time, newNotes, newNotes.Select(x => x.Duration).DefaultIfEmpty(0).Max());
     }
 
-    public void RemoveNoteGroup(int groupIndex)
+    private void CompleteNoteGroup(int groupIndex)
     {
         var noteGroup = currentNotes[groupIndex];
+
+        completedNotes[groupIndex] = noteGroup;
+
+        foreach (var note in noteGroup.Notes)
+        {
+            note.Rect.Modulate = transparentColor;
+        }
+
+        currentNotes.Remove(groupIndex);
+    }
+
+    private void RemoveNoteGroup(int groupIndex)
+    {
+        var noteGroup = completedNotes[groupIndex];
 
         foreach (var note in noteGroup.Notes)
         {
             note.Rect.QueueFree();
         }
-
-        currentNotes.Remove(groupIndex);
+        completedNotes.Remove(groupIndex);
     }
 
     public override void _Process(double delta)
@@ -135,15 +152,18 @@ public partial class FallingNotes : Control
     private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
     {
         var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
-        foreach (var g in notesToAdd) AddNoteGroup(g.Key, g.Value);
+        foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var notesToRemove = currentNotes.Where(ng => !newNotes.ContainsKey(ng.Key));
-        foreach (var g in notesToRemove) RemoveNoteGroup(g.Key);
+        var notesToRemove = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
+        foreach (var group in notesToRemove) CompleteNoteGroup(group.Key);
+
+        var notesToDelete = completedNotes.Values.Where(g => g.Time + g.MaxDuration <= musicPlayer.TimeMilis);
+        foreach (var group in notesToDelete) RemoveNoteGroup(group.Time);
     }
 
     private void UpdateNotePositions()
     {
-        foreach (var (_, noteGroup) in currentNotes)
+        foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
             var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
@@ -157,7 +177,7 @@ public partial class FallingNotes : Control
                     ? (noteOffset * piano.GridSize.X + piano.GridSize.X + piano.BlackNoteSize.X / 2)
                     : (piano.NoteGap / 2 + piano.GridSize.X / 2);
 
-                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - note.height / 2) - note.Rect.Size/2;
+                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - note.Height / 2) - note.Rect.Size/2;
             }
         }
     }
