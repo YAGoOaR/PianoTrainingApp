@@ -1,5 +1,7 @@
 # Piano Training app for CASIO LK-S250
 
+![Early gameplay](https://github.com/YAGoOaR/Images/blob/46bd8e5d89c1d7d71874762b02753f0c0711fe65/PianoTrainingApp/gameplay-early.png)
+
 This program is designed for use specifically with CASIO LK-S250 synthesizer. It can read MIDI files and guide the user to correctly play it on a piano. It supports learning with piano key lighting, falling notes on screen and sheet music (planned feature).
 Now the development is in process and the executable program will be placed in [Releases](https://github.com/YAGoOaR/PianoTrainingApp/releases) when ready.
 
