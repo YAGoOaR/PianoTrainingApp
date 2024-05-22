@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using Commons.Music.Midi;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
@@ -12,9 +11,9 @@ namespace PianoTrainer.Scripts.PianoInteraction;
 public record NoteMsg(byte Key, bool State);
 public record TimedNoteMsg(byte Key, bool State, int DeltaTime) : NoteMsg(Key, State);
 
-public record TimedNoteOn(byte Key, int DeltaTime);
-public record TimedNote(byte Key, int DeltaTime, int Duration) : TimedNoteOn(Key, DeltaTime);
-public record TimedNoteGroup(int Time, HashSet<byte> Keys);
+public record NotePress(byte Key, int Duration);
+public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, Duration);
+public record TimedNoteGroup(int Time, HashSet<NotePress> Notes);
 public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime);
 
 public partial class MIDIReader
@@ -52,7 +51,7 @@ public partial class MIDIReader
         List<TimedNoteGroup> keyEvents = [];
 
         int eventDelay = 0;
-        HashSet<byte> eventAccumulator = [];
+        HashSet<NotePress> eventAccumulator = [];
 
         for (int i = 0; i < keyMessages.Count; i++)
         {
@@ -60,12 +59,12 @@ public partial class MIDIReader
 
             if (msg.DeltaTime == 0)
             {
-                eventAccumulator.Add(msg.Key);
+                eventAccumulator.Add(msg);
             }
             else
             {
                 if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator));
-                eventAccumulator = [msg.Key];
+                eventAccumulator = [msg];
                 eventDelay = msg.DeltaTime;
             }
         }
@@ -186,8 +185,8 @@ public partial class MIDIReader
         foreach (var msg in keyEvents)
         {
             timeAcc += msg.Time;
-            if (msg.Keys.Count == 0) continue;
-            eventsAbsTime.Add(new(timeAcc, msg.Keys));
+            if (msg.Notes.Count == 0) continue;
+            eventsAbsTime.Add(new(timeAcc, msg.Notes));
         }
 
         return eventsAbsTime;
@@ -210,7 +209,7 @@ public partial class MIDIReader
         if (keyGroups.Count > 0)
         {
             var (firstMsg, rest) = (keyGroups.First(), keyGroups[1..]);
-            return [new(0, []), new(startOffset, firstMsg.Keys), .. rest];
+            return [new(0, []), new(startOffset, firstMsg.Notes), .. rest];
         }
         return keyGroups;
     }

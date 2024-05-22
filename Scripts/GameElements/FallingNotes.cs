@@ -12,19 +12,19 @@ public partial class FallingNotes : Control
 {
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
-    [Export] private float timeSpan = 3;
+    [Export] private float timeSpan = 4;
 
     [Export] private Theme fontTheme;
     [Export] private Theme themeWhiteKey;
     [Export] private Theme themeBlackKey;
 
-    private const float noteHeight = 100;
     private Font textFont;
 
-    private record Note(byte Key, Panel Rect);
+    private record Note(byte Key, Panel Rect, float height);
     private record NoteGroup(int Time, List<Note> Notes);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
+    private readonly Dictionary<int, NoteGroup> completedNotes = [];
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
@@ -41,12 +41,16 @@ public partial class FallingNotes : Control
         currentNotes.Clear();
     }
 
-    private Panel CreateNote(byte key)
+    private Note CreateNote(NotePress note)
     {
+        var (key, duration) = note;
+
         var isBlack = IsBlack(key);
 
-        Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, noteHeight);
-        Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, noteHeight);
+        var noteSizeY = duration * MsToSeconds / timeSpan * Size.Y;
+
+        Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, noteSizeY);
+        Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, noteSizeY);
 
         var rect = new Panel()
         {
@@ -71,7 +75,7 @@ public partial class FallingNotes : Control
         rect.AddChild(txt);
         txt.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        return rect;
+        return new Note(key, rect, noteSizeY);
     }
 
     private void AddNoteGroup(int groupIndex, TimedNoteGroup group)
@@ -83,11 +87,9 @@ public partial class FallingNotes : Control
 
         List<Note> newNotes = [];
 
-        foreach (var k in group.Keys)
+        foreach (var k in group.Notes)
         {
-            var rect = CreateNote(k);
-
-            newNotes.Add(new Note(k, rect));
+            newNotes.Add(CreateNote(k));
         }
 
         var time = group.Time;
@@ -109,24 +111,25 @@ public partial class FallingNotes : Control
 
     public override void _Process(double delta)
     {
-        UpdateTimeline();
+        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
+
+        var newGroups = UpdateTimeline();
+        UpdateNotes(newGroups);
         UpdateNotePositions();
     }
 
-    private void UpdateTimeline()
+    private Dictionary<int, TimedNoteGroup> UpdateTimeline()
     {
-        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
+        var allNoteGroups = musicPlayer.Notes;
 
-        var (allNoteGroups, timeline) = (musicPlayer.Notes, musicPlayer);
-
-        var currentGroup = Mathf.Max(timeline.State.CurrentGroup, 0);
+        var currentGroup = Mathf.Max(musicPlayer.State.CurrentGroup, 0);
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
-            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondsToMs)
+            .TakeWhile(g => g.Time < musicPlayer.TimeMilis + timeSpan * SecondsToMs)
             .ToDictionary(el => el.Time, el => el);
 
-        UpdateNotes(selectedGroups);
+        return selectedGroups;
     }
 
     private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
@@ -154,7 +157,7 @@ public partial class FallingNotes : Control
                     ? (noteOffset * piano.GridSize.X + piano.GridSize.X + piano.BlackNoteSize.X / 2)
                     : (piano.NoteGap / 2 + piano.GridSize.X / 2);
 
-                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - noteHeight / 2) - note.Rect.Size/2;
+                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - note.height / 2) - note.Rect.Size/2;
             }
         }
     }

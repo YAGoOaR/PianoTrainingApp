@@ -103,7 +103,7 @@ public class MusicPlayer
         State = new()
         {
             TotalMessagesTime = prevGroup.Time,
-            DesiredKeys = group.Keys,
+            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
             MessageDelta = group.Time - prevGroup.Time,
 
             CurrentGroup = State.NextMessageGroup,
