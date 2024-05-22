@@ -11,18 +11,20 @@ namespace PianoTrainer.Scripts.GameElements;
 // Defines Piano key setup and layout
 public partial class PianoKeyboard : Control
 {
+    [Export] Theme whiteTheme;
+    [Export] Theme blackTheme;
+    [Export] Theme activeTheme;
+    [Export] Theme blackActiveTheme;
+
     public Vector2 GridSize { get; private set; }
     public Vector2 WhiteNoteSize { get; private set; }
     public Vector2 BlackNoteSize { get; private set; }
 
-    public float NoteGap { get; private set; } = 4;
+    public float NoteGap { get; private set; } = 0;
 
-    readonly List<ColorRect> noteRects = [];
+    readonly List<Panel> noteRects = [];
 
     readonly Queue<SimpleMsg> changes = [];
-
-    [Export]
-    GameManager gameManager;
 
     public override void _Ready()
     {
@@ -41,12 +43,12 @@ public partial class PianoKeyboard : Control
     {
         for (byte i = 0; i < Whites; i++)
         {
-            var whiteRect = new ColorRect
+            var whiteRect = new Panel
             {
-                Color = Colors.White,
                 Position = new Vector2(GridSize.X * i + NoteGap / 2, -WhiteNoteSize.Y),
                 Size = new Vector2(WhiteNoteSize.X, WhiteNoteSize.Y),
-                ZIndex = -1
+                ZIndex = -2,
+                Theme = whiteTheme,
             };
             AddChild(whiteRect);
             noteRects.Add(whiteRect);
@@ -55,11 +57,12 @@ public partial class PianoKeyboard : Control
 
             if (blackExists && i != Whites - 1)
             {
-                var rect = new ColorRect()
+                var rect = new Panel()
                 {
-                    Color = Colors.Black,
                     Position = new Vector2(GridSize.X * (i + 1 + noteOffset), -WhiteNoteSize.Y),
-                    Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y)
+                    Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y),
+                    ZIndex = -1,
+                    Theme = blackTheme,
                 };
 
                 AddChild(rect);
@@ -77,7 +80,14 @@ public partial class PianoKeyboard : Control
             var (key, state) = changes.Dequeue();
 
             byte k = MIDIIndexToKey(key);
-            noteRects[k].Color = state ? Colors.Red : (IsBlack(k) ? Colors.Black : Colors.White);
+
+            noteRects[k].Theme = IsBlack(k) 
+                ? state 
+                    ? blackActiveTheme 
+                    : blackTheme 
+                : state 
+                    ? activeTheme 
+                    : whiteTheme;
         }
     }
 }

@@ -1,5 +1,6 @@
 
 using Godot;
+using Godot.Collections;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
@@ -32,6 +33,38 @@ public static class PianoKeys
     public const float leftKeyOffset = -blackWidth * 2 / 3;
     public const float midKeyOffset = -blackWidth / 2;
     public const float rightKeyOffset = -blackWidth * 1 / 3;
+
+    public static readonly string[] KeyLabelsLatin = 
+    [
+        "C",
+        "C#",
+        "D",
+        "D#",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "G#",
+        "A",
+        "A#",
+        "B",
+    ];
+
+    public static readonly string[] KeyLabelsDo = 
+    [
+        "Do",
+        "Di",
+        "Re",
+        "Ri",
+        "Mi",
+        "Fa",
+        "Fi",
+        "So",
+        "Si",
+        "La",
+        "Li",
+        "Ti",
+    ];
 
     /// <summary>
     /// Returns the offset of a black note on the piano keyboard. If key is not black, (false, 0) is returned.
