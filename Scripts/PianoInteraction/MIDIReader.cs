@@ -40,7 +40,7 @@ public partial class MIDIReader
             .ToList()
             .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
             .Pipe(ExtractKeyGroups)
-            .Pipe((groups) => ChangeStartTime(groups, gameSettings.Settings.PlayerSettings.StartOffset))
+            .Pipe((groups) => SetTimeOffsets(groups, gameSettings.Settings.PlayerSettings.StartOffset))
             .Pipe(KeyGroupsToAbsTime);
 
         return new (groups, groups.Last().Time);
@@ -185,7 +185,6 @@ public partial class MIDIReader
         foreach (var msg in keyEvents)
         {
             timeAcc += msg.Time;
-            if (msg.Notes.Count == 0) continue;
             eventsAbsTime.Add(new(timeAcc, msg.Notes));
         }
 
@@ -204,18 +203,14 @@ public partial class MIDIReader
         return music;
     }
 
-    private static List<TimedNoteGroup> ChangeStartTime(List<TimedNoteGroup> keyGroups, int startOffset)
+    private static List<TimedNoteGroup> SetTimeOffsets(List<TimedNoteGroup> keyGroups, int startOffset)
     {
         if (keyGroups.Count > 0)
         {
             var (firstMsg, rest) = (keyGroups.First(), keyGroups[1..]);
-            return [new(0, []), new(startOffset, firstMsg.Notes), .. rest];
+            var lastOffset = keyGroups.Last().Notes.Select(x => x.Duration).Max();
+            return [new(0, []), new(startOffset, firstMsg.Notes), .. rest, new(lastOffset, [])];
         }
         return keyGroups;
-    }
-
-    private static List<TimedNoteGroup> FindKeyGroupSpan(List<TimedNoteGroup> groups, (float, float) timeRange)
-    {
-        return groups.SkipWhile(g => g.Time < timeRange.Item1 * Utils.SecondsToMs).TakeWhile(g => g.Time <= timeRange.Item2 * Utils.SecondsToMs).ToList();
     }
 }
