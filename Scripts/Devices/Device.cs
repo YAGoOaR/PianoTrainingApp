@@ -96,7 +96,7 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
         keyLightsHolder.StartLoop();
     });
 
-    private void OnKeyChange(SimpleMsg msg) => lightsInterface.SendProprietary(msg);
+    private void OnKeyChange(NoteMsg msg) => lightsInterface.SendProprietary(msg);
 
     public override Task Stop()
     {

@@ -21,7 +21,7 @@ public class MusicPlayer
         public int startTime = 0;
     }
 
-    public List<SimpleTimedKeyGroup> Notes { get; set; } = [];
+    public List<TimedNoteGroup> Notes { get; set; } = [];
 
     public float TotalSeconds { get => totalTimeMilis * Utils.MsToSeconds; }
     public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }

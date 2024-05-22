@@ -24,7 +24,7 @@ public partial class PianoKeyboard : Control
 
     readonly List<Panel> noteRects = [];
 
-    readonly Queue<SimpleMsg> changes = [];
+    readonly Queue<NoteMsg> changes = [];
 
     public override void _Ready()
     {
@@ -71,7 +71,7 @@ public partial class PianoKeyboard : Control
         }
     }
 
-    public void SetKey(SimpleMsg msg) => changes.Enqueue(msg);
+    public void SetKey(NoteMsg msg) => changes.Enqueue(msg);
 
     public override void _Process(double delta)
     {

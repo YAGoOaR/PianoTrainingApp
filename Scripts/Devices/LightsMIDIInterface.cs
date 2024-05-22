@@ -12,7 +12,7 @@ public class LightsMIDIInterface(IMidiOutput piano)
     private readonly IMidiOutput piano = piano;
 
     // Midi message to control CASIO LK-S250 key lights.
-    public bool SendProprietary(SimpleMsg msg)
+    public bool SendProprietary(NoteMsg msg)
     {
         try
         {

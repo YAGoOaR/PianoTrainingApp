@@ -74,7 +74,7 @@ public partial class FallingNotes : Control
         return rect;
     }
 
-    private void AddNoteGroup(int groupIndex, SimpleTimedKeyGroup group)
+    private void AddNoteGroup(int groupIndex, TimedNoteGroup group)
     {
         if (currentNotes.ContainsKey(groupIndex))
         {
@@ -129,7 +129,7 @@ public partial class FallingNotes : Control
         UpdateNotes(selectedGroups);
     }
 
-    private void UpdateNotes(Dictionary<int, SimpleTimedKeyGroup> newNotes)
+    private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
     {
         var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
         foreach (var g in notesToAdd) AddNoteGroup(g.Key, g.Value);

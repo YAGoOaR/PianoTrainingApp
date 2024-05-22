@@ -9,14 +9,14 @@ using static PianoKeys;
 
 public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
 {
-    public virtual event Action<SimpleMsg> KeyChange;
+    public virtual event Action<NoteMsg> KeyChange;
     public byte MinKey { get; } = minKey;
     public byte MaxKey { get; } = maxKey;
     public HashSet<byte> State { get; } = [];
 
     public bool HasKey(byte key) => key >= MinKey && key <= MaxKey;
 
-    protected bool SilentSetKey(SimpleMsg keyChange)
+    protected bool SilentSetKey(NoteMsg keyChange)
     {
         if (!HasKey(keyChange.Key))
             throw new ArgumentOutOfRangeException($"Key can't be {keyChange.Key}. Min value: {MinKey}; Max value: {MaxKey}.");
@@ -26,7 +26,7 @@ public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffs
             : State.Remove(keyChange.Key);
     }
 
-    public virtual bool SetKey(SimpleMsg keyChange)
+    public virtual bool SetKey(NoteMsg keyChange)
     {
         if (SilentSetKey(keyChange))
         {
@@ -42,7 +42,7 @@ public class LightState() : KeyState
     private Queue<byte> lightQueue = [];
     public const byte maxKeysDisplayed = 4;
 
-    public bool UpdateNote(SimpleMsg msg) => base.SetKey(msg);
+    public bool UpdateNote(NoteMsg msg) => base.SetKey(msg);
 
     public bool SetLight(byte keyOn)
     {
