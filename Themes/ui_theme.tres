@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://bmd3anhug6lmh"]
+
+[ext_resource type="StyleBox" uid="uid://dpoerorof6ufy" path="res://Themes/alert_style_box_flat.tres" id="1_fudmr"]
+
+[resource]
+Button/styles/disabled = ExtResource("1_fudmr")
+Button/styles/focus = ExtResource("1_fudmr")
+Button/styles/hover = ExtResource("1_fudmr")
+Button/styles/normal = ExtResource("1_fudmr")
+Button/styles/pressed = ExtResource("1_fudmr")
+Panel/styles/panel = ExtResource("1_fudmr")

@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
 [ext_resource type="Script" path="res://Scripts/GameElements/Alerts.cs" id="2_4jih0"]
-[ext_resource type="Script" path="res://Scripts/GameElements/RangeSelection.cs" id="3_7rf0n"]
 [ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
 [ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
 [ext_resource type="Script" path="res://Scripts/GameElements/ProgressBar.cs" id="6_t5trx"]
@@ -14,6 +13,7 @@
 [ext_resource type="Theme" uid="uid://crnyqkpjibv2t" path="res://Themes/black_key.tres" id="12_idt47"]
 [ext_resource type="Theme" uid="uid://dagitmua1vpuv" path="res://Themes/active_key.tres" id="12_m70jk"]
 [ext_resource type="Theme" uid="uid://cl5sn51ecfkxm" path="res://Themes/black_active_key.tres" id="13_d22rl"]
+[ext_resource type="Theme" uid="uid://bmd3anhug6lmh" path="res://Themes/ui_theme.tres" id="14_oh4w4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h1xpk"]
 bg_color = Color(0.137546, 0.665053, 0.790437, 1)
@@ -55,7 +55,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("5_ga1et")
 piano = NodePath("../Control/Piano")
-progressBar = NodePath("../Control/ProgressBar")
+progressBar = NodePath("../Control/HBoxContainer/ProgressBar")
 fontTheme = ExtResource("7_gxgea")
 themeWhiteKey = ExtResource("10_dk06m")
 themeBlackKey = ExtResource("8_k24y3")
@@ -67,71 +67,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
-layout_mode = 0
-offset_right = 79.0
-offset_bottom = 26.0
-text = "0.00"
-
-[node name="ProgressBar" type="Control" parent="Control" node_paths=PackedStringArray("Txt", "bgRect", "progressRect", "rangeRect", "rangeSelectRect")]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 90.0
-grow_horizontal = 2
-script = ExtResource("6_t5trx")
-Txt = NodePath("../RichTextLabel")
-bgRect = NodePath("Background")
-progressRect = NodePath("Progress")
-rangeRect = NodePath("Range")
-rangeSelectRect = NodePath("Selection")
-RangeRectColor = Color(1, 1, 0, 0.423529)
-RangeSelectRectColor = Color(0.4, 0.752941, 0.886275, 0.654902)
-
-[node name="Background" type="ColorRect" parent="Control/ProgressBar" node_paths=PackedStringArray("progressBar")]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.196078, 0.196078, 0.196078, 1)
-script = ExtResource("3_7rf0n")
-progressBar = NodePath("..")
-
-[node name="Progress" type="ColorRect" parent="Control/ProgressBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -1420.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.0666667, 0.839216, 0.0784314, 1)
-
-[node name="Range" type="ColorRect" parent="Control/ProgressBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -1489.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(1, 1, 0, 0.423529)
-
-[node name="Selection" type="ColorRect" parent="Control/ProgressBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -1584.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.4, 0.752941, 0.886275, 0.654902)
 
 [node name="Piano" type="ReferenceRect" parent="Control"]
 layout_mode = 1
@@ -148,6 +83,59 @@ whiteTheme = ExtResource("11_evqa8")
 blackTheme = ExtResource("12_idt47")
 activeTheme = ExtResource("12_m70jk")
 blackActiveTheme = ExtResource("13_d22rl")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -1371.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ProgressBar" type="Control" parent="Control/HBoxContainer" node_paths=PackedStringArray("progressLabel", "progressRect")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 11.23
+script = ExtResource("6_t5trx")
+progressLabel = NodePath("Panel/Label")
+progressRect = NodePath("Panel/Progress")
+
+[node name="Panel" type="Panel" parent="Control/HBoxContainer/ProgressBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_oh4w4")
+
+[node name="Progress" type="ColorRect" parent="Control/HBoxContainer/ProgressBar/Panel"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 1468.0
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0496095, 0.608785, 0.0546306, 1)
+
+[node name="Label" type="Label" parent="Control/HBoxContainer/ProgressBar/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 38
+text = "0%"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("14_oh4w4")
+text = "Menu"
 
 [node name="DeviceDisconnected" type="PopupPanel" parent="."]
 title = "DEVICE DISCONNECTED"
@@ -241,5 +229,4 @@ offset_bottom = -136.0
 grow_vertical = 0
 theme = ExtResource("12_idt47")
 
-[connection signal="RangeSelected" from="Control/ProgressBar/Background" to="GameManager" method="SelectRange"]
-[connection signal="SelectionMoved" from="Control/ProgressBar/Background" to="GameManager" method="RangeSelectionMoved"]
+[connection signal="pressed" from="Control/HBoxContainer/Button" to="GameManager" method="Exit"]
