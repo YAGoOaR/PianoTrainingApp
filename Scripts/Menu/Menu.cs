@@ -27,7 +27,7 @@ internal partial class Menu : Control
     {
         settings = GameSettings.Instance;
 
-        var musicDir = settings.Settings.MusicFolder;
+        var musicDir = settings.Settings.MusicFolderPath;
 
         SongPath.Text = settings.Settings.MusicPath;
         FolderPath.Text = musicDir;
@@ -60,9 +60,9 @@ internal partial class Menu : Control
 
     public void OnBrowsePressed()
     {
-        if (!string.IsNullOrEmpty(settings.Settings.MusicFolder))
+        if (!string.IsNullOrEmpty(settings.Settings.MusicFolderPath))
         {
-            fileDialog.CurrentPath = settings.Settings.MusicFolder;
+            fileDialog.CurrentPath = settings.Settings.MusicFolderPath;
         }
 
         fileDialog.Show();
@@ -75,7 +75,7 @@ internal partial class Menu : Control
 
     public void OnFolderSelect(string folder)
     {
-        settings.Settings.MusicFolder = folder;
+        settings.Settings.MusicFolderPath = folder;
         UpdateItems(folder);
         FolderPath.Text = folder;
         settings.Save();
