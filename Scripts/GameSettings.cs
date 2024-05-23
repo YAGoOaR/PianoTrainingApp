@@ -1,3 +1,4 @@
+
 using System.IO;
 using System.Text.Json;
 
@@ -23,12 +24,13 @@ public partial class GameSettings
         public int LateHintOutdateTime { get; } = 300;
     }
 
-    public struct GSettings
+    public struct GSettings()
     {
-        public PlayerSettings PlayerSettings { get; set; }
-        public string MusicFolder { get; set; }
-        public string MusicPath { get; set; }
-        public string PianoDeviceName { get; set; }
+        public PlayerSettings PlayerSettings { get; set; } = new();
+        public string MusicFolderPath { get; set; } = "";
+        public string MusicPath { get; set; } = "";
+        public string PianoDeviceName { get; set; } = "";
+        public bool Autoretry { get; set; } = true;
     }
     public GSettings Settings = new() { MusicPath = "", PlayerSettings = new() };
 
@@ -53,9 +55,15 @@ public partial class GameSettings
     {
         if (!File.Exists(settingsPath)) return false;
 
-        Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(settingsPath));
-
-        return true;
+        try
+        {
+            Settings = JsonSerializer.Deserialize<GSettings>(File.ReadAllText(settingsPath));
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public void Save()

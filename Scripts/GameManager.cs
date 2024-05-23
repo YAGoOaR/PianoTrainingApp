@@ -1,7 +1,9 @@
+
 using Godot;
 using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
 using PianoTrainer.Scripts.PianoInteraction;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts;
@@ -12,6 +14,7 @@ namespace PianoTrainer.Scripts;
 public partial class GameManager : Node2D
 {
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private readonly GameSettings settings = GameSettings.Instance;
 
     public enum GameState
     {
@@ -40,6 +43,7 @@ public partial class GameManager : Node2D
     {
         await DeviceManager.Instance.ConnectAllDevices();
         State = GameState.Ready;
+        Alerts.Instance?.ShowWaiting(false);
     });
 
     // Called each game frame.
@@ -47,6 +51,12 @@ public partial class GameManager : Node2D
     {
         if (State == GameState.Running)
         {
+            if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped)
+            {
+                State = GameState.Stopped;
+                return;
+            }
+
             musicPlayer.Update((float)delta);
         }
         else if (State == GameState.Ready)
@@ -56,16 +66,28 @@ public partial class GameManager : Node2D
         }
         else if (State == GameState.Stopped)
         {
-            GetTree().ChangeSceneToFile(GameSettings.MenuScene);
+            if (settings.Settings.Autoretry)
+            {
+                State = GameState.Ready;
+                return;
+            }
+                        
             State = GameState.Exited;
+            Exit();
         }
+    }
+
+    public void Exit()
+    {
+        GetTree().ChangeSceneToFile(GameSettings.MenuScene);
     }
 
     public override void _Input(InputEvent @event)
     {
         if (@event.IsActionPressed("ui_cancel"))
         {
-            State = GameState.Stopped;
+            State = GameState.Exited;
+            Exit();
         }
     }
 
@@ -74,3 +96,4 @@ public partial class GameManager : Node2D
         DeviceManager.DisconnectDevices();
     }
 }
+    

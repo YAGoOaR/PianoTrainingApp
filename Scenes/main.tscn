@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://rjqe8bqq4rit" path="res://Scenes/main.tres" id="1_kd3m6"]
 [ext_resource type="Script" path="res://Scripts/Menu/Menu.cs" id="1_q0yop"]
-[ext_resource type="Texture2D" uid="uid://dmiq3mal5ptlk" path="res://Icons/icon.svg" id="2_1cbve"]
+[ext_resource type="Texture2D" uid="uid://cgwhkhrd57dvw" path="res://Icons/midi-icon.svg" id="2_67f7p"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -16,7 +16,7 @@ grow_vertical = 2
 anchors_preset = 0
 script = ExtResource("1_q0yop")
 itemList = NodePath("../Control/MarginContainer/VBoxContainer/ItemList")
-icon = ExtResource("2_1cbve")
+icon = ExtResource("2_67f7p")
 SongPath = NodePath("../Control/MarginContainer/VBoxContainer/HBoxContainer/TextEdit")
 FolderPath = NodePath("../Control/MarginContainer/VBoxContainer/TextEdit")
 fileDialog = NodePath("../FileDialog")
@@ -61,6 +61,7 @@ editable = false
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 9.88
+icon_scale = 0.1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/VBoxContainer"]
 layout_mode = 2

@@ -13,4 +13,9 @@ internal static class Utils
     {
         return func(input);
     }
+
+    public static string FixPath(string path)
+    {
+        return path.Replace("\\", "/");
+    }
 }

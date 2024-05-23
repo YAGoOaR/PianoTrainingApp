@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,14 +14,14 @@ public class MusicPlayer
     public struct MusicPlayerState()
     {
         public HashSet<byte> DesiredKeys { get; set; } = [];
-        public int NextMessageGroup { get; set; } = 0;
-        public int CurrentGroup { get; set; } = -1;
+        public int NextMessageGroup { get; set; } = 1;
+        public int CurrentGroup { get; set; } = 0;
         public int MessageDelta { get; set; } = 0;
         public int TotalMessagesTime { get; set; } = 0;
         public int startTime = 0;
     }
 
-    public List<SimpleTimedKeyGroup> Notes { get; set; } = [];
+    public List<TimedNoteGroup> Notes { get; set; } = [];
 
     public float TotalSeconds { get => totalTimeMilis * Utils.MsToSeconds; }
     public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
@@ -93,16 +94,13 @@ public class MusicPlayer
             return;
         }
 
-        var prevGroup = State.CurrentGroup == -1
-            ? new(State.startTime, [])
-            : Notes[State.CurrentGroup];
-
+        var prevGroup = Notes[State.CurrentGroup];
         var group = Notes[State.NextMessageGroup];
 
         State = new()
         {
             TotalMessagesTime = prevGroup.Time,
-            DesiredKeys = group.Keys,
+            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
             MessageDelta = group.Time - prevGroup.Time,
 
             CurrentGroup = State.NextMessageGroup,

@@ -8,11 +8,13 @@ using Commons.Music.Midi;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
-public record SimpleMsg(byte Key, bool State);
-public record SimpleTimedMsg(byte Key, bool State, int DeltaTime) : SimpleMsg(Key, State);
-public record SimpleTimedKey(byte Key, int DeltaTime);
-public record SimpleTimedKeyGroup(int Time, HashSet<byte> Keys);
-public record ParsedMusic(List<SimpleTimedKeyGroup> Notes, int TotalTime);
+public record NoteMsg(byte Key, bool State);
+public record TimedNoteMsg(byte Key, bool State, int DeltaTime) : NoteMsg(Key, State);
+
+public record NotePress(byte Key, int Duration);
+public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, Duration);
+public record TimedNoteGroup(int Time, HashSet<NotePress> Notes);
+public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime);
 
 public partial class MIDIReader
 {
@@ -38,31 +40,31 @@ public partial class MIDIReader
             .ToList()
             .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
             .Pipe(ExtractKeyGroups)
-            .Pipe((groups) => ChangeStartTime(groups, gameSettings.Settings.PlayerSettings.StartOffset))
+            .Pipe((groups) => SetTimeOffsets(groups, gameSettings.Settings.PlayerSettings.StartOffset))
             .Pipe(KeyGroupsToAbsTime);
 
         return new (groups, groups.Last().Time);
     }
 
-    private static List<SimpleTimedKeyGroup> ExtractKeyGroups(List<SimpleTimedKey> keyOnMessages)
+    private static List<TimedNoteGroup> ExtractKeyGroups(List<TimedNote> keyMessages)
     {
-        List<SimpleTimedKeyGroup> keyEvents = [];
+        List<TimedNoteGroup> keyEvents = [];
 
         int eventDelay = 0;
-        HashSet<byte> eventAccumulator = [];
+        HashSet<NotePress> eventAccumulator = [];
 
-        for (int i = 0; i < keyOnMessages.Count; i++)
+        for (int i = 0; i < keyMessages.Count; i++)
         {
-            var msg = keyOnMessages[i];
+            var msg = keyMessages[i];
 
             if (msg.DeltaTime == 0)
             {
-                eventAccumulator.Add(msg.Key);
+                eventAccumulator.Add(msg);
             }
             else
             {
                 if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator));
-                eventAccumulator = [msg.Key];
+                eventAccumulator = [msg];
                 eventDelay = msg.DeltaTime;
             }
         }
@@ -71,25 +73,48 @@ public partial class MIDIReader
         return keyEvents;
     }
 
-    private static List<SimpleTimedKey> ExtractKeyOnMessages(List<SimpleTimedMsg> KeyMessages, Func<byte, bool> keyFitCriteria)
+    private static List<TimedNote> ExtractKeyOnMessages(List<TimedNoteMsg> keyMessages, Func<byte, bool> keyFitCriteria)
     {
-        var t = 0;
-        List<SimpleTimedKey> messagesOn = [];
+        Dictionary<byte, (int idx, int relTime, int absTime, TimedNoteMsg msg)> openedNotes = [];
+        List<(int idx, TimedNote note)> closedNotes = [];
 
-        foreach (var msg in KeyMessages)
+        var absoluteTime = 0;
+        var relativeTime = 0;
+
+        int counter = 0;
+
+        foreach (var msg in keyMessages)
         {
-            if (msg.State && keyFitCriteria(msg.Key))
+            absoluteTime += msg.DeltaTime;
+            relativeTime += msg.DeltaTime;
+
+            if (keyFitCriteria(msg.Key))
             {
-                messagesOn.Add(new(msg.Key, t + msg.DeltaTime));
-                t = 0;
+                if (msg.State)
+                {
+                    if (openedNotes.ContainsKey(msg.Key)) continue;
+
+                    openedNotes[msg.Key] = (counter, relativeTime, absoluteTime, msg);
+                    relativeTime = 0;
+                }
+                else
+                {
+                    if (!openedNotes.ContainsKey(msg.Key)) continue;
+
+                    var (idx, startRelativeTime, absOpenTime, openedMsg) = openedNotes[msg.Key];
+
+                    var duration = absoluteTime - absOpenTime;
+
+                    (int, TimedNote) closedNote = (idx, new(openedMsg.Key, startRelativeTime, duration));
+
+                    closedNotes.Add(closedNote);
+                    openedNotes.Remove(msg.Key);
+                }
             }
-            else
-            {
-                t += msg.DeltaTime;
-            }
+            counter += 1;
         }
 
-        return messagesOn;
+        return closedNotes.OrderBy(x => x.idx).Select(x => x.note).ToList();
     }
 
     private static List<MidiMessage> MergeTracks(IList<MidiTrack> tracks)
@@ -138,7 +163,7 @@ public partial class MIDIReader
         return (rest, currentTempo);
     }
 
-    private static SimpleTimedMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio = 1f) =>
+    private static TimedNoteMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio = 1f) =>
     (
         new(
             m.Event.Msb,
@@ -152,16 +177,15 @@ public partial class MIDIReader
         return (int)(currentTempo * Utils.MsToSeconds * deltaTime / deltaTimeSpec / tempo_ratio);
     }
 
-    private static List<SimpleTimedKeyGroup> KeyGroupsToAbsTime(List<SimpleTimedKeyGroup> keyEvents)
+    private static List<TimedNoteGroup> KeyGroupsToAbsTime(List<TimedNoteGroup> keyEvents)
     {
         int timeAcc = 0;
-        List<SimpleTimedKeyGroup> eventsAbsTime = [];
+        List<TimedNoteGroup> eventsAbsTime = [];
 
         foreach (var msg in keyEvents)
         {
             timeAcc += msg.Time;
-            if (msg.Keys.Count == 0) continue;
-            eventsAbsTime.Add(new(timeAcc, msg.Keys));
+            eventsAbsTime.Add(new(timeAcc, msg.Notes));
         }
 
         return eventsAbsTime;
@@ -179,18 +203,14 @@ public partial class MIDIReader
         return music;
     }
 
-    private static List<SimpleTimedKeyGroup> ChangeStartTime(List<SimpleTimedKeyGroup> keyGroups, int startOffset)
+    private static List<TimedNoteGroup> SetTimeOffsets(List<TimedNoteGroup> keyGroups, int startOffset)
     {
         if (keyGroups.Count > 0)
         {
             var (firstMsg, rest) = (keyGroups.First(), keyGroups[1..]);
-            return [new(0, []), new(startOffset, firstMsg.Keys), .. rest];
+            var lastOffset = keyGroups.Last().Notes.Select(x => x.Duration).Max();
+            return [new(0, []), new(startOffset, firstMsg.Notes), .. rest, new(lastOffset, [])];
         }
         return keyGroups;
-    }
-
-    private static List<SimpleTimedKeyGroup> FindKeyGroupSpan(List<SimpleTimedKeyGroup> groups, (float, float) timeRange)
-    {
-        return groups.SkipWhile(g => g.Time < timeRange.Item1 * 1000).TakeWhile(g => g.Time <= timeRange.Item2 * 1000).ToList();
     }
 }

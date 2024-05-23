@@ -1,7 +1,10 @@
-[gd_resource type="Theme" format=3 uid="uid://rjqe8bqq4rit"]
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://rjqe8bqq4rit"]
+
+[sub_resource type="FontVariation" id="FontVariation_2vvky"]
 
 [resource]
 HBoxContainer/constants/separation = 20
+Label/fonts/font = SubResource("FontVariation_2vvky")
 MarginContainer/constants/margin_bottom = 120
 MarginContainer/constants/margin_left = 120
 MarginContainer/constants/margin_right = 120

@@ -5,31 +5,30 @@ using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.Devices;
 
-internal class KeyboardConnectionHolder
+internal class KeyboardConnectionHolder(LightsMIDIInterface lights, Action onDisconnected)
 {
-    private readonly TaskCompletionSource stopSignal;
+    private readonly TaskCompletionSource stopSignal = new();
 
     private const int period = 50;
 
-    static void HoldLoop(KeyboardInterface lights, TaskCompletionSource stopSignal)
+    public void StartLoop()
     {
-        lights.SendHold();
-        Thread.Sleep(period);
-
-        while (!stopSignal.Task.IsCompleted)
-        {
-            lights.SendHold();
-            Thread.Sleep(period);
-        }
-    }
-
-    public KeyboardConnectionHolder(KeyboardInterface lights)
-    {
-        stopSignal = new();
-
         Thread holdLoop = new(() => HoldLoop(lights, stopSignal));
 
         holdLoop.Start();
+    }
+
+    private void HoldLoop(LightsMIDIInterface lights, TaskCompletionSource stopSignal)
+    {
+        while (!stopSignal.Task.IsCompleted)
+        {
+            if (!lights.SendHold())
+            {
+                onDisconnected();
+                return;
+            }
+            Thread.Sleep(period);
+        }
     }
 
     public void Dispose()

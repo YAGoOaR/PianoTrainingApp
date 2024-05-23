@@ -1,4 +1,5 @@
-﻿using Commons.Music.Midi;
+﻿
+using Commons.Music.Midi;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ public abstract class IOPort<T>(string portName) where T : IMidiPort
     private const int waitTime = 1000;
 
     protected IMidiPort port = null;
+
+    public bool IsConnected { get => port != null; }
 
     private static bool GetPort(string portName, out IMidiPortDetails port)
     {

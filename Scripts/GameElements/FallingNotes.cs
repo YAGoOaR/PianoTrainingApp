@@ -1,44 +1,88 @@
+
 using Godot;
 using System.Collections.Generic;
 using System.Linq;
-
-using static PianoTrainer.Scripts.Utils;
 using PianoTrainer.Scripts.PianoInteraction;
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
+using static Utils;
 
 public partial class FallingNotes : Control
 {
-    [Export] private CompressedTexture2D whiteNoteTexture;
-    [Export] private CompressedTexture2D blackNoteTexture;
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
-    [Export] private float noteHeight = 50;
-    [Export] private float timeSpan = 3;
-    [Export] private float noteTextureScale = 200f;
+    [Export] private float timeSpan = 4;
 
-    private record Note(byte Key, Sprite2D rect);
-    private record NoteGroup(int Time, List<Note> notes);
+    [Export] private Theme fontTheme;
+    [Export] private Theme themeWhiteKey;
+    [Export] private Theme themeBlackKey;
+
+    [Export] private Color transparentColor = new(1f, 1f, 1f, 0.6f);
+
+    private Font textFont;
+
+    private record Note(byte Key, Panel Rect, int Duration, float Height);
+    private record NoteGroup(int Time, List<Note> Notes, float MaxDuration);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
+    private readonly Dictionary<int, NoteGroup> completedNotes = [];
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+
+    
 
     public void Clear()
     {
         foreach (var (_, noteGroup) in currentNotes)
         {
-            foreach (var note in noteGroup.notes)
+            foreach (var note in noteGroup.Notes)
             {
-                note.rect.QueueFree();
+                note.Rect.QueueFree();
             }
         }
 
         currentNotes.Clear();
     }
 
-    public void AddNoteGroup(int groupIndex, SimpleTimedKeyGroup group)
+    private Note CreateNote(NotePress note)
+    {
+        var (key, duration) = note;
+
+        var isBlack = IsBlack(key);
+
+        var noteSizeY = duration * MsToSeconds / timeSpan * Size.Y;
+
+        Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, noteSizeY);
+        Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, noteSizeY);
+
+        var rect = new Panel()
+        {
+            Size = (isBlack ? BlackNoteSize : WhiteNoteSize) + Vector2.Right * 8,
+            ZIndex = -5,
+            Theme = isBlack ? themeBlackKey : themeWhiteKey,
+        };
+
+        AddChild(rect);
+
+        var txt = new Label()
+        {
+            Text = KeyLabelsLatin[key % octave],
+            Theme = fontTheme,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            LayoutMode = 1,
+            AutowrapMode = TextServer.AutowrapMode.Arbitrary,
+            ClipText = true,
+        };
+
+        rect.AddChild(txt);
+        txt.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+
+        return new Note(key, rect, duration, noteSizeY);
+    }
+
+    private void AddNoteGroup(int groupIndex, TimedNoteGroup group)
     {
         if (currentNotes.ContainsKey(groupIndex))
         {
@@ -47,79 +91,82 @@ public partial class FallingNotes : Control
 
         List<Note> newNotes = [];
 
-        foreach (var k in group.Keys)
+        foreach (var k in group.Notes)
         {
-            var isBlack = IsBlack(k);
-
-            Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, noteHeight);
-            Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, noteHeight);
-
-            var rect = new Sprite2D()
-            {
-                Texture = isBlack ? blackNoteTexture : whiteNoteTexture,
-                Position = new Vector2(0, 0),
-                Scale = (isBlack ? BlackNoteSize : WhiteNoteSize) / noteTextureScale,
-                ZIndex = -1
-            };
-            AddChild(rect);
-
-            newNotes.Add(new(k, rect));
+            newNotes.Add(CreateNote(k));
         }
 
         var time = group.Time;
 
-        currentNotes[groupIndex] = new(time, newNotes);
+        currentNotes[groupIndex] = new(time, newNotes, newNotes.Select(x => x.Duration).DefaultIfEmpty(0).Max());
     }
 
-    public void RemoveNoteGroup(int groupIndex)
+    private void CompleteNoteGroup(int groupIndex)
     {
         var noteGroup = currentNotes[groupIndex];
 
-        foreach (var note in noteGroup.notes)
+        completedNotes[groupIndex] = noteGroup;
+
+        foreach (var note in noteGroup.Notes)
         {
-            note.rect.QueueFree();
+            note.Rect.Modulate = transparentColor;
         }
 
         currentNotes.Remove(groupIndex);
     }
 
-    public override void _Process(double delta)
+    private void RemoveNoteGroup(int groupIndex)
     {
-        UpdateTimeline();
-        UpdateNotePositions();
+        var noteGroup = completedNotes[groupIndex];
+
+        foreach (var note in noteGroup.Notes)
+        {
+            note.Rect.QueueFree();
+        }
+        completedNotes.Remove(groupIndex);
     }
 
-    private void UpdateTimeline()
+    public override void _Process(double delta)
     {
         if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
 
-        var (allNoteGroups, timeline) = (musicPlayer.Notes, musicPlayer);
+        var newGroups = UpdateTimeline();
+        UpdateNotes(newGroups);
+        UpdateNotePositions();
+    }
 
-        var currentGroup = Mathf.Max(timeline.State.CurrentGroup, 0);
+    private Dictionary<int, TimedNoteGroup> UpdateTimeline()
+    {
+        var allNoteGroups = musicPlayer.Notes;
+
+        var currentGroup = Mathf.Max(musicPlayer.State.CurrentGroup, 0);
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
-            .TakeWhile(g => g.Time < timeline.TimeMilis + timeSpan * SecondsToMs)
+            .TakeWhile(g => g.Time < musicPlayer.TimeMilis + timeSpan * SecondsToMs)
             .ToDictionary(el => el.Time, el => el);
 
-        UpdateNotes(selectedGroups);
+        return selectedGroups;
     }
 
-    private void UpdateNotes(Dictionary<int, SimpleTimedKeyGroup> newNotes)
+    private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
     {
         var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
-        foreach (var g in notesToAdd) AddNoteGroup(g.Key, g.Value);
+        foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var notesToRemove = currentNotes.Where(ng => !newNotes.ContainsKey(ng.Key));
-        foreach (var g in notesToRemove) RemoveNoteGroup(g.Key);
+        var notesToRemove = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
+        foreach (var group in notesToRemove) CompleteNoteGroup(group.Key);
+
+        var notesToDelete = completedNotes.Values.Where(g => g.Time + g.MaxDuration <= musicPlayer.TimeMilis);
+        foreach (var group in notesToDelete) RemoveNoteGroup(group.Time);
     }
 
     private void UpdateNotePositions()
     {
-        foreach (var (_, noteGroup) in currentNotes)
+        foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
             var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
-            foreach (var note in noteGroup.notes)
+            foreach (var note in noteGroup.Notes)
             {
                 var keyPos = MIDIIndexToKey(note.Key);
                 var whiteIndex = GetWhiteIndex(keyPos);
@@ -130,7 +177,7 @@ public partial class FallingNotes : Control
                     ? (noteOffset * piano.GridSize.X + piano.GridSize.X + piano.BlackNoteSize.X / 2)
                     : (piano.NoteGap / 2 + piano.GridSize.X / 2);
 
-                note.rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - noteHeight / 2);
+                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - note.Height / 2) - note.Rect.Size/2;
             }
         }
     }
