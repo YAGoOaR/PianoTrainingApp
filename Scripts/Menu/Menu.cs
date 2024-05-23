@@ -29,7 +29,7 @@ internal partial class Menu : Control
 
         var musicDir = settings.Settings.MusicFolderPath;
 
-        SongPath.Text = settings.Settings.MusicPath;
+        SongPath.Text = Utils.FixPath(settings.Settings.MusicPath);
         FolderPath.Text = musicDir;
 
         if (string.IsNullOrEmpty(musicDir))
