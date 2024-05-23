@@ -43,9 +43,9 @@ internal class DeviceManager
             Debug.WriteLine("Piano was already shutdown.");
         }
 
-        Alerts.Instance.deviceDisconnectedPanel.CallDeferred(Window.MethodName.Show);
+        Alerts.Instance?.ShowDisconnected(true);
         await ConnectAllDevices();
-        Alerts.Instance.deviceDisconnectedPanel.CallDeferred(Window.MethodName.Hide);
+        Alerts.Instance?.ShowDisconnected(false);
     }
 
     public Task ConnectAllDevices() => Task.Run(async () =>
