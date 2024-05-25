@@ -13,15 +13,8 @@ public static class PianoKeys
     /// </summary>
     public static int KeyboardRange { get; } = 61;
 
-    /// <summary>
-    /// Black key count on the entire keyboard.
-    /// </summary>
-    public static int Blacks { get; } = 25;
-
-    /// <summary>
-    /// White key count on the entire keyboard.
-    /// </summary>
-    public static int Whites { get; } = KeyboardRange - Blacks;
+    public static int BlackKeyCount { get; } = 25;
+    public static int WhiteKeyCount { get; } = KeyboardRange - BlackKeyCount;
 
     // Piano keyboard layout parameters
     public const byte octave = 12;

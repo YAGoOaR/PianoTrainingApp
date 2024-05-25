@@ -30,7 +30,7 @@ public partial class PianoKeyboard : Control
     {
         DeviceManager.Instance.DefaultPiano.Piano.KeyChange += SetKey;
 
-        GridSize = new(Size.X / Whites, Size.Y);
+        GridSize = new(Size.X / WhiteKeyCount, Size.Y);
         WhiteNoteSize = GridSize - Vector2.Right * NoteGap;
         BlackNoteSize = WhiteNoteSize * BlackNoteSizeRatio;
 
@@ -41,7 +41,7 @@ public partial class PianoKeyboard : Control
 
     private void SetupKeys()
     {
-        for (byte i = 0; i < Whites; i++)
+        for (byte i = 0; i < WhiteKeyCount; i++)
         {
             var whiteRect = new Panel
             {
@@ -55,7 +55,7 @@ public partial class PianoKeyboard : Control
 
             var (blackExists, noteOffset) = GetNoteOffset(i);
 
-            if (blackExists && i != Whites - 1)
+            if (blackExists && i != WhiteKeyCount - 1)
             {
                 var rect = new Panel()
                 {

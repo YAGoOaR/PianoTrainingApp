@@ -181,7 +181,7 @@ public partial class FallingNotes : Control
                     ? (noteOffset * piano.GridSize.X + piano.GridSize.X + piano.BlackNoteSize.X / 2)
                     : (piano.NoteGap / 2 + piano.GridSize.X / 2);
 
-                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - note.Height / 2) - note.Rect.Size/2;
+                note.Rect.Position = new Vector2(whiteIndex * (Size.X / WhiteKeyCount) + totalOffset, Size.Y - verticalPos - note.Height / 2) - note.Rect.Size/2;
             }
         }
     }
