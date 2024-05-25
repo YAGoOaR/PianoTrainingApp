@@ -43,10 +43,10 @@ public partial class MIDIReader
         var groups = keyMIDIMessages
             .Select(msg => MidiMsg2TimedNoteMsg(msg, tempo, music.DeltaTimeSpec))
             .ToList()
-            .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
-            .Pipe(ExtractKeyGroups)
-            .Pipe((groups) => SetTimeOffsets(groups, startOffset))
-            .Pipe(KeyGroupsToAbsTime);
+            .Pipe((messages) => MessagesToPressData(messages, keyAcceptCriteria))
+            .Pipe(GroupNotes)
+            .Pipe((groups) => AddTimePadding(groups, startOffset))
+            .Pipe(ToAbsoluteTime);
 
         return new(groups, groups.Last().Time, bpm);
     }
@@ -59,7 +59,7 @@ public partial class MIDIReader
 
     private static bool IsNotePressed(MidiMessage m) => m.Event.EventType == MidiEvent.NoteOn && m.Event.Lsb != 0;
 
-    private static List<TimedNoteGroup> ExtractKeyGroups(List<TimedNote> keyMessages)
+    private static List<TimedNoteGroup> GroupNotes(List<TimedNote> keyMessages)
     {
         List<TimedNoteGroup> keyEvents = [];
 
@@ -86,7 +86,7 @@ public partial class MIDIReader
         return keyEvents;
     }
 
-    private static List<TimedNote> ExtractKeyOnMessages(List<TimedNoteMsg> keyMessages, Func<byte, bool> keyFitCriteria)
+    private static List<TimedNote> MessagesToPressData(List<TimedNoteMsg> keyMessages, Func<byte, bool> keyFitCriteria)
     {
         Dictionary<byte, (int idx, int relTime, int absTime, TimedNoteMsg msg)> openedNotes = [];
         List<(int idx, TimedNote note)> closedNotes = [];
@@ -94,10 +94,9 @@ public partial class MIDIReader
         var absoluteTime = 0;
         var relativeTime = 0;
 
-        int counter = 0;
-
-        foreach (var msg in keyMessages)
+        for (int i = 0; i < keyMessages.Count; i++)
         {
+            var msg = keyMessages[i];
             absoluteTime += msg.DeltaTime;
             relativeTime += msg.DeltaTime;
 
@@ -107,7 +106,7 @@ public partial class MIDIReader
                 {
                     if (openedNotes.ContainsKey(msg.Key)) continue;
 
-                    openedNotes[msg.Key] = (counter, relativeTime, absoluteTime, msg);
+                    openedNotes[msg.Key] = (i, relativeTime, absoluteTime, msg);
                     relativeTime = 0;
                 }
                 else
@@ -124,7 +123,6 @@ public partial class MIDIReader
                     openedNotes.Remove(msg.Key);
                 }
             }
-            counter += 1;
         }
 
         return closedNotes.OrderBy(x => x.idx).Select(x => x.note).ToList();
@@ -179,18 +177,18 @@ public partial class MIDIReader
         return (rest, tempo, bpm);
     }
 
-    private static List<TimedNoteGroup> KeyGroupsToAbsTime(List<TimedNoteGroup> keyEvents)
+    private static List<TimedNoteGroup> ToAbsoluteTime(List<TimedNoteGroup> notes)
     {
         int timeAcc = 0;
-        List<TimedNoteGroup> eventsAbsTime = [];
+        List<TimedNoteGroup> notesAbsTime = [];
 
-        foreach (var msg in keyEvents)
+        foreach (var note in notes)
         {
-            timeAcc += msg.Time;
-            eventsAbsTime.Add(new(timeAcc, msg.Notes));
+            timeAcc += note.Time;
+            notesAbsTime.Add(new(timeAcc, note.Notes));
         }
 
-        return eventsAbsTime;
+        return notesAbsTime;
     }
 
     private static MidiMusic LoadMIDI(string filename)
@@ -205,7 +203,7 @@ public partial class MIDIReader
         return music;
     }
 
-    private static List<TimedNoteGroup> SetTimeOffsets(List<TimedNoteGroup> keyGroups, int startOffset)
+    private static List<TimedNoteGroup> AddTimePadding(List<TimedNoteGroup> keyGroups, int startOffset)
     {
         if (keyGroups.Count > 0)
         {
