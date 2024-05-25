@@ -5,11 +5,10 @@
 ![Early gameplay video](https://github.com/YAGoOaR/Images/blob/main/PianoTrainingApp/demo.gif)
 
 This program is designed for use specifically with CASIO LK-S250 synthesizer. It can read MIDI files and guide the user to correctly play it on a piano. It supports learning with piano key lighting, falling notes on screen and sheet music.
-Now the development is in progress and the executable program will be placed in [Releases](https://github.com/YAGoOaR/PianoTrainingApp/releases) when ready.
 
 ## Description
 
-The application connects to the synthesizer via the MIDI interface, reads MIDI messages of key state changes, and sends messages bytewise to turn on the note hint light at the right time. The program is able to parse MIDI files, split tracks by notes, and play the music. Falling notes are displayed on the screen to show the user what to press.
+The application connects to the synthesizer via the MIDI interface, reads MIDI messages of key state changes, and sends messages to turn on the note hint light at the right time. The program is able to parse MIDI files, split tracks to notes, and play the music. Falling notes are displayed on the screen to show the user what to press.
 
 ## Unique features
 
