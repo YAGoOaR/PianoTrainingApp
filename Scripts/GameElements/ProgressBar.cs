@@ -27,7 +27,7 @@ public partial class ProgressBar : Control
     {
         if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
 
-        var time = musicPlayer.TimeMilis * Utils.MsToSeconds;
+        var time = musicPlayer.TimeMilis * TimeUtils.MsToSeconds;
         SetProgress(time);
         progressLabel.Text = $"{time/musicPlayer.TotalSeconds:0%}";
     }

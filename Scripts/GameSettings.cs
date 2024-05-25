@@ -22,6 +22,7 @@ public partial class GameSettings
         public int BlinkSlowInterval { get; } = 200;
         public int BlinkFastStartOffset { get; } = 1000;
         public int LateHintOutdateTime { get; } = 300;
+        public int Timespan { get; } = 4;
     }
 
     public struct GSettings()
