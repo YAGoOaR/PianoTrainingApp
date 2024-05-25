@@ -33,7 +33,7 @@ public partial class FallingNotes : Control
 
     public override void _Ready()
     {
-        timeSpan = GameSettings.Instance.Settings.PlayerSettings.Timespan;
+        timeSpan = GameSettings.Instance.PlayerSettings.Timespan;
     }
 
     public void Clear()
@@ -132,7 +132,7 @@ public partial class FallingNotes : Control
 
     public override void _Process(double delta)
     {
-        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
+        if (musicPlayer.PlayingState == PlayState.Stopped) return;
 
         var newGroups = UpdateTimeline();
         UpdateNotes(newGroups);

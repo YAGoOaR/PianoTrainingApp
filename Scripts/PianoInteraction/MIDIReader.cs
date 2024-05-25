@@ -21,14 +21,11 @@ public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime, double Bpm)
 
 public partial class MIDIReader
 {
-    const int defaultTempo = 500000;
-    const int startBeatsOffset = 4;
-
-    private static readonly GameSettings gameSettings = GameSettings.Instance;
+    private static readonly GameSettings settings = GameSettings.Instance;
 
     public static ParsedMusic LoadSelectedMusic(Func<byte, bool> noteFilter)
     {
-        var midiMusic = LoadMIDI(gameSettings.Settings.MusicPath);
+        var midiMusic = LoadMIDI(settings.Settings.MusicPath);
 
         return ParseMusic(midiMusic, noteFilter);
     }
@@ -37,20 +34,30 @@ public partial class MIDIReader
     {
         var allMessages = MergeTracks(music.Tracks);
 
-        var (keyMIDIMessages, currentTempo, bpm) = SetupMetadata(allMessages);
-        var beatTime = GetBeatTime(bpm);
-        var startOffset = Mathf.RoundToInt(beatTime * startBeatsOffset * SecondsToMs);
+        var (keyMIDIMessages, tempo, bpm) = SetupMetadata(allMessages);
+        var beatTime = BPS2BeatTime(bpm);
+        var startOffset = Mathf.RoundToInt(beatTime * settings.PlayerSettings.StartBeatsOffset * SecondsToMs);
+
+        Debug.WriteLine(music.DeltaTimeSpec);
 
         var groups = keyMIDIMessages
-            .Select(msg => MIDIMsgToSimpleMsg(msg, currentTempo, music.DeltaTimeSpec))
+            .Select(msg => MidiMsg2TimedNoteMsg(msg, tempo, music.DeltaTimeSpec))
             .ToList()
             .Pipe((messages) => ExtractKeyOnMessages(messages, keyAcceptCriteria))
             .Pipe(ExtractKeyGroups)
             .Pipe((groups) => SetTimeOffsets(groups, startOffset))
             .Pipe(KeyGroupsToAbsTime);
 
-        return new (groups, groups.Last().Time, bpm);
+        return new(groups, groups.Last().Time, bpm);
     }
+
+    private static TimedNoteMsg MidiMsg2TimedNoteMsg(MidiMessage m, int tempo, int deltaTimeSpec) => new(
+        Key: m.Event.Msb,
+        State: IsNotePressed(m),
+        DeltaTime: GetContextDeltaTime(tempo, deltaTimeSpec, m.DeltaTime)
+    );
+
+    private static bool IsNotePressed(MidiMessage m) => m.Event.EventType == MidiEvent.NoteOn && m.Event.Lsb != 0;
 
     private static List<TimedNoteGroup> ExtractKeyGroups(List<TimedNote> keyMessages)
     {
@@ -152,14 +159,14 @@ public partial class MIDIReader
     private static (List<MidiMessage>, int tempo, double bpm) SetupMetadata(IEnumerable<MidiMessage> messages)
     {
         List<MidiMessage> rest = [];
-        var currentTempo = defaultTempo;
+        var tempo = settings.PlayerSettings.DefaultTempo;
 
         foreach (var msg in messages)
         {
             if (msg.Event.StatusByte == byte.MaxValue && msg.Event.Msb == 81)
             {
-                currentTempo = MidiMetaType.GetTempo(msg.Event.ExtraData, msg.Event.ExtraDataOffset);
-                Debug.WriteLine($"Set tempo to {currentTempo}");
+                tempo = MidiMetaType.GetTempo(msg.Event.ExtraData, msg.Event.ExtraDataOffset);
+                Debug.WriteLine($"Set music tempo to {tempo}.");
             }
             else if (msg.Event.EventType == MidiEvent.NoteOn || msg.Event.EventType == MidiEvent.NoteOff)
             {
@@ -167,23 +174,9 @@ public partial class MIDIReader
             }
         }
 
-        double bpm = 60.0 / currentTempo * 1_000_000.0;
+        double bpm = Tempo2BPM(tempo);
 
-        return (rest, currentTempo, bpm);
-    }
-
-    private static TimedNoteMsg MIDIMsgToSimpleMsg(MidiMessage m, int currentTempo, short deltaTimeSpec, float tempoRatio = 1f) =>
-    (
-        new(
-            m.Event.Msb,
-            m.Event.EventType == MidiEvent.NoteOn && m.Event.Lsb != 0,
-            GetContextDeltaTime(currentTempo, deltaTimeSpec, m.DeltaTime, tempoRatio)
-        )
-    );
-
-    private static int GetContextDeltaTime(int currentTempo, int deltaTimeSpec, int deltaTime, float tempo_ratio = 1f)
-    {
-        return (int)(currentTempo * MsToSeconds * deltaTime / deltaTimeSpec / tempo_ratio);
+        return (rest, tempo, bpm);
     }
 
     private static List<TimedNoteGroup> KeyGroupsToAbsTime(List<TimedNoteGroup> keyEvents)
