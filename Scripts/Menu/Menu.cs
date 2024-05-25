@@ -17,7 +17,7 @@ internal partial class Menu : Control
 
     public void OnItemSelect(int idx)
     {
-        var path = midis[idx];
+        var path = Utils.FixPath(midis[idx]);
         settings.Settings.MusicPath = path;
         SongPath.Text = path;
         settings.Save();
