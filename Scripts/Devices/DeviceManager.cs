@@ -1,5 +1,4 @@
 ﻿
-using Godot;
 using Commons.Music.Midi;
 using PianoTrainer.Scripts.GameElements;
 using System.Diagnostics;

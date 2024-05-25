@@ -6,13 +6,12 @@ using PianoTrainer.Scripts.PianoInteraction;
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
-using static Utils;
+using static TimeUtils;
 
 public partial class FallingNotes : Control
 {
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
-    [Export] private float timeSpan = 4;
 
     [Export] private Theme fontTheme;
     [Export] private Theme themeWhiteKey;
@@ -30,7 +29,12 @@ public partial class FallingNotes : Control
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
-    
+    private int timeSpan = 5;
+
+    public override void _Ready()
+    {
+        timeSpan = GameSettings.Instance.PlayerSettings.Timespan;
+    }
 
     public void Clear()
     {
@@ -128,7 +132,7 @@ public partial class FallingNotes : Control
 
     public override void _Process(double delta)
     {
-        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
+        if (musicPlayer.PlayingState == PlayState.Stopped) return;
 
         var newGroups = UpdateTimeline();
         UpdateNotes(newGroups);

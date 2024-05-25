@@ -25,9 +25,9 @@ public partial class ProgressBar : Control
 
     public override void _Process(double delta)
     {
-        if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped) return;
+        if (musicPlayer.PlayingState == PlayState.Stopped) return;
 
-        var time = musicPlayer.TimeMilis * Utils.MsToSeconds;
+        var time = musicPlayer.TimeMilis * TimeUtils.MsToSeconds;
         SetProgress(time);
         progressLabel.Text = $"{time/musicPlayer.TotalSeconds:0%}";
     }

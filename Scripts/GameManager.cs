@@ -3,10 +3,18 @@ using Godot;
 using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
 using PianoTrainer.Scripts.PianoInteraction;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts;
+
+public enum GameState
+{
+    Preparing,
+    Ready,
+    Running,
+    Stopped,
+    Exited,
+}
 
 /// <summary>
 /// The main class that handles the game flow.
@@ -15,15 +23,7 @@ public partial class GameManager : Node2D
 {
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     private readonly GameSettings settings = GameSettings.Instance;
-
-    public enum GameState
-    {
-        Preparing,
-        Ready,
-        Running,
-        Stopped,
-        Exited,
-    }
+    private readonly DeviceManager deviceManager = DeviceManager.Instance;
 
     public GameState State { get; private set; } = GameState.Preparing;
 
@@ -32,7 +32,7 @@ public partial class GameManager : Node2D
     {
         NoteHints.Init();
 
-        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: DeviceManager.Instance.DefaultPiano.Piano.HasKey);
+        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: deviceManager.DefaultPiano.Piano.HasKey);
 
         musicPlayer.Setup(parsedMusic);
 
@@ -41,7 +41,7 @@ public partial class GameManager : Node2D
 
     public Task SetupDevices() => Task.Run(async () =>
     {
-        await DeviceManager.Instance.ConnectAllDevices();
+        await deviceManager.ConnectAllDevices();
         State = GameState.Ready;
         Alerts.Instance?.ShowWaiting(false);
     });
@@ -51,7 +51,7 @@ public partial class GameManager : Node2D
     {
         if (State == GameState.Running)
         {
-            if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped)
+            if (musicPlayer.PlayingState == PlayState.Stopped)
             {
                 State = GameState.Stopped;
                 return;

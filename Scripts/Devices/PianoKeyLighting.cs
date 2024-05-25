@@ -13,7 +13,7 @@ public class PianoKeyLighting
     public event Action PreTick;
     private event Action<List<byte>> DesiredStateUpdate;
 
-    private readonly LightState lightsState;
+    private readonly LightState lightsState = DeviceManager.Instance.DefaultLights.Ligths;
 
     public List<byte> _blinks = [];
     public List<byte> Blinks
@@ -44,16 +44,13 @@ public class PianoKeyLighting
 
     private readonly Thread tickThread;
 
-    public TaskCompletionSource StopSignal { get; }
+    public bool stop = false;
 
-    public PianoKeyLighting(LightState lights)
+    public PianoKeyLighting()
     {
-        lightsState = lights;
-        StopSignal = new();
-
         tickThread = new Thread(async () =>
         {
-            while (!StopSignal.Task.IsCompleted)
+            while (!stop)
             {
                 OnTick();
                 await Task.Delay(TickTime);
@@ -128,7 +125,7 @@ public class PianoKeyLighting
     public void Dispose()
     {
         lightsState.ResetKeys();
-        StopSignal.TrySetResult();
+        stop = true;
         Reset();
     }
 

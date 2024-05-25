@@ -3,31 +3,39 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using PianoTrainer.Scripts.PianoInteraction;
 
 namespace PianoTrainer.Scripts.GameElements;
+using static TimeUtils;
+
+public enum PlayState
+{
+    Playing,
+    Stopped,
+}
+
+public struct MusicPlayerState()
+{
+    public HashSet<byte> DesiredKeys { get; set; } = [];
+    public int NextMessageGroup { get; set; } = 1;
+    public int CurrentGroup { get; set; } = 0;
+    public int MessageDelta { get; set; } = 0;
+    public int TotalMessagesTime { get; set; } = 0;
+    public int startTime = 0;
+}
 
 // Singleton class that handles music flow
 public class MusicPlayer
 {
-    public struct MusicPlayerState()
-    {
-        public HashSet<byte> DesiredKeys { get; set; } = [];
-        public int NextMessageGroup { get; set; } = 1;
-        public int CurrentGroup { get; set; } = 0;
-        public int MessageDelta { get; set; } = 0;
-        public int TotalMessagesTime { get; set; } = 0;
-        public int startTime = 0;
-    }
-
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
-    public float TotalSeconds { get => totalTimeMilis * Utils.MsToSeconds; }
+    public float TotalSeconds { get => totalTimeMilis * MsToSeconds; }
     public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
 
     public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
     public float TimeSinceLastKey { get; private set; } = 0;
+
+    public double Bpm { get; private set; } = 0;
 
     public MusicPlayerState State { get; private set; } = new();
 
@@ -38,11 +46,6 @@ public class MusicPlayer
     private HashSet<byte> nonreadyKeys = [];
     private bool complete = false;
 
-    public enum PlayState
-    {
-        Playing,
-        Stopped,
-    }
     public PlayState PlayingState { get; private set; } = PlayState.Stopped;
 
     private static MusicPlayer instance;
@@ -67,6 +70,8 @@ public class MusicPlayer
         nonreadyKeys = [];
         PlayingState = PlayState.Stopped;
         TimeSinceLastKey = 0;
+
+        Bpm = music.Bpm;
     }
 
     public void Play()
@@ -133,6 +138,6 @@ public class MusicPlayer
 
     public void Update(float dT)
     {
-        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * Utils.SecondsToMs, State.MessageDelta);
+        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SecondsToMs, State.MessageDelta);
     }
 }
