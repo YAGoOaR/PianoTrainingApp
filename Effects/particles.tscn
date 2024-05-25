@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://bn6vpopxpguqc"]
+
+[ext_resource type="Texture2D" uid="uid://c3xii5fsm0u8l" path="res://Effects/particle1.png" id="1_qlkhd"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mqejn"]
+lifetime_randomness = 0.05
+particle_flag_disable_z = true
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, -1, 0)
+spread = 5.69
+initial_velocity_min = 1000.0
+initial_velocity_max = 2000.0
+angular_velocity_min = -231.72
+angular_velocity_max = 198.62
+gravity = Vector3(0, 5000, 0)
+scale_min = 0.3
+scale_max = 0.7
+sub_emitter_keep_velocity = true
+
+[node name="particles" type="GPUParticles2D"]
+modulate = Color(1, 1, 1, 0.290196)
+position = Vector2(346, 319)
+amount = 30
+process_material = SubResource("ParticleProcessMaterial_mqejn")
+texture = ExtResource("1_qlkhd")
