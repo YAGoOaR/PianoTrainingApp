@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=19 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
 [ext_resource type="Script" path="res://Scripts/GameElements/Alerts.cs" id="2_4jih0"]
@@ -15,6 +15,8 @@
 [ext_resource type="Theme" uid="uid://dagitmua1vpuv" path="res://Themes/active_key.tres" id="12_m70jk"]
 [ext_resource type="Theme" uid="uid://cl5sn51ecfkxm" path="res://Themes/black_active_key.tres" id="13_d22rl"]
 [ext_resource type="Theme" uid="uid://bmd3anhug6lmh" path="res://Themes/ui_theme.tres" id="14_oh4w4"]
+[ext_resource type="PackedScene" uid="uid://bn6vpopxpguqc" path="res://Effects/particles.tscn" id="16_nvax3"]
+[ext_resource type="Material" uid="uid://c2gcyskjv8wnh" path="res://Effects/effect2.tres" id="17_cotxk"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h1xpk"]
 bg_color = Color(0.137546, 0.665053, 0.790437, 1)
@@ -239,5 +241,13 @@ offset_right = 74.0
 offset_bottom = -136.0
 grow_vertical = 0
 theme = ExtResource("12_idt47")
+
+[node name="particles" parent="." instance=ExtResource("16_nvax3")]
+visible = false
+modulate = Color(0.82606, 0.82606, 0.82606, 0.87451)
+position = Vector2(490, 1044)
+amount = 3
+process_material = ExtResource("17_cotxk")
+lifetime = 0.1
 
 [connection signal="pressed" from="Control/HBoxContainer/Button" to="GameManager" method="Exit"]
