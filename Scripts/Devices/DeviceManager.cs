@@ -9,8 +9,10 @@ namespace PianoTrainer.Scripts.Devices;
 
 internal class DeviceManager
 {
-    public PianoInputDevice DefaultPiano = new(GameSettings.Instance.Settings.PianoDeviceName);
-    public PianoLightsOutputDevice DefaultLights = new(GameSettings.Instance.Settings.PianoDeviceName);
+    private static GSettings settings = GameSettings.Instance.Settings;
+
+    public PianoInputDevice DefaultPiano = new(settings.PianoDeviceName);
+    public PianoLightsOutputDevice DefaultLights = new(settings.PianoDeviceName);
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 

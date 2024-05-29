@@ -9,6 +9,8 @@ namespace PianoTrainer.Scripts.Devices;
 
 public abstract class Device<T> where T : IMidiPort
 {
+    protected static readonly GSettings settings = GameSettings.Instance.Settings;
+
     public event Action OnDisconnect;
 
     private static readonly List<Device<T>> devices = [];
@@ -54,7 +56,7 @@ public abstract class InputDevice(string deviceName) : Device<IMidiInput>
 
 public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
 {
-    public KeyState Keys { get; private set; } = new();
+    public KeyState Keys { get; private set; } = new(settings.PianoMinMIDIKey, settings.PianoMaxMIDIKey);
 
     public override void OnMessage(object _, MidiReceivedEventArgs message)
     {
@@ -79,7 +81,7 @@ public abstract class OutputDevice(string deviceName) : Device<IMidiOutput>
 
 public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(deviceName)
 {
-    public LightState Ligths { get; private set; } = new();
+    public LightState Ligths { get; private set; } = new(settings.PianoMinMIDIKey, settings.PianoMaxMIDIKey);
 
     private KeyboardConnectionHolder lightsHolder;
 

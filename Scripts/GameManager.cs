@@ -21,8 +21,9 @@ public enum GameState
 /// </summary>
 public partial class GameManager : Node2D
 {
+    private static readonly GSettings settings = GameSettings.Instance.Settings;
+
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    private readonly GameSettings settings = GameSettings.Instance;
     private readonly DeviceManager deviceManager = DeviceManager.Instance;
 
     public GameState State { get; private set; } = GameState.Preparing;
@@ -66,7 +67,7 @@ public partial class GameManager : Node2D
         }
         else if (State == GameState.Stopped)
         {
-            if (settings.Settings.Autoretry)
+            if (settings.Autoretry)
             {
                 State = GameState.Ready;
                 return;

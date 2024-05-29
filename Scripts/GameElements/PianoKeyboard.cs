@@ -5,20 +5,17 @@ using PianoTrainer.Scripts.PianoInteraction;
 using System.Collections.Generic;
 
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PianoTrainer.Scripts.GameElements;
 
 // Defines Piano key setup and layout
-public partial class PianoKeyboard : Control
+public partial class PianoKeyboard : PianoLayout
 {
     [Export] Theme whiteTheme;
     [Export] Theme blackTheme;
     [Export] Theme whiteActiveTheme;
     [Export] Theme blackActiveTheme;
-
-    public Vector2 GridSize { get; private set; }
-    public Vector2 WhiteNoteSize { get; private set; }
-    public Vector2 BlackNoteSize { get; private set; }
 
     public float NoteGap { get; private set; } = 0;
 
@@ -28,46 +25,28 @@ public partial class PianoKeyboard : Control
 
     public override void _Ready()
     {
+        base._Ready();
         DeviceManager.Instance.DefaultPiano.Keys.KeyChange += SetKey;
-
-        GridSize = new(Size.X / WhiteKeyCount, Size.Y);
-        WhiteNoteSize = GridSize - Vector2.Right * NoteGap;
-        BlackNoteSize = WhiteNoteSize * BlackNoteSizeRatio;
-
-        Position = new(0, GetViewportRect().Size.Y);
 
         SetupKeys();
     }
 
     private void SetupKeys()
     {
-        for (byte i = 0; i < WhiteKeyCount; i++)
+        for (byte key = 0; key < KeyboardRange; key++)
         {
-            var whiteRect = new Panel
+            var holder = NoteFrames[key];
+            bool black = IsBlack(key);
+
+            Panel noteRect = new()
             {
-                Position = new Vector2(GridSize.X * i + NoteGap / 2, -WhiteNoteSize.Y),
-                Size = new Vector2(WhiteNoteSize.X, WhiteNoteSize.Y),
-                ZIndex = -2,
-                Theme = whiteTheme,
+                Theme = black ? blackTheme : whiteTheme,
             };
-            AddChild(whiteRect);
-            noteRects.Add(whiteRect);
+            holder.AddChild(noteRect);
 
-            var (blackExists, noteOffset) = GetNoteOffset(i);
+            noteRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-            if (blackExists && i != WhiteKeyCount - 1)
-            {
-                var rect = new Panel()
-                {
-                    Position = new Vector2(GridSize.X * (i + 1 + noteOffset), -WhiteNoteSize.Y),
-                    Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y),
-                    ZIndex = -1,
-                    Theme = blackTheme,
-                };
-
-                AddChild(rect);
-                noteRects.Add(rect);
-            }
+            noteRects.Add(noteRect);
         }
     }
 
@@ -88,7 +67,7 @@ public partial class PianoKeyboard : Control
                         ? blackActiveTheme
                         : whiteActiveTheme
                     : isBlack
-                        ? blackTheme 
+                        ? blackTheme
                         : whiteTheme
             );
         }

@@ -5,9 +5,7 @@ using System.Linq;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
-using static PianoKeys;
-
-public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
+public class KeyState(byte minKey, byte maxKey)
 {
     public event Action<MoteMessage> KeyChange;
     public byte MinKey { get; } = minKey;
@@ -36,7 +34,7 @@ public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffs
     }
 }
 
-public class LightState() : KeyState
+public class LightState(byte minKey, byte maxKey) : KeyState(minKey, maxKey)
 {
     private Queue<byte> lightQueue = [];
     public const byte maxKeysDisplayed = 4;
