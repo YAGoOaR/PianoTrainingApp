@@ -9,14 +9,14 @@ using static PianoKeys;
 
 public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
 {
-    public event Action<NoteMsg> KeyChange;
+    public event Action<MoteMessage> KeyChange;
     public byte MinKey { get; } = minKey;
     public byte MaxKey { get; } = maxKey;
     public HashSet<byte> State { get; } = [];
 
     public bool HasKey(byte key) => key >= MinKey && key <= MaxKey;
 
-    protected bool SilentSetKey(NoteMsg keyChange)
+    protected bool SilentSetKey(MoteMessage keyChange)
     {
         if (!HasKey(keyChange.Key)) return false;
 
@@ -25,7 +25,7 @@ public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffs
             : State.Remove(keyChange.Key);
     }
 
-    public virtual bool SetKey(NoteMsg keyChange)
+    public virtual bool SetKey(MoteMessage keyChange)
     {
         if (SilentSetKey(keyChange))
         {
@@ -41,7 +41,7 @@ public class LightState() : KeyState
     private Queue<byte> lightQueue = [];
     public const byte maxKeysDisplayed = 4;
 
-    public bool UpdateNote(NoteMsg msg) => base.SetKey(msg);
+    public bool UpdateNote(MoteMessage msg) => base.SetKey(msg);
 
     public bool SetLight(byte keyOn)
     {

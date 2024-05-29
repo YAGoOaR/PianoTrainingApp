@@ -32,7 +32,7 @@ public partial class GameManager : Node2D
     {
         NoteHints.Init();
 
-        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: deviceManager.DefaultPiano.Piano.HasKey);
+        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: deviceManager.DefaultPiano.Keys.HasKey);
 
         musicPlayer.Setup(parsedMusic);
 

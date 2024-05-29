@@ -26,7 +26,7 @@ internal class DeviceManager
 
     private DeviceManager()
     {
-        DefaultPiano.Piano.KeyChange += _ => musicPlayer.OnKeyChange(DefaultPiano.Piano.State);
+        DefaultPiano.Keys.KeyChange += _ => musicPlayer.OnKeyChange(DefaultPiano.Keys.State);
 
         DefaultLights.OnDisconnect += Reconnect;
     }

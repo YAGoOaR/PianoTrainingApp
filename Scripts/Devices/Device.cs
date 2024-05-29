@@ -54,7 +54,7 @@ public abstract class InputDevice(string deviceName) : Device<IMidiInput>
 
 public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
 {
-    public KeyState Piano { get; private set; } = new();
+    public KeyState Keys { get; private set; } = new();
 
     public override void OnMessage(object _, MidiReceivedEventArgs message)
     {
@@ -65,7 +65,7 @@ public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
         if (isNoteData)
         {
             byte note = message.Data[1];
-            Piano.SetKey(new(note, msgType == MidiEvent.NoteOn));
+            Keys.SetKey(new(note, msgType == MidiEvent.NoteOn));
         }
     }
 }
@@ -81,7 +81,7 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
 {
     public LightState Ligths { get; private set; } = new();
 
-    private KeyboardConnectionHolder keyLightsHolder;
+    private KeyboardConnectionHolder lightsHolder;
 
     private LightsMIDIInterface lightsInterface;
 
@@ -92,19 +92,19 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
         var portDetails = await port.OpenPort();
         lightsInterface = new LightsMIDIInterface(portDetails);
         Ligths.KeyChange += OnKeyChange;
-        keyLightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
-        keyLightsHolder.StartLoop();
+        lightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
+        lightsHolder.StartLoop();
     });
 
-    private void OnKeyChange(NoteMsg msg) => lightsInterface.SendProprietary(msg);
+    private void OnKeyChange(MoteMessage msg) => lightsInterface.SendProprietary(msg);
 
     public override Task Stop()
     {
         Ligths.KeyChange -= OnKeyChange;
         lightsInterface = null;
 
-        keyLightsHolder?.Dispose();
-        keyLightsHolder = null;
+        lightsHolder?.Dispose();
+        lightsHolder = null;
 
         return port?.ClosePort();
     }

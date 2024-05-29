@@ -11,8 +11,8 @@ using MidiMessage = Commons.Music.Midi.MidiMessage;
 namespace PianoTrainer.Scripts.PianoInteraction;
 using static TimeUtils;
 
-public record NoteMsg(byte Key, bool State);
-public record TimedNoteMsg(byte Key, bool State, int DeltaTime) : NoteMsg(Key, State);
+public record MoteMessage(byte Key, bool State);
+public record TimedNoteMessage(byte Key, bool State, int DeltaTime) : MoteMessage(Key, State);
 
 public record NotePress(byte Key, int Duration);
 public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, Duration);
@@ -51,7 +51,7 @@ public partial class MIDIReader
         return new(groups, groups.Last().Time, bpm);
     }
 
-    private static TimedNoteMsg MidiMsg2TimedNoteMsg(MidiMessage m, int tempo, int deltaTimeSpec) => new(
+    private static TimedNoteMessage MidiMsg2TimedNoteMsg(MidiMessage m, int tempo, int deltaTimeSpec) => new(
         Key: m.Event.Msb,
         State: IsNotePressed(m),
         DeltaTime: GetContextDeltaTime(tempo, deltaTimeSpec, m.DeltaTime)
@@ -86,9 +86,9 @@ public partial class MIDIReader
         return keyEvents;
     }
 
-    private static List<TimedNote> MessagesToPressData(List<TimedNoteMsg> keyMessages, Func<byte, bool> keyFitCriteria)
+    private static List<TimedNote> MessagesToPressData(List<TimedNoteMessage> keyMessages, Func<byte, bool> keyFitCriteria)
     {
-        Dictionary<byte, (int idx, int relTime, int absTime, TimedNoteMsg msg)> openedNotes = [];
+        Dictionary<byte, (int idx, int relTime, int absTime, TimedNoteMessage msg)> openedNotes = [];
         List<(int idx, TimedNote note)> closedNotes = [];
 
         var absoluteTime = 0;

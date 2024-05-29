@@ -13,7 +13,7 @@ public partial class PianoKeyboard : Control
 {
     [Export] Theme whiteTheme;
     [Export] Theme blackTheme;
-    [Export] Theme activeTheme;
+    [Export] Theme whiteActiveTheme;
     [Export] Theme blackActiveTheme;
 
     public Vector2 GridSize { get; private set; }
@@ -24,11 +24,11 @@ public partial class PianoKeyboard : Control
 
     readonly List<Panel> noteRects = [];
 
-    readonly Queue<NoteMsg> changes = [];
+    readonly Queue<MoteMessage> changes = [];
 
     public override void _Ready()
     {
-        DeviceManager.Instance.DefaultPiano.Piano.KeyChange += SetKey;
+        DeviceManager.Instance.DefaultPiano.Keys.KeyChange += SetKey;
 
         GridSize = new(Size.X / WhiteKeyCount, Size.Y);
         WhiteNoteSize = GridSize - Vector2.Right * NoteGap;
@@ -71,23 +71,26 @@ public partial class PianoKeyboard : Control
         }
     }
 
-    public void SetKey(NoteMsg msg) => changes.Enqueue(msg);
+    public void SetKey(MoteMessage msg) => changes.Enqueue(msg);
 
     public override void _Process(double delta)
     {
         while (changes.Count > 0)
         {
-            var (key, state) = changes.Dequeue();
+            var (midiIndex, isActive) = changes.Dequeue();
+            byte key = MIDIIndexToKey(midiIndex);
+            bool isBlack = IsBlack(key);
 
-            byte k = MIDIIndexToKey(key);
-
-            noteRects[k].Theme = IsBlack(k) 
-                ? state 
-                    ? blackActiveTheme 
-                    : blackTheme 
-                : state 
-                    ? activeTheme 
-                    : whiteTheme;
+            noteRects[key].Theme =
+            (
+                isActive
+                    ? isBlack
+                        ? blackActiveTheme
+                        : whiteActiveTheme
+                    : isBlack
+                        ? blackTheme 
+                        : whiteTheme
+            );
         }
     }
 }
