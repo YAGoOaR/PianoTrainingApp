@@ -19,7 +19,7 @@ public abstract partial class PianoLayout : Control
 
     protected readonly List<Control> NoteFrames = [];
 
-    public override void _Ready() 
+    public override void _Ready()
     {
         Vector2 WhiteSize = new(Size.X / WhiteKeyCount, Size.Y);
         Vector2 BlackSize = WhiteSize * BlackRatio;

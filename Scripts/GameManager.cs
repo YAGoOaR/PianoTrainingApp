@@ -73,7 +73,7 @@ public partial class GameManager : Node2D
                 State = GameState.Ready;
                 return;
             }
-                        
+
             State = GameState.Exited;
             Exit();
         }
@@ -98,4 +98,3 @@ public partial class GameManager : Node2D
         DeviceManager.DisconnectDevices();
     }
 }
-    

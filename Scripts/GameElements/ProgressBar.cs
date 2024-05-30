@@ -29,6 +29,6 @@ public partial class ProgressBar : Control
 
         var time = musicPlayer.TimeMilis * TimeUtils.MsToSeconds;
         SetProgress(time);
-        progressLabel.Text = $"{time/musicPlayer.TotalSeconds:0%}";
+        progressLabel.Text = $"{time / musicPlayer.TotalSeconds:0%}";
     }
 }
