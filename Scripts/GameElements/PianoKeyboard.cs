@@ -5,89 +5,71 @@ using PianoTrainer.Scripts.PianoInteraction;
 using System.Collections.Generic;
 
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PianoTrainer.Scripts.GameElements;
 
 // Defines Piano key setup and layout
-public partial class PianoKeyboard : Control
+public partial class PianoKeyboard : PianoLayout
 {
     [Export] Theme whiteTheme;
     [Export] Theme blackTheme;
-    [Export] Theme activeTheme;
+    [Export] Theme whiteActiveTheme;
     [Export] Theme blackActiveTheme;
-
-    public Vector2 GridSize { get; private set; }
-    public Vector2 WhiteNoteSize { get; private set; }
-    public Vector2 BlackNoteSize { get; private set; }
 
     public float NoteGap { get; private set; } = 0;
 
     readonly List<Panel> noteRects = [];
 
-    readonly Queue<NoteMsg> changes = [];
+    readonly Queue<MoteMessage> changes = [];
 
     public override void _Ready()
     {
-        DeviceManager.Instance.DefaultPiano.Piano.KeyChange += SetKey;
-
-        GridSize = new(Size.X / Whites, Size.Y);
-        WhiteNoteSize = GridSize - Vector2.Right * NoteGap;
-        BlackNoteSize = WhiteNoteSize * BlackNoteSizeRatio;
-
-        Position = new(0, GetViewportRect().Size.Y);
+        base._Ready();
+        DeviceManager.Instance.DefaultPiano.Keys.KeyChange += SetKey;
 
         SetupKeys();
     }
 
     private void SetupKeys()
     {
-        for (byte i = 0; i < Whites; i++)
+        for (byte key = 0; key < KeyboardRange; key++)
         {
-            var whiteRect = new Panel
+            var holder = NoteFrames[key];
+            bool black = IsBlack(key);
+
+            Panel noteRect = new()
             {
-                Position = new Vector2(GridSize.X * i + NoteGap / 2, -WhiteNoteSize.Y),
-                Size = new Vector2(WhiteNoteSize.X, WhiteNoteSize.Y),
-                ZIndex = -2,
-                Theme = whiteTheme,
+                Theme = black ? blackTheme : whiteTheme,
             };
-            AddChild(whiteRect);
-            noteRects.Add(whiteRect);
+            holder.AddChild(noteRect);
 
-            var (blackExists, noteOffset) = GetNoteOffset(i);
+            noteRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-            if (blackExists && i != Whites - 1)
-            {
-                var rect = new Panel()
-                {
-                    Position = new Vector2(GridSize.X * (i + 1 + noteOffset), -WhiteNoteSize.Y),
-                    Size = new Vector2(BlackNoteSize.X, BlackNoteSize.Y),
-                    ZIndex = -1,
-                    Theme = blackTheme,
-                };
-
-                AddChild(rect);
-                noteRects.Add(rect);
-            }
+            noteRects.Add(noteRect);
         }
     }
 
-    public void SetKey(NoteMsg msg) => changes.Enqueue(msg);
+    public void SetKey(MoteMessage msg) => changes.Enqueue(msg);
 
     public override void _Process(double delta)
     {
         while (changes.Count > 0)
         {
-            var (key, state) = changes.Dequeue();
+            var (midiIndex, isActive) = changes.Dequeue();
+            byte key = MIDIIndexToKey(midiIndex);
+            bool isBlack = IsBlack(key);
 
-            byte k = MIDIIndexToKey(key);
-
-            noteRects[k].Theme = IsBlack(k) 
-                ? state 
-                    ? blackActiveTheme 
-                    : blackTheme 
-                : state 
-                    ? activeTheme 
-                    : whiteTheme;
+            noteRects[key].Theme =
+            (
+                isActive
+                    ? isBlack
+                        ? blackActiveTheme
+                        : whiteActiveTheme
+                    : isBlack
+                        ? blackTheme
+                        : whiteTheme
+            );
         }
     }
 }

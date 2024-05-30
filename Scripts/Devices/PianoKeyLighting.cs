@@ -107,19 +107,16 @@ public class PianoKeyLighting
         }
     }
 
-    public void AddBlink(byte key, int blinkTime = 50)
+    public async void AddBlink(byte key, int blinkTime = 50)
     {
         Blinks = [key, .. Blinks];
 
-        Task.Run(async () =>
-        {
-            await Task.Delay(blinkTime);
+        await Task.Delay(blinkTime);
 
-            lock (lightsState)
-            {
-                Blinks = Blinks.Where(x => x != key).ToList();
-            }
-        });
+        lock (lightsState)
+        {
+            Blinks = Blinks.Where(x => x != key).ToList();
+        }
     }
 
     public void Dispose()

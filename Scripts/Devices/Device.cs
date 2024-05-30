@@ -9,6 +9,8 @@ namespace PianoTrainer.Scripts.Devices;
 
 public abstract class Device<T> where T : IMidiPort
 {
+    protected static readonly GSettings settings = GameSettings.Instance.Settings;
+
     public event Action OnDisconnect;
 
     private static readonly List<Device<T>> devices = [];
@@ -40,21 +42,21 @@ public abstract class InputDevice(string deviceName) : Device<IMidiInput>
     public abstract void OnMessage(object _, MidiReceivedEventArgs message);
     private readonly InputPort port = new(deviceName);
 
-    public Task Connect() => Task.Run(async () =>
+    public async Task Connect()
     {
         if (port.IsConnected) return;
 
         var portDetails = await port.OpenPort();
 
         portDetails.MessageReceived += OnMessage;
-    });
+    }
 
-    public override Task Stop() => port?.ClosePort();
+    public override async Task Stop() => await port?.ClosePort();
 }
 
 public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
 {
-    public KeyState Piano { get; private set; } = new();
+    public KeyState Keys { get; private set; } = new(settings.PianoMinMIDIKey, settings.PianoMaxMIDIKey);
 
     public override void OnMessage(object _, MidiReceivedEventArgs message)
     {
@@ -65,7 +67,7 @@ public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
         if (isNoteData)
         {
             byte note = message.Data[1];
-            Piano.SetKey(new(note, msgType == MidiEvent.NoteOn));
+            Keys.SetKey(new(note, msgType == MidiEvent.NoteOn));
         }
     }
 }
@@ -79,33 +81,33 @@ public abstract class OutputDevice(string deviceName) : Device<IMidiOutput>
 
 public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(deviceName)
 {
-    public LightState Ligths { get; private set; } = new();
+    public LightState Ligths { get; private set; } = new(settings.PianoMinMIDIKey, settings.PianoMaxMIDIKey);
 
-    private KeyboardConnectionHolder keyLightsHolder;
+    private KeyboardConnectionHolder lightsHolder;
 
     private LightsMIDIInterface lightsInterface;
 
-    public override Task Connect() => Task.Run(async () =>
+    public override async Task Connect()
     {
         if (port.IsConnected) return;
 
         var portDetails = await port.OpenPort();
         lightsInterface = new LightsMIDIInterface(portDetails);
         Ligths.KeyChange += OnKeyChange;
-        keyLightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
-        keyLightsHolder.StartLoop();
-    });
+        lightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
+        lightsHolder.StartLoop();
+    }
 
-    private void OnKeyChange(NoteMsg msg) => lightsInterface.SendProprietary(msg);
+    private void OnKeyChange(MoteMessage msg) => lightsInterface.SendProprietary(msg);
 
-    public override Task Stop()
+    public override async Task Stop()
     {
         Ligths.KeyChange -= OnKeyChange;
         lightsInterface = null;
 
-        keyLightsHolder?.Dispose();
-        keyLightsHolder = null;
+        lightsHolder?.Dispose();
+        lightsHolder = null;
 
-        return port?.ClosePort();
+        await port?.ClosePort();
     }
 }

@@ -6,8 +6,9 @@ using static TimeUtils;
 
 public partial class BeatDrawer : Control
 {
-	private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    private readonly GameSettings settings = GameSettings.Instance;
+    private static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
+
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;    
     [Export] private Color lineColor;
 
     private readonly List<Line2D> lines = [];
@@ -16,7 +17,7 @@ public partial class BeatDrawer : Control
 	{
         double beatTime = BPS2BeatTime(musicPlayer.Bpm);
 
-        int timespan = settings.PlayerSettings.Timespan;
+        int timespan = playerSettings.Timespan;
         int beatsInTimespan = Mathf.CeilToInt(timespan / beatTime);
 
         for (int i = 0; i < beatsInTimespan; i++)
@@ -41,7 +42,7 @@ public partial class BeatDrawer : Control
         float beatTime = (float)BPS2BeatTime(musicPlayer.Bpm);
 
         float offsetToNextTempoLine = currentTime % beatTime;
-        int timespan = settings.PlayerSettings.Timespan;
+        int timespan = playerSettings.Timespan;
 
         for (int i = 0; i < lines.Count; i++)
         {

@@ -8,8 +8,10 @@ using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
-public partial class FallingNotes : Control
+public partial class FallingNotes : PianoLayout
 {
+    private static PlayerSettings settings = GameSettings.Instance.PlayerSettings;
+
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
 
@@ -31,9 +33,12 @@ public partial class FallingNotes : Control
 
     private int timeSpan = 5;
 
+    private int noteAdditionalWidth = 8;
+
     public override void _Ready()
     {
-        timeSpan = GameSettings.Instance.PlayerSettings.Timespan;
+        base._Ready();
+        timeSpan = settings.Timespan;
     }
 
     public void Clear()
@@ -51,27 +56,31 @@ public partial class FallingNotes : Control
 
     private Note CreateNote(NotePress note)
     {
-        var (key, duration) = note;
+        var (midiIndex, duration) = note;
 
-        var isBlack = IsBlack(key);
+        var key = MIDIIndexToKey(midiIndex);
+
+        var black = IsBlack(key);
 
         var noteSizeY = duration * MsToSeconds / timeSpan * Size.Y;
 
-        Vector2 WhiteNoteSize = new(piano.WhiteNoteSize.X, noteSizeY);
-        Vector2 BlackNoteSize = new(piano.BlackNoteSize.X, noteSizeY);
+        var holder = NoteFrames[key];
 
         var rect = new Panel()
         {
-            Size = (isBlack ? BlackNoteSize : WhiteNoteSize) + Vector2.Right * 8,
-            ZIndex = -5,
-            Theme = isBlack ? themeBlackKey : themeWhiteKey,
+            ZIndex = black ? ZIndex - 1 : ZIndex,
+            Theme = black ? themeBlackKey : themeWhiteKey,
         };
 
-        AddChild(rect);
+        holder.AddChild(rect);
+
+        rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+
+        rect.Size = new(holder.Size.X + noteAdditionalWidth, noteSizeY);
 
         var txt = new Label()
         {
-            Text = KeyLabelsLatin[key % octave],
+            Text = KeyLabelsLatin[key % keysInOctave],
             Theme = fontTheme,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
@@ -172,16 +181,7 @@ public partial class FallingNotes : Control
             var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
-                var keyPos = MIDIIndexToKey(note.Key);
-                var whiteIndex = GetWhiteIndex(keyPos);
-
-                var (_, noteOffset) = GetNoteOffset(whiteIndex);
-
-                var totalOffset = IsBlack(note.Key)
-                    ? (noteOffset * piano.GridSize.X + piano.GridSize.X + piano.BlackNoteSize.X / 2)
-                    : (piano.NoteGap / 2 + piano.GridSize.X / 2);
-
-                note.Rect.Position = new Vector2(whiteIndex * (Size.X / Whites) + totalOffset, Size.Y - verticalPos - note.Height / 2) - note.Rect.Size/2;
+                note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);
             }
         }
     }

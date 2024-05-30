@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PianoTrainer.Scripts;
 
-public readonly struct PlayerSettings()
+public class PlayerSettings()
 {
     public int KeyTimeOffset { get; } = 100;
     public int BlinkStartOffset { get; } = 3000;
@@ -17,12 +17,15 @@ public readonly struct PlayerSettings()
     public int StartBeatsOffset { get; } = 4;
 }
 
-public struct GSettings()
+public class GSettings()
 {
     public string MusicFolderPath { get; set; } = "";
     public string MusicPath { get; set; } = "";
     public string PianoDeviceName { get; set; } = "";
     public bool Autoretry { get; set; } = true;
+    public byte PianoKeyCount { get; } = 61;
+    public byte PianoMinMIDIKey { get; } = 36;
+    public byte PianoMaxMIDIKey { get => (byte)(PianoMinMIDIKey + PianoKeyCount); }
 }
 
 // Singleton class to handle settings 
@@ -34,8 +37,8 @@ public partial class GameSettings
     private const string settingsPath = @"./player_settings.json";
     private const string defaultDevice = "CASIO USB-MIDI";
 
-    public GSettings Settings = new();
-    public PlayerSettings PlayerSettings { get; set; } = new();
+    public GSettings Settings { get; private set; } = new();
+    public PlayerSettings PlayerSettings { get; private set; } = new();
 
     private static GameSettings instance;
     public static GameSettings Instance
