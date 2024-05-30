@@ -4,6 +4,30 @@ using System.Text.Json;
 
 namespace PianoTrainer.Scripts;
 
+public class PlayerSettings()
+{
+    public int KeyTimeOffset { get; } = 100;
+    public int BlinkStartOffset { get; } = 3000;
+    public int BlinkInterval { get; } = 80;
+    public int BlinkSlowInterval { get; } = 200;
+    public int BlinkFastStartOffset { get; } = 1000;
+    public int LateHintOutdateTime { get; } = 300;
+    public int Timespan { get; } = 4;
+    public int DefaultTempo { get; } = 500000;
+    public int StartBeatsOffset { get; } = 4;
+}
+
+public class GSettings()
+{
+    public string MusicFolderPath { get; set; } = "";
+    public string MusicPath { get; set; } = "";
+    public string PianoDeviceName { get; set; } = "";
+    public bool Autoretry { get; set; } = true;
+    public byte PianoKeyCount { get; } = 61;
+    public byte PianoMinMIDIKey { get; } = 36;
+    public byte PianoMaxMIDIKey { get => (byte)(PianoMinMIDIKey + PianoKeyCount); }
+}
+
 // Singleton class to handle settings 
 public partial class GameSettings
 {
@@ -13,27 +37,8 @@ public partial class GameSettings
     private const string settingsPath = @"./player_settings.json";
     private const string defaultDevice = "CASIO USB-MIDI";
 
-    public readonly struct PlayerSettings()
-    {
-        public int KeyTimeOffset { get; } = 100;
-        public int StartOffset { get; } = 2000;
-        public int BlinkStartOffset { get; } = 3000;
-        public int BlinkInterval { get; } = 80;
-        public int BlinkSlowInterval { get; } = 200;
-        public int BlinkFastStartOffset { get; } = 1000;
-        public int LateHintOutdateTime { get; } = 300;
-        public int Timespan { get; } = 4;
-    }
-
-    public struct GSettings()
-    {
-        public PlayerSettings PlayerSettings { get; set; } = new();
-        public string MusicFolderPath { get; set; } = "";
-        public string MusicPath { get; set; } = "";
-        public string PianoDeviceName { get; set; } = "";
-        public bool Autoretry { get; set; } = true;
-    }
-    public GSettings Settings = new() { MusicPath = "", PlayerSettings = new() };
+    public GSettings Settings { get; private set; } = new();
+    public PlayerSettings PlayerSettings { get; private set; } = new();
 
     private static GameSettings instance;
     public static GameSettings Instance

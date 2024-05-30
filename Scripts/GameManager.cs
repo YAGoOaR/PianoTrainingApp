@@ -8,22 +8,24 @@ using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts;
 
+public enum GameState
+{
+    Preparing,
+    Ready,
+    Running,
+    Stopped,
+    Exited,
+}
+
 /// <summary>
 /// The main class that handles the game flow.
 /// </summary>
 public partial class GameManager : Node2D
 {
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    private readonly GameSettings settings = GameSettings.Instance;
+    private static readonly GSettings settings = GameSettings.Instance.Settings;
 
-    public enum GameState
-    {
-        Preparing,
-        Ready,
-        Running,
-        Stopped,
-        Exited,
-    }
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private readonly DeviceManager deviceManager = DeviceManager.Instance;
 
     public GameState State { get; private set; } = GameState.Preparing;
 
@@ -32,26 +34,26 @@ public partial class GameManager : Node2D
     {
         NoteHints.Init();
 
-        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: DeviceManager.Instance.DefaultPiano.Piano.HasKey);
+        var parsedMusic = MIDIReader.LoadSelectedMusic(noteFilter: deviceManager.DefaultPiano.Keys.HasKey);
 
         musicPlayer.Setup(parsedMusic);
 
-        SetupDevices();
+        Task.Run(SetupDevices);
     }
 
-    public Task SetupDevices() => Task.Run(async () =>
+    public async Task SetupDevices()
     {
-        await DeviceManager.Instance.ConnectAllDevices();
+        await deviceManager.ConnectAllDevices();
         State = GameState.Ready;
         Alerts.Instance?.ShowWaiting(false);
-    });
+    }
 
     // Called each game frame.
     public override void _Process(double delta)
     {
         if (State == GameState.Running)
         {
-            if (musicPlayer.PlayingState == MusicPlayer.PlayState.Stopped)
+            if (musicPlayer.PlayingState == PlayState.Stopped)
             {
                 State = GameState.Stopped;
                 return;
@@ -66,12 +68,12 @@ public partial class GameManager : Node2D
         }
         else if (State == GameState.Stopped)
         {
-            if (settings.Settings.Autoretry)
+            if (settings.Autoretry)
             {
                 State = GameState.Ready;
                 return;
             }
-                        
+
             State = GameState.Exited;
             Exit();
         }
@@ -96,4 +98,3 @@ public partial class GameManager : Node2D
         DeviceManager.DisconnectDevices();
     }
 }
-    

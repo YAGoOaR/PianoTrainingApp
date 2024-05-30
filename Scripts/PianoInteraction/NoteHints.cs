@@ -9,9 +9,10 @@ namespace PianoTrainer.Scripts.PianoInteraction;
 
 public class NoteHints
 {
-    private static GameSettings.PlayerSettings PlayerSettings { get => GameSettings.Instance.Settings.PlayerSettings; }
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    private readonly PianoKeyLighting lights;
+
+    private static PlayerSettings PlayerSettings { get => GameSettings.Instance.PlayerSettings; }
+    private readonly PianoKeyLighting lights = new();
 
     private static NoteHints instance;
     public static NoteHints Instance
@@ -25,8 +26,6 @@ public class NoteHints
 
     private NoteHints()
     {
-        lights = new PianoKeyLighting(DeviceManager.Instance.DefaultLights.Ligths);
-
         musicPlayer.OnTargetChanged += OnTargetCompleted;
         musicPlayer.OnStopped += lights.Reset;
     }
@@ -36,7 +35,7 @@ public class NoteHints
         instance ??= new();
     }
 
-    public void OnTargetCompleted(MusicPlayer.MusicPlayerState state)
+    public void OnTargetCompleted(MusicPlayerState state)
     {
         lights.Reset();
 
@@ -47,18 +46,18 @@ public class NoteHints
         bool isLate() => lightupNotes.IsCompleted || musicPlayer.TimeToNextKey < PlayerSettings.LateHintOutdateTime;
         bool isStateChanged() => musicPlayer.State.CurrentGroup != state.CurrentGroup;
 
-        EarlyNotePressHint(isLate, isStateChanged, keys);
+        Task.Run(() => EarlyNotePressHint(isLate, isStateChanged, keys));
     }
 
     // Permanent light hint
-    private Task LateNotePressHint(List<byte> keys, int timeToPress) => Task.Run(async () =>
+    private async Task LateNotePressHint(List<byte> keys, int timeToPress)
     {
         await Task.Delay(Math.Max(0, timeToPress - PlayerSettings.KeyTimeOffset));
         lights.SetKeys(keys);
-    });
+    }
 
     // Blinking light hint
-    private Task EarlyNotePressHint(Func<bool> isLate, Func<bool> notesOutdated, List<byte> keys) => Task.Run(async () =>
+    private async Task EarlyNotePressHint(Func<bool> isLate, Func<bool> notesOutdated, List<byte> keys)
     {
         await Task.Delay(Math.Max(0, musicPlayer.TimeToNextKey - PlayerSettings.BlinkStartOffset));
 
@@ -74,5 +73,5 @@ public class NoteHints
             }
             await Task.Delay(PlayerSettings.BlinkInterval + interval + lights.TickTime);
         }
-    });
+    }
 }

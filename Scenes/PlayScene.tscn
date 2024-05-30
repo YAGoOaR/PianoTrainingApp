@@ -47,7 +47,15 @@ script = ExtResource("2_4jih0")
 deviceDisconnectedPanel = NodePath("../DeviceDisconnected")
 waitingForDevicePanel = NodePath("../WaitingForDevice")
 
-[node name="FallingNotes" type="Control" parent="." node_paths=PackedStringArray("piano", "progressBar")]
+[node name="Control" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FallingNotes" type="Control" parent="Control" node_paths=PackedStringArray("piano", "progressBar")]
 layout_mode = 1
 anchor_top = 0.048
 anchor_right = 1.0
@@ -57,13 +65,13 @@ offset_bottom = -0.640015
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("5_ga1et")
-piano = NodePath("../Control/Piano")
-progressBar = NodePath("../Control/HBoxContainer/ProgressBar")
+piano = NodePath("../Piano")
+progressBar = NodePath("../HBoxContainer/ProgressBar")
 fontTheme = ExtResource("7_gxgea")
 themeWhiteKey = ExtResource("10_dk06m")
 themeBlackKey = ExtResource("8_k24y3")
 
-[node name="TempoDrawer" type="Control" parent="FallingNotes"]
+[node name="TempoDrawer" type="Control" parent="Control/FallingNotes"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -73,28 +81,20 @@ grow_vertical = 2
 script = ExtResource("7_2snt0")
 lineColor = Color(0.360784, 0.360784, 0.360784, 1)
 
-[node name="Control" type="Control" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
 [node name="Piano" type="ReferenceRect" parent="Control"]
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
+anchors_preset = -1
+anchor_top = 0.756
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -352.0
+offset_top = -0.640015
 grow_horizontal = 2
 grow_vertical = 0
 border_width = 3.0
 script = ExtResource("4_4ebec")
 whiteTheme = ExtResource("11_evqa8")
 blackTheme = ExtResource("12_idt47")
-activeTheme = ExtResource("12_m70jk")
+whiteActiveTheme = ExtResource("12_m70jk")
 blackActiveTheme = ExtResource("13_d22rl")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control"]

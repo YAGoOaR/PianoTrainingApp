@@ -5,28 +5,25 @@ using System.Linq;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
-using static PianoKeys;
-
-public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffset + defaultKeyCount)
+public class KeyState(byte minKey, byte maxKey)
 {
-    public virtual event Action<NoteMsg> KeyChange;
+    public event Action<MoteMessage> KeyChange;
     public byte MinKey { get; } = minKey;
     public byte MaxKey { get; } = maxKey;
     public HashSet<byte> State { get; } = [];
 
     public bool HasKey(byte key) => key >= MinKey && key <= MaxKey;
 
-    protected bool SilentSetKey(NoteMsg keyChange)
+    protected bool SilentSetKey(MoteMessage keyChange)
     {
-        if (!HasKey(keyChange.Key))
-            throw new ArgumentOutOfRangeException($"Key can't be {keyChange.Key}. Min value: {MinKey}; Max value: {MaxKey}.");
+        if (!HasKey(keyChange.Key)) return false;
 
         return keyChange.State
             ? State.Add(keyChange.Key)
             : State.Remove(keyChange.Key);
     }
 
-    public virtual bool SetKey(NoteMsg keyChange)
+    public virtual bool SetKey(MoteMessage keyChange)
     {
         if (SilentSetKey(keyChange))
         {
@@ -37,12 +34,12 @@ public class KeyState(byte minKey = MIDIIndexOffset, byte maxKey = MIDIIndexOffs
     }
 }
 
-public class LightState() : KeyState
+public class LightState(byte minKey, byte maxKey) : KeyState(minKey, maxKey)
 {
     private Queue<byte> lightQueue = [];
     public const byte maxKeysDisplayed = 4;
 
-    public bool UpdateNote(NoteMsg msg) => base.SetKey(msg);
+    public bool UpdateNote(MoteMessage msg) => base.SetKey(msg);
 
     public bool SetLight(byte keyOn)
     {
@@ -69,35 +66,25 @@ public class LightState() : KeyState
 
     public void SetMultipleLights(List<byte> keysOn)
     {
-        if (keysOn.Count > maxKeysDisplayed)
-        {
-            throw new ArgumentException("Wrong method usage");
-        }
-
         lock (lightQueue)
         {
-            var off = lightQueue.Except(keysOn);
-            var on = keysOn.Except(lightQueue);
-            foreach (var key in off)
-            {
-                UpdateNote(new(key, false));
-            }
-            foreach (var key in on)
-            {
-                UpdateNote(new(key, true));
-            }
+            var extraKeys = lightQueue.Except(keysOn);
+            var newKeys = keysOn.Except(lightQueue);
+
+            foreach (var key in extraKeys) UpdateNote(new(key, false));
+            foreach (var key in newKeys) UpdateNote(new(key, true));
+
             lightQueue = new(keysOn);
         }
     }
 
     public void RemoveKey(byte key)
     {
-        if (UpdateNote(new(key, false)))
+        if (!UpdateNote(new(key, false))) return;
+
+        lock (lightQueue)
         {
-            lock (lightQueue)
-            {
-                lightQueue = new(lightQueue.Where(x => x != key));
-            }
+            lightQueue = new(lightQueue.Where(x => x != key));
         }
     }
 

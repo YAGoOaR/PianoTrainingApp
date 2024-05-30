@@ -33,23 +33,20 @@ public abstract class IOPort<T>(string portName) where T : IMidiPort
             Debug.WriteLine($"Port \"{portName}\" not found!");
             Debug.WriteLine($"Waiting for device to be available.");
 
-            await Task.Run(async () =>
-            {
-                while (!GetPort(portName, out details))
-                    await Task.Delay(waitTime);
-            });
+            while (!GetPort(portName, out details))
+                await Task.Delay(waitTime);
         }
 
         return details;
     }
 
-    public Task ClosePort()
+    public async Task ClosePort()
     {
         Task closingTask = port?.CloseAsync();
 
         port = null;
 
-        return closingTask;
+        await closingTask;
     }
 }
 

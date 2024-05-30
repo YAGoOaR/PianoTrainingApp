@@ -6,17 +6,18 @@ using static TimeUtils;
 
 public partial class BeatDrawer : Control
 {
-	private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    private readonly GameSettings settings = GameSettings.Instance;
+    private static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
+
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     [Export] private Color lineColor;
 
     private readonly List<Line2D> lines = [];
 
-	public override void _Ready()
-	{
-        double beatTime = GetBeatTime(musicPlayer.Bpm);
+    public override void _Ready()
+    {
+        double beatTime = BPS2BeatTime(musicPlayer.Bpm);
 
-        int timespan = settings.Settings.PlayerSettings.Timespan;
+        int timespan = playerSettings.Timespan;
         int beatsInTimespan = Mathf.CeilToInt(timespan / beatTime);
 
         for (int i = 0; i < beatsInTimespan; i++)
@@ -38,14 +39,14 @@ public partial class BeatDrawer : Control
     {
         float currentTime = musicPlayer.TimeMilis * MsToSeconds;
 
-        float beatTime = (float)GetBeatTime(musicPlayer.Bpm);
+        float beatTime = (float)BPS2BeatTime(musicPlayer.Bpm);
 
         float offsetToNextTempoLine = currentTime % beatTime;
-        int timespan = settings.Settings.PlayerSettings.Timespan;
+        int timespan = playerSettings.Timespan;
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i+1) * beatTime - offsetToNextTempoLine) / timespan * Size.Y;
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / timespan * Size.Y;
 
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));

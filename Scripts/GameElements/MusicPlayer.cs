@@ -8,19 +8,25 @@ using PianoTrainer.Scripts.PianoInteraction;
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
+public enum PlayState
+{
+    Playing,
+    Stopped,
+}
+
+public struct MusicPlayerState()
+{
+    public HashSet<byte> DesiredKeys { get; set; } = [];
+    public int NextMessageGroup { get; set; } = 1;
+    public int CurrentGroup { get; set; } = 0;
+    public int MessageDelta { get; set; } = 0;
+    public int TotalMessagesTime { get; set; } = 0;
+    public int startTime = 0;
+}
+
 // Singleton class that handles music flow
 public class MusicPlayer
 {
-    public struct MusicPlayerState()
-    {
-        public HashSet<byte> DesiredKeys { get; set; } = [];
-        public int NextMessageGroup { get; set; } = 1;
-        public int CurrentGroup { get; set; } = 0;
-        public int MessageDelta { get; set; } = 0;
-        public int TotalMessagesTime { get; set; } = 0;
-        public int startTime = 0;
-    }
-
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
     public float TotalSeconds { get => totalTimeMilis * MsToSeconds; }
@@ -40,11 +46,6 @@ public class MusicPlayer
     private HashSet<byte> nonreadyKeys = [];
     private bool complete = false;
 
-    public enum PlayState
-    {
-        Playing,
-        Stopped,
-    }
     public PlayState PlayingState { get; private set; } = PlayState.Stopped;
 
     private static MusicPlayer instance;
@@ -117,7 +118,7 @@ public class MusicPlayer
         complete = false;
     }
 
-    public void OnKeyChange(HashSet<byte> pressedKeys)
+    public async void OnKeyChange(HashSet<byte> pressedKeys)
     {
         if (PlayingState == PlayState.Stopped) return;
 
@@ -128,11 +129,8 @@ public class MusicPlayer
         complete = true;
         nonreadyKeys = new(pressedKeys);
 
-        Task.Run(async () =>
-        {
-            await Task.Delay(Math.Max(0, TimeToNextKey));
-            NextTarget();
-        });
+        await Task.Delay(Math.Max(0, TimeToNextKey));
+        NextTarget();
     }
 
     public void Update(float dT)

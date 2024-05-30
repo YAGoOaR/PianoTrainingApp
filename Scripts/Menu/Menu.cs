@@ -13,11 +13,11 @@ internal partial class Menu : Control
 
     private string[] midis;
 
-    private GameSettings settings;
+    private static readonly GameSettings settings = GameSettings.Instance;
 
     public void OnItemSelect(int idx)
     {
-        var path = midis[idx];
+        var path = Utils.FixPath(midis[idx]);
         settings.Settings.MusicPath = path;
         SongPath.Text = path;
         settings.Save();
@@ -25,8 +25,6 @@ internal partial class Menu : Control
 
     public override void _Ready()
     {
-        settings = GameSettings.Instance;
-
         var musicDir = settings.Settings.MusicFolderPath;
 
         SongPath.Text = Utils.FixPath(settings.Settings.MusicPath);

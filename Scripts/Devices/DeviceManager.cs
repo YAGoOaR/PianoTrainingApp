@@ -1,17 +1,18 @@
 ﻿
-using Godot;
 using Commons.Music.Midi;
 using PianoTrainer.Scripts.GameElements;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.Devices;
 
 internal class DeviceManager
 {
-    public PianoInputDevice DefaultPiano = new(GameSettings.Instance.Settings.PianoDeviceName);
-    public PianoLightsOutputDevice DefaultLights = new(GameSettings.Instance.Settings.PianoDeviceName);
+    private static GSettings settings = GameSettings.Instance.Settings;
+
+    public PianoInputDevice DefaultPiano = new(settings.PianoDeviceName);
+    public PianoLightsOutputDevice DefaultLights = new(settings.PianoDeviceName);
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
@@ -27,7 +28,7 @@ internal class DeviceManager
 
     private DeviceManager()
     {
-        DefaultPiano.Piano.KeyChange += _ => musicPlayer.OnKeyChange(DefaultPiano.Piano.State);
+        DefaultPiano.Keys.KeyChange += _ => musicPlayer.OnKeyChange(DefaultPiano.Keys.State);
 
         DefaultLights.OnDisconnect += Reconnect;
     }
@@ -48,12 +49,12 @@ internal class DeviceManager
         Alerts.Instance?.ShowDisconnected(false);
     }
 
-    public Task ConnectAllDevices() => Task.Run(async () =>
+    public async Task ConnectAllDevices()
     {
         await DefaultPiano.Connect();
         await DefaultLights.Connect();
         Debug.WriteLine("Devices connected successfuly");
-    });
+    }
 
     public static void DisconnectDevices()
     {

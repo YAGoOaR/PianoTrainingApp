@@ -12,15 +12,15 @@ public class LightsMIDIInterface(IMidiOutput piano)
     private readonly IMidiOutput piano = piano;
 
     // Midi message to control CASIO LK-S250 key lights.
-    public bool SendProprietary(NoteMsg msg)
+    public bool SendProprietary(MoteMessage msg)
     {
         try
         {
             piano.Send([MidiEvent.SysEx1, 68, 126, 126, 127, 2, 0, msg.Key, Convert.ToByte(msg.State), MidiEvent.EndSysEx], 0, 10, 0);
             return true;
         }
-        catch (Win32Exception) 
-        { 
+        catch (Win32Exception)
+        {
             Debug.WriteLine("Device disconnected.");
             return false;
         }
@@ -39,6 +39,6 @@ public class LightsMIDIInterface(IMidiOutput piano)
             Debug.WriteLine("Device disconnected.");
             return false;
         }
-        
+
     }
 }
