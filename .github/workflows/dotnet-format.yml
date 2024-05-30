@@ -19,7 +19,7 @@ jobs:
         run: dotnet restore
 
       - name: Format code
-        run: dotnet format --check --verbosity normal
+        run: dotnet format PianoTrainer.sln
 
       - name: Commit formatted files
         run: |
