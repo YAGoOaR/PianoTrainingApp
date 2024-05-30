@@ -1,18 +1,31 @@
-name: Format check on push
+name: Format on Push
+
 on: push
+
 jobs:
-  dotnet-format:
+  format:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Add dotnet-format problem matcher
-        uses: xt0rted/dotnet-format-problem-matcher@v1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0'
 
-      - name: Restore dotnet tools
-        uses: xt0rted/dotnet-tool-restore@v1
+      - name: Install dependencies
+        run: dotnet restore
 
-      - name: Run dotnet format
-        uses: xt0rted/dotnet-format@v1
+      - name: Format code
+        run: dotnet format --check --verbosity normal
+
+      - name: Commit formatted files
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Format code"
+          git push
         
