@@ -42,16 +42,16 @@ public abstract class InputDevice(string deviceName) : Device<IMidiInput>
     public abstract void OnMessage(object _, MidiReceivedEventArgs message);
     private readonly InputPort port = new(deviceName);
 
-    public Task Connect() => Task.Run(async () =>
+    public async Task Connect()
     {
         if (port.IsConnected) return;
 
         var portDetails = await port.OpenPort();
 
         portDetails.MessageReceived += OnMessage;
-    });
+    }
 
-    public override Task Stop() => port?.ClosePort();
+    public override async Task Stop() => await port?.ClosePort();
 }
 
 public class PianoInputDevice(string deviceName) : InputDevice(deviceName)
@@ -87,7 +87,7 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
 
     private LightsMIDIInterface lightsInterface;
 
-    public override Task Connect() => Task.Run(async () =>
+    public override async Task Connect()
     {
         if (port.IsConnected) return;
 
@@ -96,11 +96,11 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
         Ligths.KeyChange += OnKeyChange;
         lightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
         lightsHolder.StartLoop();
-    });
+    }
 
     private void OnKeyChange(MoteMessage msg) => lightsInterface.SendProprietary(msg);
 
-    public override Task Stop()
+    public override async Task Stop()
     {
         Ligths.KeyChange -= OnKeyChange;
         lightsInterface = null;
@@ -108,6 +108,6 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
         lightsHolder?.Dispose();
         lightsHolder = null;
 
-        return port?.ClosePort();
+        await port?.ClosePort();
     }
 }

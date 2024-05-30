@@ -118,7 +118,7 @@ public class MusicPlayer
         complete = false;
     }
 
-    public void OnKeyChange(HashSet<byte> pressedKeys)
+    public async void OnKeyChange(HashSet<byte> pressedKeys)
     {
         if (PlayingState == PlayState.Stopped) return;
 
@@ -129,11 +129,8 @@ public class MusicPlayer
         complete = true;
         nonreadyKeys = new(pressedKeys);
 
-        Task.Run(async () =>
-        {
-            await Task.Delay(Math.Max(0, TimeToNextKey));
-            NextTarget();
-        });
+        await Task.Delay(Math.Max(0, TimeToNextKey));
+        NextTarget();
     }
 
     public void Update(float dT)

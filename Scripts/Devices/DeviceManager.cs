@@ -2,8 +2,8 @@
 using Commons.Music.Midi;
 using PianoTrainer.Scripts.GameElements;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.Devices;
 
@@ -49,12 +49,12 @@ internal class DeviceManager
         Alerts.Instance?.ShowDisconnected(false);
     }
 
-    public Task ConnectAllDevices() => Task.Run(async () =>
+    public async Task ConnectAllDevices()
     {
         await DefaultPiano.Connect();
         await DefaultLights.Connect();
         Debug.WriteLine("Devices connected successfuly");
-    });
+    }
 
     public static void DisconnectDevices()
     {

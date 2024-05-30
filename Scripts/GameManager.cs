@@ -3,6 +3,7 @@ using Godot;
 using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
 using PianoTrainer.Scripts.PianoInteraction;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts;
@@ -37,15 +38,15 @@ public partial class GameManager : Node2D
 
         musicPlayer.Setup(parsedMusic);
 
-        SetupDevices();
+        Task.Run(SetupDevices);
     }
 
-    public Task SetupDevices() => Task.Run(async () =>
+    public async Task SetupDevices()
     {
         await deviceManager.ConnectAllDevices();
         State = GameState.Ready;
         Alerts.Instance?.ShowWaiting(false);
-    });
+    }
 
     // Called each game frame.
     public override void _Process(double delta)
