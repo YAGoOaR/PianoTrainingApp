@@ -8,13 +8,13 @@ public partial class BeatDrawer : Control
 {
     private static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
 
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;    
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     [Export] private Color lineColor;
 
     private readonly List<Line2D> lines = [];
 
-	public override void _Ready()
-	{
+    public override void _Ready()
+    {
         double beatTime = BPS2BeatTime(musicPlayer.Bpm);
 
         int timespan = playerSettings.Timespan;
@@ -46,7 +46,7 @@ public partial class BeatDrawer : Control
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i+1) * beatTime - offsetToNextTempoLine) / timespan * Size.Y;
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / timespan * Size.Y;
 
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));

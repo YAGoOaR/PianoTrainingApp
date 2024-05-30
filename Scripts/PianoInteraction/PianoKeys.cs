@@ -8,7 +8,7 @@ public static class PianoKeys
     public const byte keysInOctave = 12;
     public const byte octaveWhites = 7;
 
-    public static readonly string[] KeyLabelsLatin = 
+    public static readonly string[] KeyLabelsLatin =
     [
         "C",
         "C#",
@@ -24,7 +24,7 @@ public static class PianoKeys
         "B",
     ];
 
-    public static readonly string[] KeyLabelsDo = 
+    public static readonly string[] KeyLabelsDo =
     [
         "Do",
         "Di",
