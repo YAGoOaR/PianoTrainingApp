@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=18 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
 [ext_resource type="Script" path="res://Scripts/GameElements/Alerts.cs" id="2_4jih0"]
@@ -10,13 +10,12 @@
 [ext_resource type="Theme" uid="uid://cliu30v8gh5n1" path="res://Themes/themeBlackKey.tres" id="8_k24y3"]
 [ext_resource type="Theme" uid="uid://dtjmaoh4kf33q" path="res://Themes/themeWhiteKey.tres" id="10_dk06m"]
 [ext_resource type="StyleBox" uid="uid://dpoerorof6ufy" path="res://Themes/alert_style_box_flat.tres" id="10_tvxw8"]
-[ext_resource type="Theme" uid="uid://g5idrlertwwb" path="res://Themes/white_key.tres" id="11_evqa8"]
-[ext_resource type="Theme" uid="uid://crnyqkpjibv2t" path="res://Themes/black_key.tres" id="12_idt47"]
-[ext_resource type="Theme" uid="uid://dagitmua1vpuv" path="res://Themes/active_key.tres" id="12_m70jk"]
-[ext_resource type="Theme" uid="uid://cl5sn51ecfkxm" path="res://Themes/black_active_key.tres" id="13_d22rl"]
+[ext_resource type="Theme" uid="uid://cl5sn51ecfkxm" path="res://Themes/Key/key_active_black.tres" id="11_6oidt"]
+[ext_resource type="Theme" uid="uid://g5idrlertwwb" path="res://Themes/Key/key_inactive_white.tres" id="11_evqa8"]
+[ext_resource type="Theme" uid="uid://crnyqkpjibv2t" path="res://Themes/Key/key_inactive_black.tres" id="12_idt47"]
+[ext_resource type="Theme" uid="uid://dagitmua1vpuv" path="res://Themes/Key/key_active_white.tres" id="12_mk4eh"]
 [ext_resource type="Theme" uid="uid://bmd3anhug6lmh" path="res://Themes/ui_theme.tres" id="14_oh4w4"]
 [ext_resource type="PackedScene" uid="uid://bn6vpopxpguqc" path="res://Effects/particles.tscn" id="16_nvax3"]
-[ext_resource type="Material" uid="uid://c2gcyskjv8wnh" path="res://Effects/effect2.tres" id="17_cotxk"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h1xpk"]
 bg_color = Color(0.137546, 0.665053, 0.790437, 1)
@@ -92,10 +91,8 @@ grow_horizontal = 2
 grow_vertical = 0
 border_width = 3.0
 script = ExtResource("4_4ebec")
-whiteTheme = ExtResource("11_evqa8")
-blackTheme = ExtResource("12_idt47")
-whiteActiveTheme = ExtResource("12_m70jk")
-blackActiveTheme = ExtResource("13_d22rl")
+themes = Array[Theme]([ExtResource("12_idt47"), ExtResource("11_evqa8"), ExtResource("11_6oidt"), ExtResource("12_mk4eh")])
+effect = ExtResource("16_nvax3")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control"]
 layout_mode = 1
@@ -170,7 +167,7 @@ vertical_alignment = 1
 
 [node name="WaitingForDevice" type="PopupPanel" parent="."]
 title = "DEVICE NOT CONNECTED"
-position = Vector2i(975, 613)
+position = Vector2i(868, 540)
 size = Vector2i(600, 125)
 visible = true
 always_on_top = true
@@ -241,13 +238,5 @@ offset_right = 74.0
 offset_bottom = -136.0
 grow_vertical = 0
 theme = ExtResource("12_idt47")
-
-[node name="particles" parent="." instance=ExtResource("16_nvax3")]
-visible = false
-modulate = Color(0.82606, 0.82606, 0.82606, 0.87451)
-position = Vector2(490, 1044)
-amount = 3
-process_material = ExtResource("17_cotxk")
-lifetime = 0.1
 
 [connection signal="pressed" from="Control/HBoxContainer/Button" to="GameManager" method="Exit"]

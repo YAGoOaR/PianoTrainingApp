@@ -3,10 +3,12 @@
 [resource]
 lifetime_randomness = 0.05
 particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 20.0
 angle_min = -180.0
 angle_max = 180.0
 direction = Vector3(0, -1, 0)
 spread = 5.69
-scale_min = 0.3
-scale_max = 0.7
+scale_min = 0.1
+scale_max = 0.5
 hue_variation_min = -0.07

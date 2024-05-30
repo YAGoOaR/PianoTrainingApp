@@ -3,19 +3,16 @@ using Godot;
 using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.PianoInteraction;
 using System.Collections.Generic;
-
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PianoTrainer.Scripts.GameElements;
 
 // Defines Piano key setup and layout
-public partial class PianoKeyboard : PianoLayout
+public partial class PianoKeyboard : PianoEffects
 {
-    [Export] Theme whiteTheme;
-    [Export] Theme blackTheme;
-    [Export] Theme whiteActiveTheme;
-    [Export] Theme blackActiveTheme;
+    [Export] private Theme[] themes;
+
+    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     public float NoteGap { get; private set; } = 0;
 
@@ -40,9 +37,10 @@ public partial class PianoKeyboard : PianoLayout
 
             Panel noteRect = new()
             {
-                Theme = black ? blackTheme : whiteTheme,
+                Theme = GetNoteTheme(black, false),
             };
             holder.AddChild(noteRect);
+            holder.MoveChild(noteRect, 0);
 
             noteRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
@@ -56,20 +54,22 @@ public partial class PianoKeyboard : PianoLayout
     {
         while (changes.Count > 0)
         {
-            var (midiIndex, isActive) = changes.Dequeue();
+            var (midiIndex, activated) = changes.Dequeue();
             byte key = MIDIIndexToKey(midiIndex);
             bool isBlack = IsBlack(key);
 
-            noteRects[key].Theme =
-            (
-                isActive
-                    ? isBlack
-                        ? blackActiveTheme
-                        : whiteActiveTheme
-                    : isBlack
-                        ? blackTheme
-                        : whiteTheme
+            bool keyHasEffect = (
+                musicPlayer.State.DesiredKeys.Contains(midiIndex) ||
+                musicPlayer.NonreadyKeys.Contains(midiIndex)
             );
+
+            effects[key].Emitting = activated && keyHasEffect;
+            noteRects[key].Theme = GetNoteTheme(isBlack, activated);
         }
+    }
+
+    private Theme GetNoteTheme(bool isBlack, bool isActive)
+    {
+        return themes[(isBlack ? 0 : 1) + (isActive ? 1 : 0) * 2];
     }
 }

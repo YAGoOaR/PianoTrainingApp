@@ -43,7 +43,7 @@ public class MusicPlayer
     public event Action OnStopped;
 
     private int totalTimeMilis = 0;
-    private HashSet<byte> nonreadyKeys = [];
+    public HashSet<byte> NonreadyKeys { get; private set; } = [];
     private bool complete = false;
 
     public PlayState PlayingState { get; private set; } = PlayState.Stopped;
@@ -67,7 +67,7 @@ public class MusicPlayer
         totalTimeMilis = music.TotalTime;
 
         complete = false;
-        nonreadyKeys = [];
+        NonreadyKeys = [];
         PlayingState = PlayState.Stopped;
         TimeSinceLastKey = 0;
 
@@ -122,12 +122,12 @@ public class MusicPlayer
     {
         if (PlayingState == PlayState.Stopped) return;
 
-        nonreadyKeys = nonreadyKeys.Intersect(pressedKeys).ToHashSet();
+        NonreadyKeys = NonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
-        if (complete || State.DesiredKeys.Except(pressedKeys.Except(nonreadyKeys)).Any()) return;
+        if (complete || State.DesiredKeys.Except(pressedKeys.Except(NonreadyKeys)).Any()) return;
 
         complete = true;
-        nonreadyKeys = new(pressedKeys);
+        NonreadyKeys = new(pressedKeys);
 
         await Task.Delay(Math.Max(0, TimeToNextKey));
         NextTarget();
