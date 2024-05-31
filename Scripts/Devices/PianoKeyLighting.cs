@@ -108,7 +108,7 @@ public class PianoKeyLighting
         }
     }
 
-    public async void AddBlink(byte key, int blinkTime = 50)
+    public async void AddBlink(byte key, int blinkTime)
     {
         Blinks = [key, .. Blinks];
 

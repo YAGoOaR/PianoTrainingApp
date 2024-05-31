@@ -70,6 +70,7 @@ public partial class PianoKeyboard : PianoEffects
 
     private Theme GetNoteTheme(bool isBlack, bool isActive)
     {
-        return themes[(isBlack ? 0 : 1) + (isActive ? 1 : 0) * 2];
+        var themeCode = (isBlack ? 0 : 1) + (isActive ? 1 : 0) * 2;
+        return themes[themeCode];
     }
 }

@@ -11,8 +11,11 @@ public partial class BeatDrawer : Control
 
     private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     [Export] private Color lineColor;
+    [Export] private int LineWidth = 2;
 
     private readonly List<Line2D> lines = [];
+
+    private const int LineZIndex = -100;
 
     public override void _Ready()
     {
@@ -25,9 +28,9 @@ public partial class BeatDrawer : Control
         {
             var line = new Line2D
             {
-                Points = [new Vector2(0, 0), new Vector2(0, 0)],
-                ZIndex = -100,
-                Width = 2,
+                Points = [Vector2.Zero, Vector2.Zero],
+                ZIndex = LineZIndex,
+                Width = LineWidth,
                 DefaultColor = lineColor,
             };
 
