@@ -4,12 +4,13 @@ using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 
+// Lays out frames for piano keys
 public abstract partial class PianoLayout : Control
 {
-    public static int KeyboardRange { get; } = 61;
+    private static readonly GSettings settings = GameSettings.Instance.Settings;
 
-    private static int BlackKeyCount { get; } = 25;
-    private static int WhiteKeyCount { get; } = KeyboardRange - BlackKeyCount;
+    public static int KeyboardRange { get => settings.PianoKeyCount; }
+    private static int WhiteKeyCount { get => KeyboardRange / keysInOctave * octaveWhites + 1; }
 
     public static Vector2 BlackRatio { get; } = new(1 / 2f, 2 / 3f);
 

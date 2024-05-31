@@ -7,7 +7,7 @@ using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 
-// Defines Piano key setup and layout
+// Piano key setup and visualizing key state changes
 public partial class PianoKeyboard : PianoEffects
 {
     [Export] private Theme[] themes;
@@ -70,6 +70,7 @@ public partial class PianoKeyboard : PianoEffects
 
     private Theme GetNoteTheme(bool isBlack, bool isActive)
     {
-        return themes[(isBlack ? 0 : 1) + (isActive ? 1 : 0) * 2];
+        var themeCode = (isBlack ? 0 : 1) + (isActive ? 1 : 0) * 2;
+        return themes[themeCode];
     }
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 
 namespace PianoTrainer.Scripts;
 
+// Music flow parameters
 public class PlayerSettings()
 {
     public int KeyTimeOffset { get; } = 100;
@@ -17,25 +18,25 @@ public class PlayerSettings()
     public int StartBeatsOffset { get; } = 4;
 }
 
+// General settings
 public class GSettings()
 {
     public string MusicFolderPath { get; set; } = "";
     public string MusicPath { get; set; } = "";
-    public string PianoDeviceName { get; set; } = "";
+    public string PianoDeviceName { get; set; } = "CASIO USB-MIDI";
     public bool Autoretry { get; set; } = true;
     public byte PianoKeyCount { get; } = 61;
     public byte PianoMinMIDIKey { get; } = 36;
     public byte PianoMaxMIDIKey { get => (byte)(PianoMinMIDIKey + PianoKeyCount); }
 }
 
-// Singleton class to handle settings 
+// Manages all settings
 public partial class GameSettings
 {
     public static string MenuScene { get; } = "res://Scenes/main.tscn";
     public static string GameScene { get; } = "res://Scenes/PlayScene.tscn";
 
     private const string settingsPath = @"./player_settings.json";
-    private const string defaultDevice = "CASIO USB-MIDI";
 
     public GSettings Settings { get; private set; } = new();
     public PlayerSettings PlayerSettings { get; private set; } = new();
@@ -52,9 +53,7 @@ public partial class GameSettings
 
     private GameSettings()
     {
-        if (!Load()) Save(); // Create a new settings file if does not exist
-
-        Settings.PianoDeviceName ??= defaultDevice;
+        if (!Load()) Save(); // Create a new settings file if can't load one
     }
 
     public bool Load()

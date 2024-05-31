@@ -8,6 +8,7 @@ using PianoTrainer.Scripts.PianoInteraction;
 
 namespace PianoTrainer.Scripts.Devices;
 
+// Handles hint light blinking jobs
 public class PianoKeyLighting
 {
     public event Action PreTick;
@@ -107,7 +108,7 @@ public class PianoKeyLighting
         }
     }
 
-    public async void AddBlink(byte key, int blinkTime = 50)
+    public async void AddBlink(byte key, int blinkTime)
     {
         Blinks = [key, .. Blinks];
 

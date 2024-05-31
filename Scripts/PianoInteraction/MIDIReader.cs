@@ -19,6 +19,7 @@ public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, 
 public record TimedNoteGroup(int Time, HashSet<NotePress> Notes);
 public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime, double Bpm);
 
+// Loads a MIDI file, divides keys to groups and parses them into convenient records
 public partial class MIDIReader
 {
     private static readonly GameSettings settings = GameSettings.Instance;
@@ -35,7 +36,7 @@ public partial class MIDIReader
         var allMessages = MergeTracks(music.Tracks);
 
         var (keyMIDIMessages, tempo, bpm) = SetupMetadata(allMessages);
-        var beatTime = BPS2BeatTime(bpm);
+        var beatTime = BPM2BeatTime(bpm);
         var startOffset = Mathf.RoundToInt(beatTime * settings.PlayerSettings.StartBeatsOffset * SecondsToMs);
 
         Debug.WriteLine(music.DeltaTimeSpec);

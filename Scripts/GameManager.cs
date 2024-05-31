@@ -3,7 +3,6 @@ using Godot;
 using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
 using PianoTrainer.Scripts.PianoInteraction;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts;
@@ -17,9 +16,7 @@ public enum GameState
     Exited,
 }
 
-/// <summary>
-/// The main class that handles the game flow.
-/// </summary>
+// Handles the game flow
 public partial class GameManager : Node2D
 {
     private static readonly GSettings settings = GameSettings.Instance.Settings;
@@ -29,7 +26,7 @@ public partial class GameManager : Node2D
 
     public GameState State { get; private set; } = GameState.Preparing;
 
-    // Called when game scene is loaded
+    // Called when the game scene is loaded
     public override void _Ready()
     {
         NoteHints.Init();

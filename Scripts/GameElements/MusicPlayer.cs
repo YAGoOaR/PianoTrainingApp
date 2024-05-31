@@ -24,7 +24,7 @@ public struct MusicPlayerState()
     public int startTime = 0;
 }
 
-// Singleton class that handles music flow
+// Handles the music flow and user guidance
 public class MusicPlayer
 {
     public List<TimedNoteGroup> Notes { get; set; } = [];

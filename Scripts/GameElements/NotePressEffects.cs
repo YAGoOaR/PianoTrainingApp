@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace PianoTrainer.Scripts.GameElements;
 
+// Adds a sparkling effect to the piano keys
 public partial class PianoEffects : PianoLayout
 {
     [Export] private PackedScene effect;
