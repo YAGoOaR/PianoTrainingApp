@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.Devices;
 
+// Holds connection with the piano by sending corresponding message
 internal class KeyboardConnectionHolder(LightsMIDIInterface lights, Action onDisconnected)
 {
     private readonly TaskCompletionSource stopSignal = new();

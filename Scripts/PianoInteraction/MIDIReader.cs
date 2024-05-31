@@ -19,6 +19,7 @@ public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, 
 public record TimedNoteGroup(int Time, HashSet<NotePress> Notes);
 public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime, double Bpm);
 
+// Loads a MIDI file, divides keys to groups and parses them into convenient records
 public partial class MIDIReader
 {
     private static readonly GameSettings settings = GameSettings.Instance;

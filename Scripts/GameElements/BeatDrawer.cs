@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
+// Draws lines that visualize each beat on the music timeline
 public partial class BeatDrawer : Control
 {
     private static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;

@@ -7,6 +7,7 @@ using PianoTrainer.Scripts.Devices;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
+// Light hints that help to guide the user
 public class NoteHints
 {
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
@@ -35,6 +36,7 @@ public class NoteHints
         instance ??= new();
     }
 
+    // When user pressed the correct keys
     public void OnTargetCompleted(MusicPlayerState state)
     {
         lights.Reset();

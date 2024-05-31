@@ -7,7 +7,7 @@ using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 
-// Defines Piano key setup and layout
+// Piano key setup and visualizing key state changes
 public partial class PianoKeyboard : PianoEffects
 {
     [Export] private Theme[] themes;

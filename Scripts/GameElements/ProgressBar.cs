@@ -3,6 +3,7 @@ using Godot;
 
 namespace PianoTrainer.Scripts.GameElements;
 
+// Progress of the music flow
 public partial class ProgressBar : Control
 {
     [Export] private Label progressLabel;

@@ -7,6 +7,7 @@ using System.Diagnostics;
 
 namespace PianoTrainer.Scripts.Devices;
 
+// Defines MIDI messages to work with the piano
 public class LightsMIDIInterface(IMidiOutput piano)
 {
     private readonly IMidiOutput piano = piano;

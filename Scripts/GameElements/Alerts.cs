@@ -3,6 +3,7 @@ using System;
 
 namespace PianoTrainer.Scripts.GameElements;
 
+// Alerts that popup using in-game windows
 public partial class Alerts : Control
 {
     [Export] private Window deviceDisconnectedPanel;

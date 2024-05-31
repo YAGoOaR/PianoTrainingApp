@@ -8,6 +8,7 @@ using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
+// Draws notes that user has to press
 public partial class FallingNotes : PianoLayout
 {
     private static PlayerSettings settings = GameSettings.Instance.PlayerSettings;

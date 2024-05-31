@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PianoTrainer.Scripts.Devices;
 
+// Base class for input and output MIDI ports
 public abstract class IOPort<T>(string portName) where T : IMidiPort
 {
     private const int waitTime = 1000;

@@ -4,6 +4,7 @@ using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 
+// Lays out frames for piano keys
 public abstract partial class PianoLayout : Control
 {
     public static int KeyboardRange { get; } = 61;

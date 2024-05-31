@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
+// Manages the pressed keys
 public class KeyState(byte minKey, byte maxKey)
 {
     public event Action<MoteMessage> KeyChange;
