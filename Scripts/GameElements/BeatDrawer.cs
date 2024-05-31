@@ -16,7 +16,7 @@ public partial class BeatDrawer : Control
 
     public override void _Ready()
     {
-        double beatTime = BPS2BeatTime(musicPlayer.Bpm);
+        double beatTime = BPM2BeatTime(musicPlayer.Bpm);
 
         int timespan = playerSettings.Timespan;
         int beatsInTimespan = Mathf.CeilToInt(timespan / beatTime);
@@ -40,7 +40,7 @@ public partial class BeatDrawer : Control
     {
         float currentTime = musicPlayer.TimeMilis * MsToSeconds;
 
-        float beatTime = (float)BPS2BeatTime(musicPlayer.Bpm);
+        float beatTime = (float)BPM2BeatTime(musicPlayer.Bpm);
 
         float offsetToNextTempoLine = currentTime % beatTime;
         int timespan = playerSettings.Timespan;

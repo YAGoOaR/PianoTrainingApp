@@ -36,7 +36,7 @@ public partial class MIDIReader
         var allMessages = MergeTracks(music.Tracks);
 
         var (keyMIDIMessages, tempo, bpm) = SetupMetadata(allMessages);
-        var beatTime = BPS2BeatTime(bpm);
+        var beatTime = BPM2BeatTime(bpm);
         var startOffset = Mathf.RoundToInt(beatTime * settings.PlayerSettings.StartBeatsOffset * SecondsToMs);
 
         Debug.WriteLine(music.DeltaTimeSpec);
