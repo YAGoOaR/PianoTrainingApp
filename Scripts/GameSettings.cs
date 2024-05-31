@@ -23,7 +23,7 @@ public class GSettings()
 {
     public string MusicFolderPath { get; set; } = "";
     public string MusicPath { get; set; } = "";
-    public string PianoDeviceName { get; set; } = "";
+    public string PianoDeviceName { get; set; } = "CASIO USB-MIDI";
     public bool Autoretry { get; set; } = true;
     public byte PianoKeyCount { get; } = 61;
     public byte PianoMinMIDIKey { get; } = 36;
@@ -37,7 +37,6 @@ public partial class GameSettings
     public static string GameScene { get; } = "res://Scenes/PlayScene.tscn";
 
     private const string settingsPath = @"./player_settings.json";
-    private const string defaultDevice = "CASIO USB-MIDI";
 
     public GSettings Settings { get; private set; } = new();
     public PlayerSettings PlayerSettings { get; private set; } = new();
@@ -55,8 +54,6 @@ public partial class GameSettings
     private GameSettings()
     {
         if (!Load()) Save(); // Create a new settings file if can't load one
-
-        Settings.PianoDeviceName ??= defaultDevice;
     }
 
     public bool Load()
