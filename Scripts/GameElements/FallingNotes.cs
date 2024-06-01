@@ -129,7 +129,7 @@ public partial class FallingNotes : PianoLayout
         currentNotes.Remove(groupIndex);
     }
 
-    private void RemoveNoteGroup(int groupIndex)
+    private void DeleteNoteGroup(int groupIndex)
     {
         var noteGroup = completedNotes[groupIndex];
 
@@ -153,7 +153,7 @@ public partial class FallingNotes : PianoLayout
     {
         var allNoteGroups = musicPlayer.Notes;
 
-        var currentGroup = Mathf.Max(musicPlayer.State.CurrentGroup, 0);
+        var currentGroup = Mathf.Max(musicPlayer.State.Group, 0);
 
         var selectedGroups = allNoteGroups
             .Skip(currentGroup)
@@ -168,11 +168,11 @@ public partial class FallingNotes : PianoLayout
         var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
         foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var notesToRemove = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
-        foreach (var group in notesToRemove) CompleteNoteGroup(group.Key);
+        var notesToComplete = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
+        foreach (var group in notesToComplete) CompleteNoteGroup(group.Key);
 
         var notesToDelete = completedNotes.Values.Where(g => g.Time + g.MaxDuration <= musicPlayer.TimeMilis);
-        foreach (var group in notesToDelete) RemoveNoteGroup(group.Time);
+        foreach (var group in notesToDelete) DeleteNoteGroup(group.Time);
     }
 
     private void UpdateNotePositions()

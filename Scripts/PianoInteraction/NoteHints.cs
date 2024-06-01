@@ -46,7 +46,7 @@ public class NoteHints
         Task lightupNotes = LateNotePressHint(keys, musicPlayer.TimeToNextKey);
 
         bool isLate() => lightupNotes.IsCompleted || musicPlayer.TimeToNextKey < PlayerSettings.LateHintOutdateTime;
-        bool isStateChanged() => musicPlayer.State.CurrentGroup != state.CurrentGroup;
+        bool isStateChanged() => musicPlayer.State.Group != state.Group;
 
         Task.Run(() => EarlyNotePressHint(isLate, isStateChanged, keys));
     }

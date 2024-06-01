@@ -11,8 +11,8 @@ using MidiMessage = Commons.Music.Midi.MidiMessage;
 namespace PianoTrainer.Scripts.PianoInteraction;
 using static TimeUtils;
 
-public record MoteMessage(byte Key, bool State);
-public record TimedNoteMessage(byte Key, bool State, int DeltaTime) : MoteMessage(Key, State);
+public record NoteMessage(byte Key, bool State);
+public record TimedNoteMessage(byte Key, bool State, int DeltaTime) : NoteMessage(Key, State);
 
 public record NotePress(byte Key, int Duration);
 public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, Duration);

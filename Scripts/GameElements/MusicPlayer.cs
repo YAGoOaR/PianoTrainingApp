@@ -17,10 +17,10 @@ public enum PlayState
 public struct MusicPlayerState()
 {
     public HashSet<byte> DesiredKeys { get; set; } = [];
-    public int NextMessageGroup { get; set; } = 1;
-    public int CurrentGroup { get; set; } = 0;
-    public int MessageDelta { get; set; } = 0;
-    public int TotalMessagesTime { get; set; } = 0;
+    public int NextGroup { get; set; } = 1;
+    public int Group { get; set; } = 0;
+    public int GroupDeltatime { get; set; } = 0;
+    public int AccumulatedGroupTime { get; set; } = 0;
     public int startTime = 0;
 }
 
@@ -30,9 +30,9 @@ public class MusicPlayer
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
     public float TotalSeconds { get => totalTimeMilis * MsToSeconds; }
-    public int TimeMilis { get => State.TotalMessagesTime + (int)TimeSinceLastKey; }
+    public int TimeMilis { get => State.AccumulatedGroupTime + (int)TimeSinceLastKey; }
 
-    public int TimeToNextKey { get => State.MessageDelta - (int)TimeSinceLastKey; }
+    public int TimeToNextKey { get => State.GroupDeltatime - (int)TimeSinceLastKey; }
     public float TimeSinceLastKey { get; private set; } = 0;
 
     public double Bpm { get; private set; } = 0;
@@ -92,24 +92,24 @@ public class MusicPlayer
     {
         if (Notes.Count == 0) throw new Exception("PlayManager is not initialized");
 
-        if (State.NextMessageGroup > Notes.Count - 1)
+        if (State.NextGroup > Notes.Count - 1)
         {
             Stop();
             OnTargetChanged?.Invoke(State);
             return;
         }
 
-        var prevGroup = Notes[State.CurrentGroup];
-        var group = Notes[State.NextMessageGroup];
+        var prevGroup = Notes[State.Group];
+        var group = Notes[State.NextGroup];
 
         State = new()
         {
-            TotalMessagesTime = prevGroup.Time,
+            AccumulatedGroupTime = prevGroup.Time,
             DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
-            MessageDelta = group.Time - prevGroup.Time,
+            GroupDeltatime = group.Time - prevGroup.Time,
 
-            CurrentGroup = State.NextMessageGroup,
-            NextMessageGroup = State.NextMessageGroup + 1
+            Group = State.NextGroup,
+            NextGroup = State.NextGroup + 1
         };
 
         TimeSinceLastKey = 0;
@@ -135,6 +135,6 @@ public class MusicPlayer
 
     public void Update(float dT)
     {
-        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SecondsToMs, State.MessageDelta);
+        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SecondsToMs, State.GroupDeltatime);
     }
 }

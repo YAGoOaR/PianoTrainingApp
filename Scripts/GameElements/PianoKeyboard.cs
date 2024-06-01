@@ -18,7 +18,7 @@ public partial class PianoKeyboard : PianoEffects
 
     readonly List<Panel> noteRects = [];
 
-    readonly Queue<MoteMessage> changes = [];
+    readonly Queue<NoteMessage> changes = [];
 
     public override void _Ready()
     {
@@ -48,7 +48,7 @@ public partial class PianoKeyboard : PianoEffects
         }
     }
 
-    public void SetKey(MoteMessage msg) => changes.Enqueue(msg);
+    public void SetKey(NoteMessage msg) => changes.Enqueue(msg);
 
     public override void _Process(double delta)
     {

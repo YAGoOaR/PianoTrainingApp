@@ -8,14 +8,14 @@ namespace PianoTrainer.Scripts.PianoInteraction;
 // Manages the pressed keys
 public class KeyState(byte minKey, byte maxKey)
 {
-    public event Action<MoteMessage> KeyChange;
+    public event Action<NoteMessage> KeyChange;
     public byte MinKey { get; } = minKey;
     public byte MaxKey { get; } = maxKey;
     public HashSet<byte> State { get; } = [];
 
     public bool HasKey(byte key) => key >= MinKey && key <= MaxKey;
 
-    protected bool SilentSetKey(MoteMessage keyChange)
+    protected bool UpdateState(NoteMessage keyChange)
     {
         if (!HasKey(keyChange.Key)) return false;
 
@@ -24,9 +24,9 @@ public class KeyState(byte minKey, byte maxKey)
             : State.Remove(keyChange.Key);
     }
 
-    public virtual bool SetKey(MoteMessage keyChange)
+    public virtual bool SetKey(NoteMessage keyChange)
     {
-        if (SilentSetKey(keyChange))
+        if (UpdateState(keyChange))
         {
             KeyChange?.Invoke(keyChange);
             return true;
@@ -40,7 +40,7 @@ public class LightState(byte minKey, byte maxKey) : KeyState(minKey, maxKey)
     private Queue<byte> lightQueue = [];
     public const byte maxKeysDisplayed = 4;
 
-    public bool UpdateNote(MoteMessage msg) => base.SetKey(msg);
+    public bool UpdateNote(NoteMessage msg) => base.SetKey(msg);
 
     public bool SetLight(byte keyOn)
     {

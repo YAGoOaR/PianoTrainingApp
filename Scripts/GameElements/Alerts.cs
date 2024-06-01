@@ -15,7 +15,7 @@ public partial class Alerts : Control
         Instance = this;
     }
 
-    static Action<bool> ShowHideFunc(Window window) => (bool show) => window.CallDeferred(show ? Window.MethodName.Show : Window.MethodName.Hide);
-    public void ShowDisconnected(bool show) => ShowHideFunc(deviceDisconnectedPanel)(show);
-    public void ShowWaiting(bool show) => ShowHideFunc(waitingForDevicePanel)(show);
+    static Action<bool> WindowToggler(Window window) => (bool show) => window.CallDeferred(show ? Window.MethodName.Show : Window.MethodName.Hide);
+    public void ShowDisconnected(bool show) => WindowToggler(deviceDisconnectedPanel)(show);
+    public void ShowWaiting(bool show) => WindowToggler(waitingForDevicePanel)(show);
 }
