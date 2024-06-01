@@ -21,7 +21,6 @@ public struct MusicPlayerState()
     public int CurrentGroup { get; set; } = 0;
     public int MessageDelta { get; set; } = 0;
     public int TotalMessagesTime { get; set; } = 0;
-    public int startTime = 0;
 }
 
 // Handles the music flow and user guidance

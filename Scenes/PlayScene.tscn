@@ -1,11 +1,10 @@
-[gd_scene load_steps=18 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=17 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
 [ext_resource type="Script" path="res://Scripts/GameElements/Alerts.cs" id="2_4jih0"]
 [ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
 [ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
 [ext_resource type="Script" path="res://Scripts/GameElements/ProgressBar.cs" id="6_t5trx"]
-[ext_resource type="Script" path="res://Scripts/GameElements/BeatDrawer.cs" id="7_2snt0"]
 [ext_resource type="Theme" uid="uid://by2aa8qlbtfpg" path="res://Themes/font_theme.tres" id="7_gxgea"]
 [ext_resource type="Theme" uid="uid://cliu30v8gh5n1" path="res://Themes/themeBlackKey.tres" id="8_k24y3"]
 [ext_resource type="Theme" uid="uid://dtjmaoh4kf33q" path="res://Themes/themeWhiteKey.tres" id="10_dk06m"]
@@ -69,15 +68,6 @@ progressBar = NodePath("../HBoxContainer/ProgressBar")
 fontTheme = ExtResource("7_gxgea")
 themeWhiteKey = ExtResource("10_dk06m")
 themeBlackKey = ExtResource("8_k24y3")
-
-[node name="TempoDrawer" type="Control" parent="Control/FallingNotes"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("7_2snt0")
 lineColor = Color(0.360784, 0.360784, 0.360784, 1)
 
 [node name="Piano" type="ReferenceRect" parent="Control"]

@@ -9,10 +9,8 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws notes that user has to press
-public partial class FallingNotes : PianoLayout
+public partial class FallingNotes : BeatDividedTimeline
 {
-    private static PlayerSettings settings = GameSettings.Instance.PlayerSettings;
-
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
 
@@ -30,17 +28,7 @@ public partial class FallingNotes : PianoLayout
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
     private readonly Dictionary<int, NoteGroup> completedNotes = [];
 
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-
-    private int timeSpan = 5;
-
     private int noteAdditionalWidth = 8;
-
-    public override void _Ready()
-    {
-        base._Ready();
-        timeSpan = settings.Timespan;
-    }
 
     public void Clear()
     {
@@ -142,6 +130,7 @@ public partial class FallingNotes : PianoLayout
 
     public override void _Process(double delta)
     {
+        base._Process(delta);
         if (musicPlayer.PlayingState == PlayState.Stopped) return;
 
         var newGroups = UpdateTimeline();
@@ -179,7 +168,7 @@ public partial class FallingNotes : PianoLayout
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - timelineOffset) * MsToSeconds / timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);
