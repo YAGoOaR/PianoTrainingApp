@@ -23,7 +23,7 @@ public partial class FallingNotes : BeatDividedTimeline
     private Font textFont;
 
     private record Note(byte Key, Panel Rect, int Duration, float Height);
-    private record NoteGroup(int Time, List<Note> Notes, float MaxDuration);
+    private record NoteGroup(int Time, List<Note> Notes, int MaxDuration);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
     private readonly Dictionary<int, NoteGroup> completedNotes = [];
@@ -65,7 +65,7 @@ public partial class FallingNotes : BeatDividedTimeline
 
         rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        rect.Size = new(holder.Size.X + noteAdditionalWidth, noteSizeY);
+        rect.SetDeferred(Control.PropertyName.Size, new Vector2(holder.Size.X + noteAdditionalWidth, noteSizeY));
 
         var txt = new Label()
         {
@@ -117,7 +117,7 @@ public partial class FallingNotes : BeatDividedTimeline
         currentNotes.Remove(groupIndex);
     }
 
-    private void RemoveNoteGroup(int groupIndex)
+    private void DeleteNoteGroup(int groupIndex)
     {
         var noteGroup = completedNotes[groupIndex];
 
@@ -126,6 +126,18 @@ public partial class FallingNotes : BeatDividedTimeline
             note.Rect.QueueFree();
         }
         completedNotes.Remove(groupIndex);
+    }
+
+    private void ResetCompletedNotes()
+    {
+        foreach (var (key, group) in completedNotes)
+        {
+            foreach (var note in group.Notes)
+            {
+                note.Rect.QueueFree();
+            }
+        }
+        completedNotes.Clear();
     }
 
     public override void _Process(double delta)
@@ -143,10 +155,11 @@ public partial class FallingNotes : BeatDividedTimeline
         var allNoteGroups = musicPlayer.Notes;
 
         var currentGroup = Mathf.Max(musicPlayer.State.CurrentGroup, 0);
+        var currentTime = musicPlayer.TimeMilis + timelineOffset;
 
         var selectedGroups = allNoteGroups
-            .Skip(currentGroup)
-            .TakeWhile(g => g.Time < musicPlayer.TimeMilis + timeSpan * SecondsToMs)
+            .SkipWhile(g => !IsNoteVisible(g.Time))
+            .TakeWhile(g => IsNoteVisible(g.Time))
             .ToDictionary(el => el.Time, el => el);
 
         return selectedGroups;
@@ -157,11 +170,11 @@ public partial class FallingNotes : BeatDividedTimeline
         var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
         foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var notesToRemove = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
-        foreach (var group in notesToRemove) CompleteNoteGroup(group.Key);
+        var notesToComplete = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
+        foreach (var group in notesToComplete) CompleteNoteGroup(group.Key);
 
-        var notesToDelete = completedNotes.Values.Where(g => g.Time + g.MaxDuration <= musicPlayer.TimeMilis);
-        foreach (var group in notesToDelete) RemoveNoteGroup(group.Time);
+        var notesToDelete = completedNotes.Values.Where(g => currentNotes.ContainsKey(g.Time) || !IsNoteVisible(g.Time + g.MaxDuration));
+        foreach (var group in notesToDelete) DeleteNoteGroup(group.Time);
     }
 
     private void UpdateNotePositions()

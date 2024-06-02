@@ -39,11 +39,12 @@ grow_vertical = 2
 [node name="GameManager" type="Node2D" parent="."]
 script = ExtResource("1_u53or")
 
-[node name="Alerts" type="Control" parent="." node_paths=PackedStringArray("deviceDisconnectedPanel", "waitingForDevicePanel")]
+[node name="Alerts" type="Control" parent="." node_paths=PackedStringArray("deviceDisconnectedPanel", "waitingForDevicePanel", "pausedPanel")]
 anchors_preset = 0
 script = ExtResource("2_4jih0")
 deviceDisconnectedPanel = NodePath("../DeviceDisconnected")
 waitingForDevicePanel = NodePath("../WaitingForDevice")
+pausedPanel = NodePath("../Paused")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 1
@@ -168,6 +169,24 @@ theme_override_styles/panel = ExtResource("10_tvxw8")
 offset_right = 600.0
 offset_bottom = 125.0
 text = "Waiting for device to be connected..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Paused" type="PopupPanel" parent="."]
+handle_input_locally = false
+gui_disable_input = true
+title = "PAUSED"
+position = Vector2i(868, 540)
+size = Vector2i(600, 125)
+always_on_top = true
+mouse_passthrough = true
+keep_title_visible = true
+theme_override_styles/panel = ExtResource("10_tvxw8")
+
+[node name="Label" type="Label" parent="Paused"]
+offset_right = 600.0
+offset_bottom = 125.0
+text = "Game paused"
 horizontal_alignment = 1
 vertical_alignment = 1
 

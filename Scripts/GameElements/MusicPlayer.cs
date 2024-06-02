@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Godot;
 using PianoTrainer.Scripts.PianoInteraction;
 
 namespace PianoTrainer.Scripts.GameElements;
@@ -11,6 +12,7 @@ using static TimeUtils;
 public enum PlayState
 {
     Playing,
+    Paused,
     Stopped,
 }
 
@@ -75,22 +77,45 @@ public class MusicPlayer
 
     public void Play()
     {
-        if (PlayingState != PlayState.Stopped) return;
+        if (PlayingState == PlayState.Playing) return;
         NextTarget();
         PlayingState = PlayState.Playing;
     }
 
+    public void Pause()
+    {
+        PlayingState = PlayState.Paused;
+    }
+
     public void Stop()
     {
-        PlayingState = PlayState.Stopped;
+        Pause();
         State = new();
-        OnStopped?.Invoke();
+    }
+
+    public void SetCursor(int groupIndex)
+    {
+        var prevGroup = Notes[Mathf.Max(groupIndex - 1, 0)];
+        var group = Notes[Mathf.Max(groupIndex, 0)];
+
+        State = new()
+        {
+            TotalMessagesTime = prevGroup.Time,
+            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
+            MessageDelta = group.Time - prevGroup.Time,
+
+            CurrentGroup = groupIndex,
+            NextMessageGroup = groupIndex + 1
+        };
+
+        TimeSinceLastKey = 0;
+        OnTargetChanged?.Invoke(State);
+
+        complete = false;
     }
 
     public void NextTarget()
     {
-        if (Notes.Count == 0) throw new Exception("PlayManager is not initialized");
-
         if (State.NextMessageGroup > Notes.Count - 1)
         {
             Stop();
@@ -119,8 +144,7 @@ public class MusicPlayer
 
     public async void OnKeyChange(HashSet<byte> pressedKeys)
     {
-        if (PlayingState == PlayState.Stopped) return;
-
+        if (PlayingState != PlayState.Playing) return;
         NonreadyKeys = NonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
         if (complete || State.DesiredKeys.Except(pressedKeys.Except(NonreadyKeys)).Any()) return;
@@ -134,6 +158,7 @@ public class MusicPlayer
 
     public void Update(float dT)
     {
+        if (PlayingState != PlayState.Playing) return;
         TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SecondsToMs, State.MessageDelta);
     }
 }
