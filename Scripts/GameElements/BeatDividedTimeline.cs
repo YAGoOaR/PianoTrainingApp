@@ -5,11 +5,8 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws lines that visualize each beat on the music timeline
-public partial class BeatDrawer : Control
+public partial class BeatDividedTimeline : NoteTimeline
 {
-    private static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
-
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     [Export] private Color lineColor;
     [Export] private int LineWidth = 2;
 
@@ -19,10 +16,9 @@ public partial class BeatDrawer : Control
 
     public override void _Ready()
     {
-        double beatTime = BPM2BeatTime(musicPlayer.Bpm);
+        base._Ready();
 
-        int timespan = playerSettings.Timespan;
-        int beatsInTimespan = Mathf.CeilToInt(timespan / beatTime);
+        int beatsInTimespan = Mathf.CeilToInt(timeSpan * MsToSeconds / musicPlayer.BeatTime);
 
         for (int i = 0; i < beatsInTimespan; i++)
         {
@@ -41,17 +37,16 @@ public partial class BeatDrawer : Control
 
     public override void _Process(double delta)
     {
-        float currentTime = musicPlayer.TimeMilis * MsToSeconds;
+        base._Process(delta);
+        float currentTime = (musicPlayer.TimeMilis + scrollTimeMs) * MsToSeconds;
 
-        float beatTime = (float)BPM2BeatTime(musicPlayer.Bpm);
+        float beatTime = (float)musicPlayer.BeatTime;
 
         float offsetToNextTempoLine = currentTime % beatTime;
-        int timespan = playerSettings.Timespan;
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / timespan * Size.Y;
-
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / (timeSpan * MsToSeconds) * Size.Y;
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));
         }

@@ -9,10 +9,8 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws notes that user has to press
-public partial class FallingNotes : PianoLayout
+public partial class FallingNotes : BeatDividedTimeline
 {
-    private static PlayerSettings settings = GameSettings.Instance.PlayerSettings;
-
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
 
@@ -25,22 +23,12 @@ public partial class FallingNotes : PianoLayout
     private Font textFont;
 
     private record Note(byte Key, Panel Rect, int Duration, float Height);
-    private record NoteGroup(int Time, List<Note> Notes, float MaxDuration);
+    private record NoteGroup(int Time, List<Note> Notes, int MaxDuration);
 
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
     private readonly Dictionary<int, NoteGroup> completedNotes = [];
 
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-
-    private int timeSpan = 5;
-
     private int noteAdditionalWidth = 8;
-
-    public override void _Ready()
-    {
-        base._Ready();
-        timeSpan = settings.Timespan;
-    }
 
     public void Clear()
     {
@@ -63,7 +51,7 @@ public partial class FallingNotes : PianoLayout
 
         var black = IsBlack(key);
 
-        var noteSizeY = duration * MsToSeconds / timeSpan * Size.Y;
+        var noteSizeY = duration / (float)timeSpan * Size.Y;
 
         var holder = NoteFrames[key];
 
@@ -77,7 +65,7 @@ public partial class FallingNotes : PianoLayout
 
         rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        rect.Size = new(holder.Size.X + noteAdditionalWidth, noteSizeY);
+        rect.SetDeferred(Control.PropertyName.Size, new Vector2(holder.Size.X + noteAdditionalWidth, noteSizeY));
 
         var txt = new Label()
         {
@@ -112,7 +100,7 @@ public partial class FallingNotes : PianoLayout
 
         var time = group.Time;
 
-        currentNotes[groupIndex] = new(time, newNotes, newNotes.Select(x => x.Duration).DefaultIfEmpty(0).Max());
+        currentNotes[groupIndex] = new(time, newNotes, group.MaxDuration);
     }
 
     private void CompleteNoteGroup(int groupIndex)
@@ -140,8 +128,21 @@ public partial class FallingNotes : PianoLayout
         completedNotes.Remove(groupIndex);
     }
 
+    private void ResetCompletedNotes()
+    {
+        foreach (var (key, group) in completedNotes)
+        {
+            foreach (var note in group.Notes)
+            {
+                note.Rect.QueueFree();
+            }
+        }
+        completedNotes.Clear();
+    }
+
     public override void _Process(double delta)
     {
+        base._Process(delta);
         if (musicPlayer.PlayingState == PlayState.Stopped) return;
 
         var newGroups = UpdateTimeline();
@@ -154,10 +155,11 @@ public partial class FallingNotes : PianoLayout
         var allNoteGroups = musicPlayer.Notes;
 
         var currentGroup = Mathf.Max(musicPlayer.State.Group, 0);
+        var currentTime = musicPlayer.TimeMilis + scrollTimeMs;
 
         var selectedGroups = allNoteGroups
-            .Skip(currentGroup)
-            .TakeWhile(g => g.Time < musicPlayer.TimeMilis + timeSpan * SecondsToMs)
+            .SkipWhile(g => g.Time + g.MaxDuration < currentTime)
+            .TakeWhile(g => g.Time < currentTime + timeSpan)
             .ToDictionary(el => el.Time, el => el);
 
         return selectedGroups;
@@ -165,13 +167,15 @@ public partial class FallingNotes : PianoLayout
 
     private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
     {
-        var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
+        var notesToAdd = newNotes.Where(g => !(currentNotes.ContainsKey(g.Key) || completedNotes.ContainsKey(g.Key)));
         foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var notesToComplete = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
+        var currentTime = musicPlayer.TimeMilis + scrollTimeMs;
+
+        var notesToComplete = currentNotes.Where(pair => !newNotes.ContainsKey(pair.Key) || pair.Value.Time < currentTime);
         foreach (var group in notesToComplete) CompleteNoteGroup(group.Key);
 
-        var notesToDelete = completedNotes.Values.Where(g => g.Time + g.MaxDuration <= musicPlayer.TimeMilis);
+        var notesToDelete = completedNotes.Values.Where(g => IsNoteVisible(g.Time) || !IsNoteVisible(g.Time + g.MaxDuration));
         foreach (var group in notesToDelete) DeleteNoteGroup(group.Time);
     }
 
@@ -179,7 +183,7 @@ public partial class FallingNotes : PianoLayout
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) * MsToSeconds / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scrollTimeMs) / timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);

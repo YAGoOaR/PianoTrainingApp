@@ -16,8 +16,8 @@ public record TimedNoteMessage(byte Key, bool State, int DeltaTime) : NoteMessag
 
 public record NotePress(byte Key, int Duration);
 public record TimedNote(byte Key, int DeltaTime, int Duration) : NotePress(Key, Duration);
-public record TimedNoteGroup(int Time, HashSet<NotePress> Notes);
-public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime, double Bpm);
+public record TimedNoteGroup(int Time, HashSet<NotePress> Notes, int MaxDuration = 0);
+public record ParsedMusic(List<TimedNoteGroup> Notes, int TotalTime, double Bpm, double BeatTime);
 
 // Loads a MIDI file, divides keys to groups and parses them into convenient records
 public partial class MIDIReader
@@ -49,7 +49,7 @@ public partial class MIDIReader
             .Pipe((groups) => AddTimePadding(groups, startOffset))
             .Pipe(ToAbsoluteTime);
 
-        return new(groups, groups.Last().Time, bpm);
+        return new(groups, groups.Last().Time, bpm, beatTime);
     }
 
     private static TimedNoteMessage MidiMsg2TimedNoteMsg(MidiMessage m, int tempo, int deltaTimeSpec) => new(
@@ -66,6 +66,7 @@ public partial class MIDIReader
 
         int eventDelay = 0;
         HashSet<NotePress> eventAccumulator = [];
+        int maxDuration = 0;
 
         for (int i = 0; i < keyMessages.Count; i++)
         {
@@ -74,16 +75,18 @@ public partial class MIDIReader
             if (msg.DeltaTime == 0)
             {
                 eventAccumulator.Add(msg);
+                maxDuration = Mathf.Max(maxDuration, msg.Duration);
             }
             else
             {
-                if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator));
+                if (i != 0) keyEvents.Add(new(eventDelay, eventAccumulator, maxDuration));
                 eventAccumulator = [msg];
+                maxDuration = msg.Duration;
                 eventDelay = msg.DeltaTime;
             }
-        }
+        }       
 
-        keyEvents.Add(new(eventDelay, eventAccumulator));
+        keyEvents.Add(new(eventDelay, eventAccumulator, maxDuration));
         return keyEvents;
     }
 
@@ -183,10 +186,10 @@ public partial class MIDIReader
         int timeAcc = 0;
         List<TimedNoteGroup> notesAbsTime = [];
 
-        foreach (var note in notes)
+        foreach (var group in notes)
         {
-            timeAcc += note.Time;
-            notesAbsTime.Add(new(timeAcc, note.Notes));
+            timeAcc += group.Time;
+            notesAbsTime.Add(new(timeAcc, group.Notes, group.MaxDuration));
         }
 
         return notesAbsTime;
@@ -210,7 +213,7 @@ public partial class MIDIReader
         {
             var (firstMsg, rest) = (keyGroups.First(), keyGroups[1..]);
             var lastOffset = keyGroups.Last().Notes.Select(x => x.Duration).Max();
-            return [new(0, []), new(startOffset, firstMsg.Notes), .. rest, new(lastOffset, [])];
+            return [new(0, []), new(startOffset, firstMsg.Notes, firstMsg.MaxDuration), .. rest, new(lastOffset, [])];
         }
         return keyGroups;
     }
