@@ -13,7 +13,7 @@ public class PlayerSettings()
     public int BlinkSlowInterval { get; } = 200;
     public int BlinkFastStartOffset { get; } = 1000;
     public int LateHintOutdateTime { get; } = 300;
-    public int Timespan { get; } = 4;
+    public int Timespan { get; } = 4000;
     public int DefaultTempo { get; } = 500000;
     public int StartBeatsOffset { get; } = 4;
 }
