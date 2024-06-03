@@ -38,7 +38,7 @@ public partial class BeatDividedTimeline : NoteTimeline
     public override void _Process(double delta)
     {
         base._Process(delta);
-        float currentTime = (musicPlayer.TimeMilis + scroll) * MsToSeconds;
+        float currentTime = (musicPlayer.TimeMilis + scrollTimeMs) * MsToSeconds;
 
         float beatTime = (float)musicPlayer.BeatTime;
 

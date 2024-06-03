@@ -3,6 +3,7 @@ using Godot;
 using System;
 
 namespace PianoTrainer.Scripts.GameElements;
+using static TimeUtils;
 
 public abstract partial class NoteTimeline : PianoLayout
 {
@@ -13,13 +14,13 @@ public abstract partial class NoteTimeline : PianoLayout
     protected static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
 
     protected int timeSpan = 4000;
-    protected float scroll = 0;
+    protected float scrollTimeMs = 0;
     private float scrollVeclocity = 0;
 
     private const float scrollDamping = 1400f;
     private const float epsilon = 0.01f;
     private const float minFriction = 2.5f;
-    private const float scrollAcceleration = 1000f;
+    private const float scrollAcceleration = 1f;
 
     public override void _Ready()
     {
@@ -34,7 +35,7 @@ public abstract partial class NoteTimeline : PianoLayout
         float deltaTime = (float)delta;
         float acceletation = scrollVeclocity * deltaTime;
         scrollVeclocity = (scrollVeclocity + acceletation) * (1 - Mathf.Min(ScrollFriction(scrollVeclocity) * deltaTime, 1));
-        scroll += scrollVeclocity * deltaTime;
+        scrollTimeMs += scrollVeclocity * deltaTime * SecondsToMs;
     }
 
     public override void _Input(InputEvent @event)
@@ -58,7 +59,7 @@ public abstract partial class NoteTimeline : PianoLayout
             {
                 Pause(false);
                 scrollVeclocity = 0;
-                scroll = 0;
+                scrollTimeMs = 0;
             }
         }
     }
@@ -74,7 +75,7 @@ public abstract partial class NoteTimeline : PianoLayout
 
     protected bool IsNoteVisible(int timeMs)
     {
-        var visionTimeStart = musicPlayer.TimeMilis + scroll;
+        var visionTimeStart = musicPlayer.TimeMilis + scrollTimeMs;
         var visionTimeEnd = visionTimeStart + timeSpan;
 
         return visionTimeStart <= timeMs && timeMs <= visionTimeEnd;
