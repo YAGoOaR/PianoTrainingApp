@@ -8,17 +8,18 @@ public abstract partial class NoteTimeline : PianoLayout
 {
     public static MusicPlayerState PlayerState { get => musicPlayer.State; }
 
-    [Export] private float interpolationStep = 0.2f;
-
     protected static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
     protected static readonly GSettings settings = GameSettings.Instance.Settings;
     protected static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
 
     protected int timeSpan = 4000;
-    protected float timelineOffset = 0;
-    private float timeOffsetInterpolationTarget = 0;
+    protected float scroll = 0;
+    private float scrollVeclocity = 0;
 
-    private int step = 500;
+    private const float scrollDamping = 1400f;
+    private const float epsilon = 0.01f;
+    private const float minFriction = 2.5f;
+    private const float scrollAcceleration = 1000f;
 
     public override void _Ready()
     {
@@ -26,9 +27,14 @@ public abstract partial class NoteTimeline : PianoLayout
         timeSpan = playerSettings.Timespan;
     }
 
+    private static float ScrollFriction(float speed) => scrollDamping / (Mathf.Abs(speed) + epsilon) + minFriction;
+
     public override void _Process(double delta)
     {
-        timelineOffset = Mathf.Lerp(timelineOffset, timeOffsetInterpolationTarget, interpolationStep);
+        float deltaTime = (float)delta;
+        float acceletation = scrollVeclocity * deltaTime;
+        scrollVeclocity = (scrollVeclocity + acceletation) * (1 - Mathf.Min(ScrollFriction(scrollVeclocity) * deltaTime, 1));
+        scroll += scrollVeclocity * deltaTime;
     }
 
     public override void _Input(InputEvent @event)
@@ -37,12 +43,12 @@ public abstract partial class NoteTimeline : PianoLayout
         {
             if (eventMouseButton.ButtonIndex == MouseButton.WheelUp)
             {
-                timeOffsetInterpolationTarget += step;
+                scrollVeclocity += scrollAcceleration;
                 Pause(true);
             }
             else if (eventMouseButton.ButtonIndex == MouseButton.WheelDown)
             {
-                timeOffsetInterpolationTarget -= step;
+                scrollVeclocity -= scrollAcceleration;
                 Pause(true);
             }
         }
@@ -51,7 +57,7 @@ public abstract partial class NoteTimeline : PianoLayout
             if (eventKeyboard.Keycode == Key.Space && musicPlayer.PlayingState != PlayState.Playing)
             {
                 Pause(false);
-                timeOffsetInterpolationTarget = 0;
+                scrollVeclocity = 0;
             }
         }
     }
@@ -67,7 +73,7 @@ public abstract partial class NoteTimeline : PianoLayout
 
     protected bool IsNoteVisible(int timeMs)
     {
-        var visionTimeStart = musicPlayer.TimeMilis + timelineOffset;
+        var visionTimeStart = musicPlayer.TimeMilis + scroll;
         var visionTimeEnd = visionTimeStart + timeSpan;
 
         return visionTimeStart <= timeMs && timeMs <= visionTimeEnd;

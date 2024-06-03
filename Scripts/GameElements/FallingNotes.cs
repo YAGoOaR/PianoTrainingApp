@@ -155,7 +155,7 @@ public partial class FallingNotes : BeatDividedTimeline
         var allNoteGroups = musicPlayer.Notes;
 
         var currentGroup = Mathf.Max(musicPlayer.State.CurrentGroup, 0);
-        var currentTime = musicPlayer.TimeMilis + timelineOffset;
+        var currentTime = musicPlayer.TimeMilis + scroll;
 
         var selectedGroups = allNoteGroups
             .SkipWhile(g => g.Time < currentTime)
@@ -181,7 +181,7 @@ public partial class FallingNotes : BeatDividedTimeline
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - timelineOffset) / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scroll) / timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);
