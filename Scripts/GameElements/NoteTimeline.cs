@@ -58,6 +58,7 @@ public abstract partial class NoteTimeline : PianoLayout
             {
                 Pause(false);
                 scrollVeclocity = 0;
+                scroll = 0;
             }
         }
     }

@@ -158,7 +158,7 @@ public partial class FallingNotes : BeatDividedTimeline
         var currentTime = musicPlayer.TimeMilis + scroll;
 
         var selectedGroups = allNoteGroups
-            .SkipWhile(g => g.Time < currentTime)
+            .SkipWhile(g => g.Time + g.MaxDuration < currentTime)
             .TakeWhile(g => g.Time < currentTime + timeSpan)
             .ToDictionary(el => el.Time, el => el);
 
@@ -167,13 +167,15 @@ public partial class FallingNotes : BeatDividedTimeline
 
     private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
     {
-        var notesToAdd = newNotes.Where(g => !currentNotes.ContainsKey(g.Key));
+        var notesToAdd = newNotes.Where(g => !(currentNotes.ContainsKey(g.Key) || completedNotes.ContainsKey(g.Key)));
         foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var notesToComplete = currentNotes.Where(g => !newNotes.ContainsKey(g.Key));
+        var currentTime = musicPlayer.TimeMilis + scroll;
+
+        var notesToComplete = currentNotes.Where(pair => !newNotes.ContainsKey(pair.Key) || pair.Value.Time < currentTime);
         foreach (var group in notesToComplete) CompleteNoteGroup(group.Key);
 
-        var notesToDelete = completedNotes.Values.Where(g => currentNotes.ContainsKey(g.Time) || !IsNoteVisible(g.Time + g.MaxDuration));
+        var notesToDelete = completedNotes.Values.Where(g => IsNoteVisible(g.Time) || !IsNoteVisible(g.Time + g.MaxDuration));
         foreach (var group in notesToDelete) DeleteNoteGroup(group.Time);
     }
 
