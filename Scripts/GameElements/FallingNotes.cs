@@ -51,7 +51,7 @@ public partial class FallingNotes : BeatDividedTimeline
 
         var black = IsBlack(key);
 
-        var noteSizeY = duration * MsToSeconds / timeSpan * Size.Y;
+        var noteSizeY = duration / (float)timeSpan * Size.Y;
 
         var holder = NoteFrames[key];
 
@@ -100,7 +100,7 @@ public partial class FallingNotes : BeatDividedTimeline
 
         var time = group.Time;
 
-        currentNotes[groupIndex] = new(time, newNotes, newNotes.Select(x => x.Duration).DefaultIfEmpty(0).Max());
+        currentNotes[groupIndex] = new(time, newNotes, group.MaxDuration);
     }
 
     private void CompleteNoteGroup(int groupIndex)
@@ -158,8 +158,8 @@ public partial class FallingNotes : BeatDividedTimeline
         var currentTime = musicPlayer.TimeMilis + timelineOffset;
 
         var selectedGroups = allNoteGroups
-            .SkipWhile(g => !IsNoteVisible(g.Time))
-            .TakeWhile(g => IsNoteVisible(g.Time))
+            .SkipWhile(g => g.Time < currentTime)
+            .TakeWhile(g => g.Time < currentTime + timeSpan)
             .ToDictionary(el => el.Time, el => el);
 
         return selectedGroups;
@@ -181,7 +181,7 @@ public partial class FallingNotes : BeatDividedTimeline
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - timelineOffset) * MsToSeconds / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - timelineOffset) / (float)timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);

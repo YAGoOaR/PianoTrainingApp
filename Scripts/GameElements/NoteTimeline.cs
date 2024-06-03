@@ -3,7 +3,6 @@ using Godot;
 using System;
 
 namespace PianoTrainer.Scripts.GameElements;
-using static TimeUtils;
 
 public abstract partial class NoteTimeline : PianoLayout
 {
@@ -13,7 +12,7 @@ public abstract partial class NoteTimeline : PianoLayout
     protected static readonly GSettings settings = GameSettings.Instance.Settings;
     protected static readonly PlayerSettings playerSettings = GameSettings.Instance.PlayerSettings;
 
-    protected int timeSpan = 5;
+    protected int timeSpan = 4000;
     protected int timelineOffset = 0;
     private int step = 500;
 
@@ -60,7 +59,7 @@ public abstract partial class NoteTimeline : PianoLayout
     protected bool IsNoteVisible(int timeMs)
     {
         var visionTimeStart = musicPlayer.TimeMilis + timelineOffset;
-        var visionTimeEnd = visionTimeStart + timeSpan * SecondsToMs;
+        var visionTimeEnd = visionTimeStart + timeSpan;
 
         return visionTimeStart <= timeMs && timeMs <= visionTimeEnd;
     }

@@ -17,10 +17,8 @@ public partial class BeatDividedTimeline : NoteTimeline
     public override void _Ready()
     {
         base._Ready();
-        double beatTime = BPM2BeatTime(musicPlayer.Bpm);
 
-        int timespan = playerSettings.Timespan;
-        int beatsInTimespan = Mathf.CeilToInt(timespan / beatTime);
+        int beatsInTimespan = Mathf.CeilToInt(timeSpan * MsToSeconds / musicPlayer.BeatTime);
 
         for (int i = 0; i < beatsInTimespan; i++)
         {
@@ -41,14 +39,13 @@ public partial class BeatDividedTimeline : NoteTimeline
     {
         float currentTime = (musicPlayer.TimeMilis + timelineOffset) * MsToSeconds;
 
-        float beatTime = (float)BPM2BeatTime(musicPlayer.Bpm);
+        float beatTime = (float)musicPlayer.BeatTime;
 
         float offsetToNextTempoLine = currentTime % beatTime;
-        int timespan = playerSettings.Timespan;
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / timespan * Size.Y;
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / timeSpan * Size.Y;
 
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));

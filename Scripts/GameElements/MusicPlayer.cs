@@ -37,6 +37,7 @@ public class MusicPlayer
     public float TimeSinceLastKey { get; private set; } = 0;
 
     public double Bpm { get; private set; } = 0;
+    public double BeatTime { get; private set; } = 0;
 
     public MusicPlayerState State { get; private set; } = new();
 
@@ -73,6 +74,7 @@ public class MusicPlayer
         TimeSinceLastKey = 0;
 
         Bpm = music.Bpm;
+        BeatTime = music.BeatTime;
     }
 
     public void Play()
