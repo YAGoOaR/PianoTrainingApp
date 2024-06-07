@@ -9,7 +9,7 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws notes that user has to press
-public partial class FallingNotes : BeatDividedTimeline
+public partial class FallingNotes : MusicTimeline
 {
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
@@ -155,7 +155,7 @@ public partial class FallingNotes : BeatDividedTimeline
         var allNoteGroups = musicPlayer.Notes;
 
         var currentGroup = Mathf.Max(musicPlayer.State.Group, 0);
-        var currentTime = musicPlayer.TimeMilis + scrollTimeMs;
+        var currentTime = musicPlayer.TimeMilis + scroll.TimeMs;
 
         var selectedGroups = allNoteGroups
             .SkipWhile(g => g.Time + g.MaxDuration < currentTime)
@@ -170,7 +170,7 @@ public partial class FallingNotes : BeatDividedTimeline
         var notesToAdd = newNotes.Where(g => !(currentNotes.ContainsKey(g.Key) || completedNotes.ContainsKey(g.Key)));
         foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
 
-        var currentTime = musicPlayer.TimeMilis + scrollTimeMs;
+        var currentTime = musicPlayer.TimeMilis + scroll.TimeMs;
 
         var notesToComplete = currentNotes.Where(pair => !newNotes.ContainsKey(pair.Key) || pair.Value.Time < currentTime);
         foreach (var group in notesToComplete) CompleteNoteGroup(group.Key);
@@ -183,11 +183,19 @@ public partial class FallingNotes : BeatDividedTimeline
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scrollTimeMs) / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scroll.TimeMs) / timeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);
             }
         }
+    }
+
+    protected bool IsNoteVisible(int timeMs)
+    {
+        var visionTimeStart = musicPlayer.TimeMilis + scroll.TimeMs;
+        var visionTimeEnd = visionTimeStart + timeSpan;
+
+        return visionTimeStart <= timeMs && timeMs <= visionTimeEnd;
     }
 }

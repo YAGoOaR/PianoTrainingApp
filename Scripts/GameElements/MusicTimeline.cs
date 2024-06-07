@@ -5,8 +5,12 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws lines that visualize each beat on the music timeline
-public partial class BeatDividedTimeline : NoteTimeline
+public partial class MusicTimeline : PianoLayout
 {
+    protected static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    protected readonly int timeSpan = GameSettings.Instance.PlayerSettings.Timespan;
+    protected readonly Scroll scroll = new();
+
     [Export] private Color lineColor;
     [Export] private int LineWidth = 2;
 
@@ -38,7 +42,7 @@ public partial class BeatDividedTimeline : NoteTimeline
     public override void _Process(double delta)
     {
         base._Process(delta);
-        float currentTime = (musicPlayer.TimeMilis + scrollTimeMs) * MsToSeconds;
+        float currentTime = (musicPlayer.TimeMilis + scroll.TimeMs) * MsToSeconds;
 
         float beatTime = (float)musicPlayer.BeatTime;
 
