@@ -1,9 +1,9 @@
 
 using Godot;
 using PianoTrainer.Scripts.Devices;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.MusicNotes;
 using System.Collections.Generic;
-using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
+using static PianoTrainer.Scripts.MusicNotes.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 

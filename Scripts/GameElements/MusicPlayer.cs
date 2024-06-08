@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.MusicNotes;
 
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;

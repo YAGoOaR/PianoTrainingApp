@@ -1,5 +1,4 @@
-
-namespace PianoTrainer.Scripts.PianoInteraction;
+namespace PianoTrainer.Scripts.MusicNotes;
 
 public static class PianoKeys
 {

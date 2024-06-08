@@ -1,4 +1,5 @@
 ﻿
+using PianoTrainer.Scripts.MusicNotes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

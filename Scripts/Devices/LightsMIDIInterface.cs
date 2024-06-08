@@ -1,6 +1,6 @@
 ﻿
 using Commons.Music.Midi;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.MusicNotes;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
