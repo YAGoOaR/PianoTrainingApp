@@ -39,21 +39,15 @@ public partial class FallingNotes : PianoLayout
                 note.Rect.QueueFree();
             }
         }
-
         currentNotes.Clear();
     }
 
     private Note CreateNote(NotePress note)
     {
         var (midiIndex, duration) = note;
-
         var key = MIDIIndexToPianoKey(midiIndex);
-
-        var black = IsBlack(key);
-
         var noteSizeY = duration / scroll.TimeSpan * Size.Y;
-
-        var frame = NoteFrames[key];
+        var black = IsBlack(key);
 
         var rect = new Panel()
         {
@@ -61,6 +55,7 @@ public partial class FallingNotes : PianoLayout
             Theme = black ? themeBlackKey : themeWhiteKey,
         };
 
+        var frame = NoteFrames[key];
         frame.AddChild(rect);
 
         rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -84,48 +79,53 @@ public partial class FallingNotes : PianoLayout
         return new Note(key, rect, duration, noteSizeY);
     }
 
-    private void AddNoteGroup(int groupIndex, TimedNoteGroup group)
+    private void AddNotes(Dictionary<int, TimedNoteGroup> notes)
     {
-        if (currentNotes.ContainsKey(groupIndex))
+        foreach (var (groupIndex, group) in notes)
         {
-            throw new System.Exception("Group already exists!");
+            if (currentNotes.ContainsKey(groupIndex))
+            {
+                throw new System.Exception("Group already exists!");
+            }
+
+            List<Note> newNotes = [];
+
+            foreach (var k in group.Notes)
+            {
+                newNotes.Add(CreateNote(k));
+            }
+
+            var time = group.Time;
+
+            currentNotes[groupIndex] = new(time, newNotes, group.MaxDuration);
         }
-
-        List<Note> newNotes = [];
-
-        foreach (var k in group.Notes)
-        {
-            newNotes.Add(CreateNote(k));
-        }
-
-        var time = group.Time;
-
-        currentNotes[groupIndex] = new(time, newNotes, group.MaxDuration);
     }
 
-    private void CompleteNoteGroup(int groupIndex)
+    private void HideNotes(IEnumerable<Note> notes)
     {
-        var noteGroup = currentNotes[groupIndex];
-
-        completedNotes[groupIndex] = noteGroup;
-
-        foreach (var note in noteGroup.Notes)
+        foreach (var note in notes)
         {
             note.Rect.Modulate = transparentColor;
         }
-
-        currentNotes.Remove(groupIndex);
     }
 
-    private void DeleteNoteGroup(int groupIndex)
+    private void CompleteNotes(IEnumerable<NoteGroup> groups)
     {
-        var noteGroup = completedNotes[groupIndex];
-
-        foreach (var note in noteGroup.Notes)
+        foreach (var group in groups)
         {
-            note.Rect.QueueFree();
+            completedNotes[group.Time] = group;
+            HideNotes(group.Notes);
+            currentNotes.Remove(group.Time);
         }
-        completedNotes.Remove(groupIndex);
+    }
+
+    private void DeleteNotes(IEnumerable<NoteGroup> groups)
+    {
+        foreach (var noteGroup in groups)
+        {
+            foreach (var note in noteGroup.Notes) note.Rect.QueueFree();
+            completedNotes.Remove(noteGroup.Time);
+        }
     }
 
     private void ResetCompletedNotes()
@@ -167,16 +167,21 @@ public partial class FallingNotes : PianoLayout
 
     private void UpdateNotes(Dictionary<int, TimedNoteGroup> newNotes)
     {
-        var notesToAdd = newNotes.Where(g => !(currentNotes.ContainsKey(g.Key) || completedNotes.ContainsKey(g.Key)));
-        foreach (var group in notesToAdd) AddNoteGroup(group.Key, group.Value);
+        var notesToAdd = newNotes.Where(g => !(currentNotes.ContainsKey(g.Key) || completedNotes.ContainsKey(g.Key))).ToDictionary();
+        AddNotes(notesToAdd);
 
         var currentTime = musicPlayer.TimeMilis + scroll.TimeMs;
 
-        var notesToComplete = currentNotes.Where(pair => !newNotes.ContainsKey(pair.Key) || pair.Value.Time < currentTime);
-        foreach (var group in notesToComplete) CompleteNoteGroup(group.Key);
+        var notesToComplete = currentNotes
+            .Where(pair => !newNotes.ContainsKey(pair.Key) || pair.Value.Time < currentTime)
+            .ToDictionary();
 
-        var notesToDelete = completedNotes.Values.Where(g => IsNoteVisible(g.Time) || !IsNoteVisible(g.Time + g.MaxDuration));
-        foreach (var group in notesToDelete) DeleteNoteGroup(group.Time);
+        CompleteNotes(notesToComplete.Values);
+
+        var notesToDelete = completedNotes.Values
+            .Where(g => IsNoteVisible(g.Time) || !IsNoteVisible(g.Time + g.MaxDuration));
+
+        DeleteNotes(notesToDelete);
     }
 
     private void UpdateNotePositions()
