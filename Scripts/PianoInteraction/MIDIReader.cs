@@ -42,7 +42,7 @@ public partial class MIDIReader
         Debug.WriteLine(music.DeltaTimeSpec);
 
         var groups = keyMIDIMessages
-            .Select(msg => MidiMsg2TimedNoteMsg(msg, tempo, music.DeltaTimeSpec))
+            .Select(msg => MIDIMessageToTimedNotes(msg, tempo, music.DeltaTimeSpec))
             .ToList()
             .Pipe((messages) => MessagesToPressData(messages, keyAcceptCriteria))
             .Pipe(GroupNotes)
@@ -52,7 +52,7 @@ public partial class MIDIReader
         return new(groups, groups.Last().Time, bpm, beatTime);
     }
 
-    private static TimedNoteMessage MidiMsg2TimedNoteMsg(MidiMessage m, int tempo, int deltaTimeSpec) => new(
+    private static TimedNoteMessage MIDIMessageToTimedNotes(MidiMessage m, int tempo, int deltaTimeSpec) => new(
         Key: m.Event.Msb,
         State: IsNotePressed(m),
         DeltaTime: GetContextDeltaTime(tempo, deltaTimeSpec, m.DeltaTime)

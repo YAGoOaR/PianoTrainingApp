@@ -57,8 +57,8 @@ public partial class Scroll : Control
 
     private static void Pause(bool pause)
     {
-        bool pauseState = musicPlayer.PlayingState != PlayState.Playing;
-        if (pause == pauseState) return;
+        bool alreadyPaused = musicPlayer.PlayingState != PlayState.Playing;
+        if (pause == alreadyPaused) return;
 
         (pause ? (Action)musicPlayer.Pause : musicPlayer.Play)();
         Alerts.Instance.ShowPaused(pause);

@@ -31,15 +31,15 @@ public partial class PianoKeyboard : PianoEffects
     {
         for (byte key = 0; key < KeyboardRange; key++)
         {
-            var holder = NoteFrames[key];
+            var frame = NoteFrames[key];
             bool black = IsBlack(key);
 
             Panel noteRect = new()
             {
                 Theme = GetNoteTheme(black, false),
             };
-            holder.AddChild(noteRect);
-            holder.MoveChild(noteRect, 0);
+            frame.AddChild(noteRect);
+            frame.MoveChild(noteRect, 0);
 
             noteRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
@@ -58,7 +58,7 @@ public partial class PianoKeyboard : PianoEffects
             bool isBlack = IsBlack(key);
 
             bool keyHasEffect = (
-                musicPlayer.State.DesiredKeys.Contains(midiIndex) ||
+                musicPlayer.State.Target.Contains(midiIndex) ||
                 musicPlayer.NonreadyKeys.Contains(midiIndex)
             );
 

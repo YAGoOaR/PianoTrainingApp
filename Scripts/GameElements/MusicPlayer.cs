@@ -18,11 +18,11 @@ public enum PlayState
 
 public struct MusicPlayerState()
 {
-    public HashSet<byte> DesiredKeys { get; set; } = [];
+    public HashSet<byte> Target { get; set; } = [];
     public int NextGroup { get; set; } = 1;
     public int Group { get; set; } = 0;
     public int GroupDeltatime { get; set; } = 0;
-    public int AccumulatedGroupTime { get; set; } = 0;
+    public int AccumulatedTime { get; set; } = 0;
 }
 
 // Handles the music flow and user guidance
@@ -44,7 +44,7 @@ public class MusicPlayer
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
     public float TotalSeconds { get => totalTimeMilis * MS_TO_SEC; }
-    public int TimeMilis { get => State.AccumulatedGroupTime + (int)TimeSinceLastKey; }
+    public int TimeMilis { get => State.AccumulatedTime + (int)TimeSinceLastKey; }
 
     public int TimeToNextKey { get => State.GroupDeltatime - (int)TimeSinceLastKey; }
     public float TimeSinceLastKey { get; private set; } = 0;
@@ -91,8 +91,9 @@ public class MusicPlayer
 
     public void Stop()
     {
-        Pause();
+        PlayingState = PlayState.Stopped;
         State = new();
+        OnStopped.Invoke();
     }
 
     public void SetCursor(int groupIndex)
@@ -102,8 +103,8 @@ public class MusicPlayer
 
         State = new()
         {
-            AccumulatedGroupTime = prevGroup.Time,
-            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
+            AccumulatedTime = prevGroup.Time,
+            Target = group.Notes.Select(x => x.Key).ToHashSet(),
             GroupDeltatime = group.Time - prevGroup.Time,
 
             Group = groupIndex,
@@ -130,8 +131,8 @@ public class MusicPlayer
 
         State = new()
         {
-            AccumulatedGroupTime = prevGroup.Time,
-            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
+            AccumulatedTime = prevGroup.Time,
+            Target = group.Notes.Select(x => x.Key).ToHashSet(),
             GroupDeltatime = group.Time - prevGroup.Time,
 
             Group = State.NextGroup,
@@ -149,7 +150,7 @@ public class MusicPlayer
         if (PlayingState != PlayState.Playing) return;
         NonreadyKeys = NonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
-        if (complete || State.DesiredKeys.Except(pressedKeys.Except(NonreadyKeys)).Any()) return;
+        if (complete || State.Target.Except(pressedKeys.Except(NonreadyKeys)).Any()) return;
 
         complete = true;
         NonreadyKeys = new(pressedKeys);

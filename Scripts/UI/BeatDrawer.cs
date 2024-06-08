@@ -43,11 +43,11 @@ public partial class BeatDrawer : Control
 
         float beatTime = (float)musicPlayer.BeatTime;
 
-        float offsetToNextTempoLine = currentTime % beatTime;
+        float offsetToFirstBeat = currentTime % beatTime;
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / (scroll.TimeSpan * MS_TO_SEC) * Size.Y;
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToFirstBeat) / (scroll.TimeSpan * MS_TO_SEC) * Size.Y;
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));
         }

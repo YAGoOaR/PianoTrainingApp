@@ -41,7 +41,7 @@ public class NoteHints
     {
         lights.Reset();
 
-        List<byte> keys = new(state.DesiredKeys);
+        List<byte> keys = new(state.Target);
 
         Task lightupNotes = LateNotePressHint(keys, musicPlayer.TimeToNextKey);
 

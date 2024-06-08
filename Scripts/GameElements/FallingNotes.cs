@@ -53,7 +53,7 @@ public partial class FallingNotes : PianoLayout
 
         var noteSizeY = duration / scroll.TimeSpan * Size.Y;
 
-        var holder = NoteFrames[key];
+        var frame = NoteFrames[key];
 
         var rect = new Panel()
         {
@@ -61,11 +61,11 @@ public partial class FallingNotes : PianoLayout
             Theme = black ? themeBlackKey : themeWhiteKey,
         };
 
-        holder.AddChild(rect);
+        frame.AddChild(rect);
 
         rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        rect.SetDeferred(Control.PropertyName.Size, new Vector2(holder.Size.X + NOTE_BORDER, noteSizeY));
+        rect.SetDeferred(Control.PropertyName.Size, new Vector2(frame.Size.X + NOTE_BORDER, noteSizeY));
 
         var txt = new Label()
         {

@@ -17,14 +17,14 @@ public partial class PianoEffects : PianoLayout
 
         for (byte key = 0; key < KeyboardRange; key++)
         {
-            var holder = NoteFrames[key];
+            var frame = NoteFrames[key];
 
             GpuParticles2D particles = (GpuParticles2D)effect.Instantiate();
 
-            particles.Position = holder.Size.X / 2 * Vector2.Right;
+            particles.Position = frame.Size.X / 2 * Vector2.Right;
             particles.Emitting = false;
 
-            holder.AddChild(particles);
+            frame.AddChild(particles);
 
             effects.Add(particles);
         }
