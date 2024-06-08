@@ -3,6 +3,8 @@
 /player_settings.json
 /Build
 /Properties
+/.husky
+/.config
 
 ### Godot ###
 # Godot 4+ specific ignores

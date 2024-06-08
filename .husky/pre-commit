@@ -1,4 +1,0 @@
-#!/bin/sh
-echo 'Using dotnet formatter'
-dotnet format PianoTrainer.sln
-git add .
