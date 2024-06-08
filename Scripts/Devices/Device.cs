@@ -11,9 +11,9 @@ public abstract class Device<T> where T : IMidiPort
 {
     protected static readonly GSettings settings = GameSettings.Instance.Settings;
 
-    public event Action OnDisconnect;
-
     private static readonly List<Device<T>> devices = [];
+
+    public event Action OnDisconnect;
 
     public Device()
     {

@@ -8,9 +8,9 @@ namespace PianoTrainer.Scripts.Devices;
 // Holds connection with the piano by sending corresponding message
 internal class KeyboardConnectionHolder(LightsMIDIInterface lights, Action onDisconnected)
 {
-    private readonly TaskCompletionSource stopSignal = new();
+    private const int UPDATE_PERIOD = 50;
 
-    private const int period = 50;
+    private readonly TaskCompletionSource stopSignal = new();
 
     public void StartLoop()
     {
@@ -28,7 +28,7 @@ internal class KeyboardConnectionHolder(LightsMIDIInterface lights, Action onDis
                 onDisconnected();
                 return;
             }
-            Thread.Sleep(period);
+            Thread.Sleep(UPDATE_PERIOD);
         }
     }
 

@@ -9,7 +9,7 @@ namespace PianoTrainer.Scripts.Devices;
 // Base class for input and output MIDI ports
 public abstract class IOPort<T>(string portName) where T : IMidiPort
 {
-    private const int waitTime = 1000;
+    private const int PORT_UPDATE_TIME = 1000;
 
     protected IMidiPort port = null;
 
@@ -35,7 +35,7 @@ public abstract class IOPort<T>(string portName) where T : IMidiPort
             Debug.WriteLine($"Waiting for device to be available.");
 
             while (!GetPort(portName, out details))
-                await Task.Delay(waitTime);
+                await Task.Delay(PORT_UPDATE_TIME);
         }
 
         return details;

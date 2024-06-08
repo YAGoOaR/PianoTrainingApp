@@ -6,11 +6,15 @@ using PianoTrainer.Scripts.PianoInteraction;
 using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
-using static TimeUtils;
+
+public record Note(byte Key, Panel Rect, int Duration, float Height);
+public record NoteGroup(int Time, List<Note> Notes, int MaxDuration);
 
 // Draws notes that user has to press
 public partial class FallingNotes : PianoLayout
 {
+    private const int NOTE_BORDER = 8;
+
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     [Export] private PianoKeyboard piano;
@@ -23,15 +27,8 @@ public partial class FallingNotes : PianoLayout
 
     [Export] private Color transparentColor = new(1f, 1f, 1f, 0.6f);
 
-    private Font textFont;
-
-    private record Note(byte Key, Panel Rect, int Duration, float Height);
-    private record NoteGroup(int Time, List<Note> Notes, int MaxDuration);
-
     private readonly Dictionary<int, NoteGroup> currentNotes = [];
     private readonly Dictionary<int, NoteGroup> completedNotes = [];
-
-    private int noteAdditionalWidth = 8;
 
     public void Clear()
     {
@@ -68,11 +65,11 @@ public partial class FallingNotes : PianoLayout
 
         rect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
-        rect.SetDeferred(Control.PropertyName.Size, new Vector2(holder.Size.X + noteAdditionalWidth, noteSizeY));
+        rect.SetDeferred(Control.PropertyName.Size, new Vector2(holder.Size.X + NOTE_BORDER, noteSizeY));
 
         var txt = new Label()
         {
-            Text = KeyLabelsLatin[key % keysInOctave],
+            Text = KeyLabelsLatin[key % KEYS_IN_OCTAVE],
             Theme = fontTheme,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,

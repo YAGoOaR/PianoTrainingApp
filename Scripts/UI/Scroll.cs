@@ -7,28 +7,26 @@ using static TimeUtils;
 
 public partial class Scroll : Control
 {
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+
     public float TimeMs { get; private set; } = 0;
     public float TimeSpan { get; private set; } = GameSettings.Instance.PlayerSettings.Timespan;
 
-    public static MusicPlayerState PlayerState { get => musicPlayer.State; }
-
-    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    [Export] private float scrollDamping = 3f;
+    [Export] private float epsilon = 0.01f;
+    [Export] private float minFriction = 2.5f;
+    [Export] private float scrollAcceleration = 1f;
 
     private float scrollVeclocity = 0;
 
-    private const float scrollDamping = 3f;
-    private const float epsilon = 0.01f;
-    private const float minFriction = 2.5f;
-    private const float scrollAcceleration = 1f;
-
-    private static float ScrollFriction(float speed) => scrollDamping / (Mathf.Abs(speed) + epsilon) + minFriction;
+    private float ScrollFriction(float speed) => scrollDamping / (Mathf.Abs(speed) + epsilon) + minFriction;
 
     public override void _Process(double delta)
     {
         float deltaTime = (float)delta;
         float acceletation = scrollVeclocity * deltaTime;
         scrollVeclocity = (scrollVeclocity + acceletation) * (1 - Mathf.Min(ScrollFriction(scrollVeclocity) * deltaTime, 1));
-        TimeMs += scrollVeclocity * deltaTime * SecondsToMs;
+        TimeMs += scrollVeclocity * deltaTime * SEC_TO_MS;
     }
 
     public override void _Input(InputEvent @event)

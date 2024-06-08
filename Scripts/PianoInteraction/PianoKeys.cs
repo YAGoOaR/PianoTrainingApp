@@ -5,8 +5,8 @@ public static class PianoKeys
 {
     private static readonly GSettings settings = GameSettings.Instance.Settings;
 
-    public const byte keysInOctave = 12;
-    public const byte octaveWhites = 7;
+    public const byte KEYS_IN_OCTAVE = 12;
+    public const byte OCTAVE_WHITES = 7;
 
     public static readonly string[] KeyLabelsLatin =
     [
@@ -45,7 +45,7 @@ public static class PianoKeys
     /// </summary>
     /// <param name="idx">Midi key index.</param>
     /// <returns>True if the piano key is black, otherwise false.</returns>
-    public static bool IsBlack(byte idx) => (idx % keysInOctave) switch
+    public static bool IsBlack(byte idx) => (idx % KEYS_IN_OCTAVE) switch
     {
         1 or 3 or 6 or 8 or 10 => true,
         _ => false,

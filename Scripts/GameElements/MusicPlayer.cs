@@ -28,9 +28,22 @@ public struct MusicPlayerState()
 // Handles the music flow and user guidance
 public class MusicPlayer
 {
+    public static MusicPlayer Instance
+    {
+        get
+        {
+            instance ??= new();
+            return instance;
+        }
+    }
+
+    private static MusicPlayer instance;
+
+    public event Action<MusicPlayerState> OnTargetChanged;
+    public event Action OnStopped;
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
-    public float TotalSeconds { get => totalTimeMilis * MsToSeconds; }
+    public float TotalSeconds { get => totalTimeMilis * MS_TO_SEC; }
     public int TimeMilis { get => State.AccumulatedGroupTime + (int)TimeSinceLastKey; }
 
     public int TimeToNextKey { get => State.GroupDeltatime - (int)TimeSinceLastKey; }
@@ -41,24 +54,11 @@ public class MusicPlayer
 
     public MusicPlayerState State { get; private set; } = new();
 
-    public event Action<MusicPlayerState> OnTargetChanged;
-    public event Action OnStopped;
-
     private int totalTimeMilis = 0;
     public HashSet<byte> NonreadyKeys { get; private set; } = [];
     private bool complete = false;
 
     public PlayState PlayingState { get; private set; } = PlayState.Stopped;
-
-    private static MusicPlayer instance;
-    public static MusicPlayer Instance
-    {
-        get
-        {
-            instance ??= new();
-            return instance;
-        }
-    }
 
     private MusicPlayer() { }
 
@@ -161,6 +161,6 @@ public class MusicPlayer
     public void Update(float dT)
     {
         if (PlayingState != PlayState.Playing) return;
-        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SecondsToMs, State.GroupDeltatime);
+        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SEC_TO_MS, State.GroupDeltatime);
     }
 }

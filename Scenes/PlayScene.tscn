@@ -117,13 +117,24 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 split_offset = 80
-dragger_visibility = 1
+dragger_visibility = 2
 
 [node name="Scroll" type="Control" parent="Game/VSplitContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.39
 script = ExtResource("3_j5ahw")
+
+[node name="BeatDrawer" type="Control" parent="Game/VSplitContainer/Scroll" node_paths=PackedStringArray("scroll")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("10_xkhkd")
+scroll = NodePath("..")
+lineColor = Color(0.404511, 0.404511, 0.404511, 1)
 
 [node name="FallingNotes" type="Control" parent="Game/VSplitContainer/Scroll" node_paths=PackedStringArray("piano", "progressBar", "scroll")]
 layout_mode = 1
@@ -139,17 +150,6 @@ fontTheme = ExtResource("7_gxgea")
 themeWhiteKey = ExtResource("10_dk06m")
 themeBlackKey = ExtResource("8_k24y3")
 scroll = NodePath("..")
-
-[node name="BeatDrawer" type="Control" parent="Game/VSplitContainer/Scroll" node_paths=PackedStringArray("scroll")]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("10_xkhkd")
-scroll = NodePath("..")
-lineColor = Color(0.404511, 0.404511, 0.404511, 1)
 
 [node name="Piano" type="ReferenceRect" parent="Game/VSplitContainer"]
 layout_mode = 2

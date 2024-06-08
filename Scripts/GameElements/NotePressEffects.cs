@@ -7,9 +7,9 @@ namespace PianoTrainer.Scripts.GameElements;
 // Adds a sparkling effect to the piano keys
 public partial class PianoEffects : PianoLayout
 {
-    [Export] private PackedScene effect;
-
     protected readonly List<GpuParticles2D> effects = [];
+
+    [Export] private PackedScene effect;
 
     public override void _Ready()
     {

@@ -4,6 +4,18 @@ using System.Text.Json;
 
 namespace PianoTrainer.Scripts;
 
+// General settings
+public class GSettings()
+{
+    public string MusicFolderPath { get; set; } = "";
+    public string MusicPath { get; set; } = "";
+    public string PianoDeviceName { get; set; } = "CASIO USB-MIDI";
+    public bool Autoretry { get; set; } = true;
+    public byte PianoKeyCount { get; } = 61;
+    public byte PianoMinMIDIKey { get; } = 36;
+    public byte PianoMaxMIDIKey { get => (byte)(PianoMinMIDIKey + PianoKeyCount); }
+}
+
 // Music flow parameters
 public class PlayerSettings()
 {
@@ -16,18 +28,6 @@ public class PlayerSettings()
     public int Timespan { get; } = 4000;
     public int DefaultTempo { get; } = 500000;
     public int StartBeatsOffset { get; } = 4;
-}
-
-// General settings
-public class GSettings()
-{
-    public string MusicFolderPath { get; set; } = "";
-    public string MusicPath { get; set; } = "";
-    public string PianoDeviceName { get; set; } = "CASIO USB-MIDI";
-    public bool Autoretry { get; set; } = true;
-    public byte PianoKeyCount { get; } = 61;
-    public byte PianoMinMIDIKey { get; } = 36;
-    public byte PianoMaxMIDIKey { get => (byte)(PianoMinMIDIKey + PianoKeyCount); }
 }
 
 // Manages all settings

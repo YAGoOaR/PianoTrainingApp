@@ -10,9 +10,9 @@ public abstract partial class PianoLayout : Control
     private static readonly GSettings settings = GameSettings.Instance.Settings;
 
     public static int KeyboardRange { get => settings.PianoKeyCount; }
-    private static int WhiteKeyCount { get => KeyboardRange / keysInOctave * octaveWhites + 1; }
+    private static int WhiteKeyCount { get => KeyboardRange / KEYS_IN_OCTAVE * OCTAVE_WHITES + 1; }
 
-    public static Vector2 BlackRatio { get; } = new(1 / 2f, 2 / 3f);
+    private static Vector2 BlackRatio { get; } = new(1 / 2f, 2 / 3f);
 
     private static readonly float leftKeyOffset = 1 - BlackRatio.X * 2 / 3;
     private static readonly float midKeyOffset = 1 - BlackRatio.X / 2;
@@ -52,13 +52,13 @@ public abstract partial class PianoLayout : Control
 
     public static int GetWhiteIndex(byte key)
     {
-        var keyInOctave = key % keysInOctave;
-        var octave = (key - keyInOctave) / keysInOctave;
+        var keyInOctave = key % KEYS_IN_OCTAVE;
+        var octave = (key - keyInOctave) / KEYS_IN_OCTAVE;
 
-        return octave * octaveWhites + GetWhiteKeyIndex(keyInOctave);
+        return octave * OCTAVE_WHITES + GetWhiteKeyIndex(keyInOctave);
     }
 
-    private static float GetOffset(byte key) => (key % keysInOctave) switch
+    private static float GetOffset(byte key) => (key % KEYS_IN_OCTAVE) switch
     {
         1 or 6 => leftKeyOffset,
         3 or 10 => rightKeyOffset,

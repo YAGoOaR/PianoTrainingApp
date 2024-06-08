@@ -37,7 +37,7 @@ public partial class MIDIReader
 
         var (keyMIDIMessages, tempo, bpm) = SetupMetadata(allMessages);
         var beatTime = BPM2BeatTime(bpm);
-        var startOffset = Mathf.RoundToInt(beatTime * settings.PlayerSettings.StartBeatsOffset * SecondsToMs);
+        var startOffset = Mathf.RoundToInt(beatTime * settings.PlayerSettings.StartBeatsOffset * SEC_TO_MS);
 
         Debug.WriteLine(music.DeltaTimeSpec);
 

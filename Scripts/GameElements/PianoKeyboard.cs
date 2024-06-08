@@ -10,15 +10,14 @@ namespace PianoTrainer.Scripts.GameElements;
 // Piano key setup and visualizing key state changes
 public partial class PianoKeyboard : PianoEffects
 {
-    [Export] private Theme[] themes;
-
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     public float NoteGap { get; private set; } = 0;
 
-    readonly List<Panel> noteRects = [];
+    [Export] private Theme[] themes;
 
-    readonly Queue<NoteMessage> changes = [];
+    private readonly List<Panel> noteRects = [];
+    private readonly Queue<NoteMessage> changes = [];
 
     public override void _Ready()
     {
