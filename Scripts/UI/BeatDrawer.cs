@@ -8,8 +8,8 @@ using static TimeUtils;
 public partial class BeatDrawer : Control
 {
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private static readonly PlayerSettings settings = GameSettings.Instance.PlayerSettings;
 
-    [Export] private Scroll scroll;
     [Export] private Color lineColor;
     [Export] private int LineWidth = 2;
 
@@ -19,7 +19,7 @@ public partial class BeatDrawer : Control
     {
         base._Ready();
 
-        int beatsInTimespan = Mathf.CeilToInt(scroll.TimeSpan * MS_TO_SEC / musicPlayer.BeatTime);
+        int beatsInTimespan = Mathf.CeilToInt(settings.TimeSpan * MS_TO_SEC / musicPlayer.BeatTime);
 
         for (int i = 0; i < beatsInTimespan; i++)
         {
@@ -39,7 +39,7 @@ public partial class BeatDrawer : Control
     public override void _Process(double delta)
     {
         base._Process(delta);
-        float currentTime = (musicPlayer.TimeMilis + scroll.TimeMs) * MS_TO_SEC;
+        float currentTime = (musicPlayer.TimeMilis) * MS_TO_SEC;
 
         float beatTime = (float)musicPlayer.BeatTime;
 
@@ -47,7 +47,7 @@ public partial class BeatDrawer : Control
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i + 1) * beatTime - offsetToFirstBeat) / (scroll.TimeSpan * MS_TO_SEC) * Size.Y;
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToFirstBeat) / (settings.TimeSpan * MS_TO_SEC) * Size.Y;
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));
         }

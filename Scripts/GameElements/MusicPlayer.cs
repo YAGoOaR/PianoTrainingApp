@@ -43,8 +43,9 @@ public class MusicPlayer
     public event Action OnStopped;
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
+    public float ScrollMs { get; set; } = 0;
     public float TotalSeconds { get => totalTimeMilis * MS_TO_SEC; }
-    public int TimeMilis { get => State.AccumulatedTime + (int)TimeSinceLastKey; }
+    public float TimeMilis { get => State.AccumulatedTime + (int)TimeSinceLastKey + ScrollMs; }
 
     public int TimeToNextKey { get => State.GroupDeltatime - (int)TimeSinceLastKey; }
     public float TimeSinceLastKey { get; private set; } = 0;

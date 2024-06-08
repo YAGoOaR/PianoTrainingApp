@@ -16,6 +16,7 @@ public partial class FallingNotes : PianoLayout
     private const int NOTE_BORDER = 8;
 
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+    private static readonly PlayerSettings settings = GameSettings.Instance.PlayerSettings;
 
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
@@ -23,7 +24,6 @@ public partial class FallingNotes : PianoLayout
     [Export] private Theme fontTheme;
     [Export] private Theme themeWhiteKey;
     [Export] private Theme themeBlackKey;
-    [Export] private Scroll scroll;
 
     [Export] private Color transparentColor = new(1f, 1f, 1f, 0.6f);
 
@@ -46,7 +46,7 @@ public partial class FallingNotes : PianoLayout
     {
         var (midiIndex, duration) = note;
         var key = MIDIIndexToPianoKey(midiIndex);
-        var noteSizeY = duration / scroll.TimeSpan * Size.Y;
+        var noteSizeY = duration / settings.TimeSpan * Size.Y;
         var black = IsBlack(key);
 
         var rect = new Panel()
@@ -155,11 +155,11 @@ public partial class FallingNotes : PianoLayout
         var allNoteGroups = musicPlayer.Notes;
 
         var currentGroup = Mathf.Max(musicPlayer.State.Group, 0);
-        var currentTime = musicPlayer.TimeMilis + scroll.TimeMs;
+        var currentTime = musicPlayer.TimeMilis;
 
         var selectedGroups = allNoteGroups
             .SkipWhile(g => g.Time + g.MaxDuration < currentTime)
-            .TakeWhile(g => g.Time < currentTime + scroll.TimeSpan)
+            .TakeWhile(g => g.Time < currentTime + settings.TimeSpan)
             .ToDictionary(el => el.Time, el => el);
 
         return selectedGroups;
@@ -170,7 +170,7 @@ public partial class FallingNotes : PianoLayout
         var notesToAdd = newNotes.Where(g => !(currentNotes.ContainsKey(g.Key) || completedNotes.ContainsKey(g.Key))).ToDictionary();
         AddNotes(notesToAdd);
 
-        var currentTime = musicPlayer.TimeMilis + scroll.TimeMs;
+        var currentTime = musicPlayer.TimeMilis;
 
         var notesToComplete = currentNotes
             .Where(pair => !newNotes.ContainsKey(pair.Key) || pair.Value.Time < currentTime)
@@ -188,7 +188,7 @@ public partial class FallingNotes : PianoLayout
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scroll.TimeMs) / scroll.TimeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis) / settings.TimeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);
@@ -198,8 +198,8 @@ public partial class FallingNotes : PianoLayout
 
     protected bool IsNoteVisible(int timeMs)
     {
-        var visionTimeStart = musicPlayer.TimeMilis + scroll.TimeMs;
-        var visionTimeEnd = visionTimeStart + scroll.TimeSpan;
+        var visionTimeStart = musicPlayer.TimeMilis;
+        var visionTimeEnd = visionTimeStart + settings.TimeSpan;
 
         return visionTimeStart <= timeMs && timeMs <= visionTimeEnd;
     }
