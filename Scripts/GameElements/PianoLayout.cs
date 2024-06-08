@@ -22,6 +22,20 @@ public abstract partial class PianoLayout : Control
 
     public override void _Ready()
     {
+        for (byte key = 0; key < KeyboardRange; key++)
+        {
+            bool black = IsBlack(key);
+
+            Control note = new() { ZIndex = black ? ZIndex : ZIndex - 1 };
+            AddChild(note);
+
+            NoteFrames.Add(note);
+        }
+        Resized += Resize;
+    }
+
+    private void Resize()
+    {
         Vector2 WhiteSize = new(Size.X / WhiteKeyCount, Size.Y);
         Vector2 BlackSize = WhiteSize * BlackRatio;
 
@@ -29,15 +43,10 @@ public abstract partial class PianoLayout : Control
         {
             bool black = IsBlack(key);
 
-            Control note = new()
-            {
-                Position = (GetWhiteIndex(key) + GetOffset(key)) * Vector2.Right * WhiteSize.X,
-                Size = black ? BlackSize : WhiteSize,
-                ZIndex = black ? ZIndex : ZIndex - 1,
-            };
-            AddChild(note);
+            var note = NoteFrames[key];
 
-            NoteFrames.Add(note);
+            note.Position = (GetWhiteIndex(key) + GetOffset(key)) * Vector2.Right * WhiteSize.X;
+            note.Size = black ? BlackSize : WhiteSize;
         }
     }
 

@@ -117,6 +117,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 split_offset = 80
+dragger_visibility = 1
 
 [node name="Scroll" type="Control" parent="Game/VSplitContainer"]
 layout_mode = 2
