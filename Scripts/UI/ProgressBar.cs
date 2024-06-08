@@ -9,9 +9,9 @@ public partial class ProgressBar : Control
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
     [Export] private Label progressLabel;
-    [Export] private ColorRect progressRect;
+    [Export] private Panel progressPanel;
 
-    private void SetProgressRectBounds(ColorRect rect, float tStart, float tEnd, float totalTime)
+    private void SetProgressRectBounds(Panel rect, float tStart, float tEnd, float totalTime)
     {
         rect.Position = new(Size.X * tStart / totalTime, 0);
         rect.Size = new(Size.X * (tEnd - tStart) / totalTime, Size.Y);
@@ -19,7 +19,7 @@ public partial class ProgressBar : Control
 
     public void SetProgress(float time)
     {
-        SetProgressRectBounds(progressRect, 0, time, musicPlayer.TotalSeconds);
+        SetProgressRectBounds(progressPanel, 0, time, musicPlayer.TotalSeconds);
     }
 
     public override void _Process(double delta)

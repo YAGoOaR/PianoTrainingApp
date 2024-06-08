@@ -46,7 +46,7 @@ public partial class FallingNotes : PianoLayout
     {
         var (midiIndex, duration) = note;
         var key = MIDIIndexToPianoKey(midiIndex);
-        var noteSizeY = duration / settings.TimeSpan * Size.Y;
+        var noteSizeY = duration / (float)settings.TimeSpan * Size.Y;
         var black = IsBlack(key);
 
         var rect = new Panel()

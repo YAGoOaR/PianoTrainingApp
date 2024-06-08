@@ -34,7 +34,7 @@ public abstract partial class PianoLayout : Control
         Resized += Resize;
     }
 
-    private void Resize()
+    protected virtual void Resize()
     {
         Vector2 WhiteSize = new(Size.X / WhiteKeyCount, Size.Y);
         Vector2 BlackSize = WhiteSize * BlackRatio;

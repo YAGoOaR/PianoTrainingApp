@@ -6,9 +6,9 @@ namespace PianoTrainer.Scripts.GameElements;
 // Alerts that popup using in-game windows
 public partial class Alerts : Control
 {
-    [Export] private Window deviceDisconnectedPanel;
-    [Export] private Window waitingForDevicePanel;
-    [Export] private Window pausedPanel;
+    [Export] private Panel deviceDisconnectedPanel;
+    [Export] private Panel waitingForDevicePanel;
+    [Export] private Panel pausedPanel;
 
     public static Alerts Instance { get; private set; }
     public override void _Ready()
@@ -16,7 +16,7 @@ public partial class Alerts : Control
         Instance = this;
     }
 
-    static Action<bool> WindowToggler(Window window) => (bool show) => window.CallDeferred(show ? Window.MethodName.Show : Window.MethodName.Hide);
+    static Action<bool> WindowToggler(Panel panel) => (bool show) => panel.CallDeferred(show ? CanvasItem.MethodName.Show : CanvasItem.MethodName.Hide);
     public void ShowDisconnected(bool show) => WindowToggler(deviceDisconnectedPanel)(show);
     public void ShowWaiting(bool show) => WindowToggler(waitingForDevicePanel)(show);
     public void ShowPaused(bool show) => WindowToggler(pausedPanel)(show);
