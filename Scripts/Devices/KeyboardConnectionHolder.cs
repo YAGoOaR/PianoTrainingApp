@@ -1,4 +1,5 @@
 ﻿
+using Commons.Music.Midi;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 namespace PianoTrainer.Scripts.Devices;
 
 // Holds connection with the piano by sending corresponding message
-internal class KeyboardConnectionHolder(LightsMIDIInterface lights, Action onDisconnected)
+internal class KeyboardConnectionHolder(IMidiOutput lights, Action onDisconnected)
 {
     private const int UPDATE_PERIOD = 50;
 
@@ -19,11 +20,11 @@ internal class KeyboardConnectionHolder(LightsMIDIInterface lights, Action onDis
         holdLoop.Start();
     }
 
-    private void HoldLoop(LightsMIDIInterface lights, TaskCompletionSource stopSignal)
+    private void HoldLoop(IMidiOutput lights, TaskCompletionSource stopSignal)
     {
         while (!stopSignal.Task.IsCompleted)
         {
-            if (!lights.SendHold())
+            if (!LightsMIDIInterface.SendHold(lights))
             {
                 onDisconnected();
                 return;

@@ -150,7 +150,7 @@ public partial class FallingNotes : PianoLayout
         UpdateNotePositions();
     }
 
-    private Dictionary<int, TimedNoteGroup> UpdateTimeline()
+    private static Dictionary<int, TimedNoteGroup> UpdateTimeline()
     {
         var allNoteGroups = musicPlayer.Notes;
 
@@ -196,7 +196,7 @@ public partial class FallingNotes : PianoLayout
         }
     }
 
-    protected bool IsNoteVisible(int timeMs)
+    protected static bool IsNoteVisible(int timeMs)
     {
         var visionTimeStart = musicPlayer.TimeMilis;
         var visionTimeEnd = visionTimeStart + settings.TimeSpan;

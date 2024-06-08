@@ -86,25 +86,23 @@ public sealed class PianoLightsOutputDevice(string deviceName) : OutputDevice(de
 
     private KeyboardConnectionHolder lightsHolder;
 
-    private LightsMIDIInterface lightsInterface;
+    private IMidiOutput piano;
 
     public override async Task Connect()
     {
         if (port.IsConnected) return;
 
-        var portDetails = await port.OpenPort();
-        lightsInterface = new LightsMIDIInterface(portDetails);
+        piano = await port.OpenPort();
         Ligths.KeyChange += OnKeyChange;
-        lightsHolder = new KeyboardConnectionHolder(lightsInterface, OnLightsDisconnect);
+        lightsHolder = new KeyboardConnectionHolder(piano, OnLightsDisconnect);
         lightsHolder.StartLoop();
     }
 
-    private void OnKeyChange(NoteMessage msg) => lightsInterface.SendNoteChange(msg);
+    private void OnKeyChange(NoteMessage msg) => LightsMIDIInterface.SendNoteChange(piano, msg);
 
     public override async Task Stop()
     {
         Ligths.KeyChange -= OnKeyChange;
-        lightsInterface = null;
 
         lightsHolder?.Dispose();
         lightsHolder = null;
