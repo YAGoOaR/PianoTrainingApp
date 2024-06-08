@@ -5,12 +5,11 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws lines that visualize each beat on the music timeline
-public partial class MusicTimeline : PianoLayout
+public partial class BeatDrawer : Control
 {
-    protected static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-    protected readonly int timeSpan = GameSettings.Instance.PlayerSettings.Timespan;
-    protected readonly Scroll scroll = new();
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
+    [Export] private Scroll scroll;
     [Export] private Color lineColor;
     [Export] private int LineWidth = 2;
 
@@ -22,7 +21,7 @@ public partial class MusicTimeline : PianoLayout
     {
         base._Ready();
 
-        int beatsInTimespan = Mathf.CeilToInt(timeSpan * MsToSeconds / musicPlayer.BeatTime);
+        int beatsInTimespan = Mathf.CeilToInt(scroll.TimeSpan * MsToSeconds / musicPlayer.BeatTime);
 
         for (int i = 0; i < beatsInTimespan; i++)
         {
@@ -50,7 +49,7 @@ public partial class MusicTimeline : PianoLayout
 
         for (int i = 0; i < lines.Count; i++)
         {
-            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / (timeSpan * MsToSeconds) * Size.Y;
+            var vPos = Size.Y - ((i + 1) * beatTime - offsetToNextTempoLine) / (scroll.TimeSpan * MsToSeconds) * Size.Y;
             lines[i].SetPointPosition(0, new(0, vPos));
             lines[i].SetPointPosition(1, new(Size.X, vPos));
         }

@@ -5,9 +5,10 @@ using System;
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
-public class Scroll
+public partial class Scroll : Control
 {
     public float TimeMs { get; private set; } = 0;
+    public float TimeSpan { get; private set; } = GameSettings.Instance.PlayerSettings.Timespan;
 
     public static MusicPlayerState PlayerState { get => musicPlayer.State; }
 
@@ -22,7 +23,7 @@ public class Scroll
 
     private static float ScrollFriction(float speed) => scrollDamping / (Mathf.Abs(speed) + epsilon) + minFriction;
 
-    public void Update(double delta)
+    public override void _Process(double delta)
     {
         float deltaTime = (float)delta;
         float acceletation = scrollVeclocity * deltaTime;
@@ -30,7 +31,7 @@ public class Scroll
         TimeMs += scrollVeclocity * deltaTime * SecondsToMs;
     }
 
-    public void OnInput(InputEvent @event)
+    public override void _Input(InputEvent @event)
     {
         if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed)
         {

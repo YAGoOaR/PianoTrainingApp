@@ -9,14 +9,17 @@ namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
 
 // Draws notes that user has to press
-public partial class FallingNotes : MusicTimeline
+public partial class FallingNotes : PianoLayout
 {
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+
     [Export] private PianoKeyboard piano;
     [Export] private ProgressBar progressBar;
 
     [Export] private Theme fontTheme;
     [Export] private Theme themeWhiteKey;
     [Export] private Theme themeBlackKey;
+    [Export] private Scroll scroll;
 
     [Export] private Color transparentColor = new(1f, 1f, 1f, 0.6f);
 
@@ -51,7 +54,7 @@ public partial class FallingNotes : MusicTimeline
 
         var black = IsBlack(key);
 
-        var noteSizeY = duration / (float)timeSpan * Size.Y;
+        var noteSizeY = duration / scroll.TimeSpan * Size.Y;
 
         var holder = NoteFrames[key];
 
@@ -159,7 +162,7 @@ public partial class FallingNotes : MusicTimeline
 
         var selectedGroups = allNoteGroups
             .SkipWhile(g => g.Time + g.MaxDuration < currentTime)
-            .TakeWhile(g => g.Time < currentTime + timeSpan)
+            .TakeWhile(g => g.Time < currentTime + scroll.TimeSpan)
             .ToDictionary(el => el.Time, el => el);
 
         return selectedGroups;
@@ -183,7 +186,7 @@ public partial class FallingNotes : MusicTimeline
     {
         foreach (var (_, noteGroup) in currentNotes.Concat(completedNotes))
         {
-            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scroll.TimeMs) / timeSpan * Size.Y;
+            var verticalPos = (noteGroup.Time - musicPlayer.TimeMilis - scroll.TimeMs) / scroll.TimeSpan * Size.Y;
             foreach (var note in noteGroup.Notes)
             {
                 note.Rect.Position = new Vector2(0, Size.Y - verticalPos - note.Height);
@@ -194,7 +197,7 @@ public partial class FallingNotes : MusicTimeline
     protected bool IsNoteVisible(int timeMs)
     {
         var visionTimeStart = musicPlayer.TimeMilis + scroll.TimeMs;
-        var visionTimeEnd = visionTimeStart + timeSpan;
+        var visionTimeEnd = visionTimeStart + scroll.TimeSpan;
 
         return visionTimeStart <= timeMs && timeMs <= visionTimeEnd;
     }

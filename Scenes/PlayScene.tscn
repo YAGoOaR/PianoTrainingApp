@@ -1,7 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://b8h3lrgadghix"]
+[gd_scene load_steps=19 format=3 uid="uid://b8h3lrgadghix"]
 
 [ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
 [ext_resource type="Script" path="res://Scripts/GameElements/Alerts.cs" id="2_4jih0"]
+[ext_resource type="Script" path="res://Scripts/UI/Scroll.cs" id="3_j5ahw"]
 [ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
 [ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
 [ext_resource type="Script" path="res://Scripts/GameElements/ProgressBar.cs" id="6_t5trx"]
@@ -9,6 +10,7 @@
 [ext_resource type="Theme" uid="uid://cliu30v8gh5n1" path="res://Themes/themeBlackKey.tres" id="8_k24y3"]
 [ext_resource type="Theme" uid="uid://dtjmaoh4kf33q" path="res://Themes/themeWhiteKey.tres" id="10_dk06m"]
 [ext_resource type="StyleBox" uid="uid://dpoerorof6ufy" path="res://Themes/alert_style_box_flat.tres" id="10_tvxw8"]
+[ext_resource type="Script" path="res://Scripts/UI/BeatDrawer.cs" id="10_xkhkd"]
 [ext_resource type="Theme" uid="uid://cl5sn51ecfkxm" path="res://Themes/Key/key_active_black.tres" id="11_6oidt"]
 [ext_resource type="Theme" uid="uid://g5idrlertwwb" path="res://Themes/Key/key_inactive_white.tres" id="11_evqa8"]
 [ext_resource type="Theme" uid="uid://crnyqkpjibv2t" path="res://Themes/Key/key_inactive_black.tres" id="12_idt47"]
@@ -46,7 +48,7 @@ deviceDisconnectedPanel = NodePath("../DeviceDisconnected")
 waitingForDevicePanel = NodePath("../WaitingForDevice")
 pausedPanel = NodePath("../Paused")
 
-[node name="Control" type="Control" parent="."]
+[node name="Game" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -54,47 +56,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="FallingNotes" type="Control" parent="Control" node_paths=PackedStringArray("piano", "progressBar")]
-layout_mode = 1
-anchor_top = 0.048
-anchor_right = 1.0
-anchor_bottom = 0.756
-offset_top = -0.120003
-offset_bottom = -0.640015
+[node name="HBoxContainer" type="HBoxContainer" parent="Game"]
+layout_mode = 2
+offset_right = 2560.0
+offset_bottom = 70.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("5_ga1et")
-piano = NodePath("../Piano")
-progressBar = NodePath("../HBoxContainer/ProgressBar")
-fontTheme = ExtResource("7_gxgea")
-themeWhiteKey = ExtResource("10_dk06m")
-themeBlackKey = ExtResource("8_k24y3")
-lineColor = Color(0.360784, 0.360784, 0.360784, 1)
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.11
 
-[node name="Piano" type="ReferenceRect" parent="Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.756
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -0.640015
-grow_horizontal = 2
-grow_vertical = 0
-border_width = 3.0
-script = ExtResource("4_4ebec")
-themes = Array[Theme]([ExtResource("12_idt47"), ExtResource("11_evqa8"), ExtResource("11_6oidt"), ExtResource("12_mk4eh")])
-effect = ExtResource("16_nvax3")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Control"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -1371.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ProgressBar" type="Control" parent="Control/HBoxContainer" node_paths=PackedStringArray("progressLabel", "progressRect")]
+[node name="ProgressBar" type="Control" parent="Game/HBoxContainer" node_paths=PackedStringArray("progressLabel", "progressRect")]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 11.23
@@ -102,7 +73,7 @@ script = ExtResource("6_t5trx")
 progressLabel = NodePath("Panel/Label")
 progressRect = NodePath("Panel/Progress")
 
-[node name="Panel" type="Panel" parent="Control/HBoxContainer/ProgressBar"]
+[node name="Panel" type="Panel" parent="Game/HBoxContainer/ProgressBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -111,7 +82,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("14_oh4w4")
 
-[node name="Progress" type="ColorRect" parent="Control/HBoxContainer/ProgressBar/Panel"]
+[node name="Progress" type="ColorRect" parent="Game/HBoxContainer/ProgressBar/Panel"]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
@@ -120,7 +91,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.0496095, 0.608785, 0.0546306, 1)
 
-[node name="Label" type="Label" parent="Control/HBoxContainer/ProgressBar/Panel"]
+[node name="Label" type="Label" parent="Game/HBoxContainer/ProgressBar/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -132,11 +103,61 @@ text = "0%"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Button" type="Button" parent="Control/HBoxContainer"]
+[node name="Button" type="Button" parent="Game/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("14_oh4w4")
 text = "Menu"
+
+[node name="VSplitContainer" type="VSplitContainer" parent="Game"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+split_offset = 80
+
+[node name="Scroll" type="Control" parent="Game/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.39
+script = ExtResource("3_j5ahw")
+
+[node name="FallingNotes" type="Control" parent="Game/VSplitContainer/Scroll" node_paths=PackedStringArray("piano", "progressBar", "scroll")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_ga1et")
+piano = NodePath("../../Piano")
+progressBar = NodePath("../../../HBoxContainer/ProgressBar")
+fontTheme = ExtResource("7_gxgea")
+themeWhiteKey = ExtResource("10_dk06m")
+themeBlackKey = ExtResource("8_k24y3")
+scroll = NodePath("..")
+
+[node name="BeatDrawer" type="Control" parent="Game/VSplitContainer/Scroll" node_paths=PackedStringArray("scroll")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("10_xkhkd")
+scroll = NodePath("..")
+lineColor = Color(0.404511, 0.404511, 0.404511, 1)
+
+[node name="Piano" type="ReferenceRect" parent="Game/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.72
+border_width = 3.0
+script = ExtResource("4_4ebec")
+themes = Array[Theme]([ExtResource("12_idt47"), ExtResource("11_evqa8"), ExtResource("11_6oidt"), ExtResource("12_mk4eh")])
+effect = ExtResource("16_nvax3")
 
 [node name="DeviceDisconnected" type="PopupPanel" parent="."]
 title = "DEVICE DISCONNECTED"
@@ -248,4 +269,4 @@ offset_bottom = -136.0
 grow_vertical = 0
 theme = ExtResource("12_idt47")
 
-[connection signal="pressed" from="Control/HBoxContainer/Button" to="GameManager" method="Exit"]
+[connection signal="pressed" from="Game/HBoxContainer/Button" to="GameManager" method="Exit"]

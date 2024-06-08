@@ -84,7 +84,7 @@ public partial class MIDIReader
                 maxDuration = msg.Duration;
                 eventDelay = msg.DeltaTime;
             }
-        }       
+        }
 
         keyEvents.Add(new(eventDelay, eventAccumulator, maxDuration));
         return keyEvents;
