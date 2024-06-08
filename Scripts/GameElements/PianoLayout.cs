@@ -55,7 +55,7 @@ public abstract partial class PianoLayout : Control
         var keyInOctave = key % KEYS_IN_OCTAVE;
         var octave = (key - keyInOctave) / KEYS_IN_OCTAVE;
 
-        return octave * OCTAVE_WHITES + GetWhiteKeyIndex(keyInOctave);
+        return octave * OCTAVE_WHITES + GetClosestWhiteKey(keyInOctave);
     }
 
     private static float GetOffset(byte key) => (key % KEYS_IN_OCTAVE) switch

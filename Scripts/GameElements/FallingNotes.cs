@@ -47,7 +47,7 @@ public partial class FallingNotes : PianoLayout
     {
         var (midiIndex, duration) = note;
 
-        var key = MIDIIndexToKey(midiIndex);
+        var key = MIDIIndexToPianoKey(midiIndex);
 
         var black = IsBlack(key);
 

@@ -40,28 +40,16 @@ public static class PianoKeys
         "Ti",
     ];
 
-    /// <summary>
-    /// Indicates, whether a piano key is black.
-    /// </summary>
-    /// <param name="idx">Midi key index.</param>
-    /// <returns>True if the piano key is black, otherwise false.</returns>
-    public static bool IsBlack(byte idx) => (idx % KEYS_IN_OCTAVE) switch
+
+    public static bool IsBlack(byte key) => (key % KEYS_IN_OCTAVE) switch
     {
         1 or 3 or 6 or 8 or 10 => true,
         _ => false,
     };
 
-    /// <summary>
-    /// Converts piano key indices from MIDI message numeration to keyboard numeration.
-    /// </summary>
-    /// /// <param name="key">Midi key index.</param>
-    public static byte MIDIIndexToKey(byte key) => (byte)(key - settings.PianoMinMIDIKey);
+    public static byte MIDIIndexToPianoKey(byte midiKeyByte) => (byte)(midiKeyByte - settings.PianoMinMIDIKey);
 
-    /// <summary>
-    /// Converts piano key indices from octave numeration to closest left white key numeration.
-    /// </summary>
-    /// /// <param name="keyInOctave">Key position in octave.</param>
-    public static byte GetWhiteKeyIndex(int keyInOctave) => keyInOctave switch
+    public static byte GetClosestWhiteKey(int keyInOctave) => keyInOctave switch
     {
         0 or 1 => 0,
         2 or 3 => 1,

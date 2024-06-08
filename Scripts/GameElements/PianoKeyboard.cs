@@ -54,7 +54,7 @@ public partial class PianoKeyboard : PianoEffects
         while (changes.Count > 0)
         {
             var (midiIndex, activated) = changes.Dequeue();
-            byte key = MIDIIndexToKey(midiIndex);
+            byte key = MIDIIndexToPianoKey(midiIndex);
             bool isBlack = IsBlack(key);
 
             bool keyHasEffect = (
