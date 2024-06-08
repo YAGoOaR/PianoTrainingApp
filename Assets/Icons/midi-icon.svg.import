@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bhoruytc6pdb7"
-path="res://.godot/imported/particle2.png-b5e2854167bcf221a9baf3b68fe2f022.ctex"
+uid="uid://cgwhkhrd57dvw"
+path="res://.godot/imported/midi-icon.svg-86a4d5f46b0d4b90195568a8a12136b5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Effects/particle2.png"
-dest_files=["res://.godot/imported/particle2.png-b5e2854167bcf221a9baf3b68fe2f022.ctex"]
+source_file="res://Assets/Icons/midi-icon.svg"
+dest_files=["res://.godot/imported/midi-icon.svg-86a4d5f46b0d4b90195568a8a12136b5.ctex"]
 
 [params]
 
@@ -32,3 +32,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bn6vpopxpguqc"]
 
-[ext_resource type="Material" uid="uid://c2gcyskjv8wnh" path="res://Effects/effect2.tres" id="1_kus0q"]
-[ext_resource type="Texture2D" uid="uid://c3xii5fsm0u8l" path="res://Effects/particle1.png" id="1_qlkhd"]
+[ext_resource type="Material" uid="uid://c2gcyskjv8wnh" path="res://Assets/Effects/effect2.tres" id="1_kus0q"]
+[ext_resource type="Texture2D" uid="uid://c3xii5fsm0u8l" path="res://Assets/Effects/particle1.png" id="1_qlkhd"]
 
 [node name="particles" type="GPUParticles2D"]
 modulate = Color(1, 1, 1, 0.458824)

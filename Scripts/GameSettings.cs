@@ -33,8 +33,8 @@ public class PlayerSettings()
 // Manages all settings
 public partial class GameSettings
 {
-    public static string MenuScene { get; } = "res://Scenes/main.tscn";
-    public static string GameScene { get; } = "res://Scenes/PlayScene.tscn";
+    public static string MenuScene { get; } = "res://Assets/Scenes/main.tscn";
+    public static string GameScene { get; } = "res://Assets/Scenes/PlayScene.tscn";
 
     private const string settingsPath = @"./player_settings.json";
 

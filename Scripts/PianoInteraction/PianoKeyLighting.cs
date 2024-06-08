@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.Devices;
 
-namespace PianoTrainer.Scripts.Devices;
+namespace PianoTrainer.Scripts.PianoInteraction;
 
 // Handles hint light blinking jobs
 public class PianoKeyLighting
