@@ -4,20 +4,6 @@ using System.Text.Json;
 
 namespace PianoTrainer.Scripts;
 
-// Music flow parameters
-public class PlayerSettings()
-{
-    public int KeyTimeOffset { get; } = 100;
-    public int BlinkStartOffset { get; } = 3000;
-    public int BlinkInterval { get; } = 80;
-    public int BlinkSlowInterval { get; } = 200;
-    public int BlinkFastStartOffset { get; } = 1000;
-    public int LateHintOutdateTime { get; } = 300;
-    public int Timespan { get; } = 4000;
-    public int DefaultTempo { get; } = 500000;
-    public int StartBeatsOffset { get; } = 4;
-}
-
 // General settings
 public class GSettings()
 {
@@ -30,11 +16,25 @@ public class GSettings()
     public byte PianoMaxMIDIKey { get => (byte)(PianoMinMIDIKey + PianoKeyCount); }
 }
 
+// Music flow parameters
+public class PlayerSettings()
+{
+    public int KeyTimeOffset { get; } = 100;
+    public int BlinkStartOffset { get; } = 3000;
+    public int BlinkInterval { get; } = 80;
+    public int BlinkSlowInterval { get; } = 200;
+    public int BlinkFastStartOffset { get; } = 1000;
+    public int LateHintOutdateTime { get; } = 300;
+    public int TimeSpan { get; } = 4000;
+    public int DefaultTempo { get; } = 500000;
+    public int StartBeatsOffset { get; } = 4;
+}
+
 // Manages all settings
 public partial class GameSettings
 {
-    public static string MenuScene { get; } = "res://Scenes/main.tscn";
-    public static string GameScene { get; } = "res://Scenes/PlayScene.tscn";
+    public static string MenuScene { get; } = "res://Assets/Scenes/main.tscn";
+    public static string GameScene { get; } = "res://Assets/Scenes/PlayScene.tscn";
 
     private const string settingsPath = @"./player_settings.json";
 

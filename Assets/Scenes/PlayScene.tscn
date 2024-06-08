@@ -1,0 +1,307 @@
+[gd_scene load_steps=20 format=3 uid="uid://b8h3lrgadghix"]
+
+[ext_resource type="Script" path="res://Scripts/GameManager.cs" id="1_u53or"]
+[ext_resource type="Script" path="res://Scripts/UI/Alerts.cs" id="2_4jih0"]
+[ext_resource type="Script" path="res://Scripts/UI/Scroll.cs" id="3_j5ahw"]
+[ext_resource type="Script" path="res://Scripts/GameElements/PianoKeyboard.cs" id="4_4ebec"]
+[ext_resource type="Script" path="res://Scripts/GameElements/FallingNotes.cs" id="5_ga1et"]
+[ext_resource type="Script" path="res://Scripts/UI/ProgressBar.cs" id="6_t5trx"]
+[ext_resource type="Theme" uid="uid://by2aa8qlbtfpg" path="res://Assets/Themes/font_theme.tres" id="7_gxgea"]
+[ext_resource type="Theme" uid="uid://cliu30v8gh5n1" path="res://Assets/Themes/themeBlackKey.tres" id="8_k24y3"]
+[ext_resource type="Theme" uid="uid://dtjmaoh4kf33q" path="res://Assets/Themes/themeWhiteKey.tres" id="10_dk06m"]
+[ext_resource type="StyleBox" uid="uid://dpoerorof6ufy" path="res://Assets/Themes/alert_style_box_flat.tres" id="10_tvxw8"]
+[ext_resource type="Script" path="res://Scripts/UI/BeatDrawer.cs" id="10_xkhkd"]
+[ext_resource type="Theme" uid="uid://cl5sn51ecfkxm" path="res://Assets/Themes/Key/key_active_black.tres" id="11_6oidt"]
+[ext_resource type="Theme" uid="uid://g5idrlertwwb" path="res://Assets/Themes/Key/key_inactive_white.tres" id="11_evqa8"]
+[ext_resource type="Theme" uid="uid://crnyqkpjibv2t" path="res://Assets/Themes/Key/key_inactive_black.tres" id="12_idt47"]
+[ext_resource type="Theme" uid="uid://dagitmua1vpuv" path="res://Assets/Themes/Key/key_active_white.tres" id="12_mk4eh"]
+[ext_resource type="Theme" uid="uid://bmd3anhug6lmh" path="res://Assets/Themes/ui_theme.tres" id="14_oh4w4"]
+[ext_resource type="PackedScene" uid="uid://bn6vpopxpguqc" path="res://Assets/Effects/particles.tscn" id="16_nvax3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s07n5"]
+bg_color = Color(0.192157, 0.556863, 0.192157, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.585062, 0.585062, 0.585062, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h1xpk"]
+bg_color = Color(0.137546, 0.665053, 0.790437, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.18359, 0.18359, 0.18359, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="PlayScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameManager" type="Node2D" parent="."]
+script = ExtResource("1_u53or")
+
+[node name="Alerts" type="Control" parent="." node_paths=PackedStringArray("deviceDisconnectedPanel", "waitingForDevicePanel", "pausedPanel")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_4jih0")
+deviceDisconnectedPanel = NodePath("DeviceDisconnected")
+waitingForDevicePanel = NodePath("WaitingForDevice")
+pausedPanel = NodePath("Paused")
+
+[node name="DeviceDisconnected" type="Panel" parent="Alerts"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -295.0
+offset_top = -62.5
+offset_right = 295.0
+offset_bottom = 62.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("10_tvxw8")
+
+[node name="Label" type="Label" parent="Alerts/DeviceDisconnected"]
+offset_right = 590.0
+offset_bottom = 125.0
+text = "Device disconnected!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WaitingForDevice" type="Panel" parent="Alerts"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -62.5
+offset_right = 300.0
+offset_bottom = 62.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("10_tvxw8")
+
+[node name="Label" type="Label" parent="Alerts/WaitingForDevice"]
+offset_right = 600.0
+offset_bottom = 125.0
+text = "Waiting for device to be connected..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Paused" type="Panel" parent="Alerts"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -62.5
+offset_right = 300.0
+offset_bottom = 62.5
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_oh4w4")
+theme_override_styles/panel = ExtResource("10_tvxw8")
+
+[node name="Label" type="Label" parent="Alerts/Paused"]
+offset_right = 600.0
+offset_bottom = 125.0
+text = "Game paused"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Game" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Game"]
+layout_mode = 2
+offset_right = 2560.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.11
+
+[node name="ProgressBar" type="Control" parent="Game/HBoxContainer" node_paths=PackedStringArray("progressLabel", "progressPanel")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 11.23
+script = ExtResource("6_t5trx")
+progressLabel = NodePath("Panel/Label")
+progressPanel = NodePath("Panel/Progress")
+
+[node name="Panel" type="Panel" parent="Game/HBoxContainer/ProgressBar"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_oh4w4")
+
+[node name="Progress" type="Panel" parent="Game/HBoxContainer/ProgressBar/Panel"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 1468.0
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("14_oh4w4")
+theme_override_styles/panel = SubResource("StyleBoxFlat_s07n5")
+
+[node name="Label" type="Label" parent="Game/HBoxContainer/ProgressBar/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 38
+text = "0%"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="Game/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("14_oh4w4")
+text = "Menu"
+
+[node name="VSplitContainer" type="VSplitContainer" parent="Game"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+split_offset = 80
+dragger_visibility = 2
+
+[node name="Scroll" type="Control" parent="Game/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.39
+script = ExtResource("3_j5ahw")
+
+[node name="BeatDrawer" type="Control" parent="Game/VSplitContainer/Scroll"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("10_xkhkd")
+lineColor = Color(0.404511, 0.404511, 0.404511, 1)
+
+[node name="FallingNotes" type="Control" parent="Game/VSplitContainer/Scroll" node_paths=PackedStringArray("piano", "progressBar")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_ga1et")
+piano = NodePath("../../Piano")
+progressBar = NodePath("../../../HBoxContainer/ProgressBar")
+fontTheme = ExtResource("7_gxgea")
+themeWhiteKey = ExtResource("10_dk06m")
+themeBlackKey = ExtResource("8_k24y3")
+
+[node name="Piano" type="ReferenceRect" parent="Game/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.72
+border_width = 3.0
+script = ExtResource("4_4ebec")
+themes = Array[Theme]([ExtResource("12_idt47"), ExtResource("11_evqa8"), ExtResource("11_6oidt"), ExtResource("12_mk4eh")])
+effect = ExtResource("16_nvax3")
+
+[node name="References" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NoteReference" type="Panel" parent="References"]
+layout_mode = 0
+offset_left = 825.0
+offset_top = 410.0
+offset_right = 909.0
+offset_bottom = 522.0
+theme = ExtResource("10_dk06m")
+theme_override_styles/panel = SubResource("StyleBoxFlat_h1xpk")
+
+[node name="Label" type="Label" parent="References/NoteReference"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -14.0
+offset_right = -37.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("7_gxgea")
+text = "A b"
+horizontal_alignment = 1
+autowrap_mode = 1
+
+[node name="White" type="Panel" parent="References"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0753906
+anchor_top = 0.640278
+anchor_right = 0.0753906
+anchor_bottom = 0.640278
+offset_top = -350.0
+offset_right = 60.0
+grow_vertical = 0
+theme = ExtResource("11_evqa8")
+metadata/_edit_use_anchors_ = true
+
+[node name="Black" type="Panel" parent="References/White"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 35.0
+offset_top = -351.0
+offset_right = 74.0
+offset_bottom = -136.0
+grow_vertical = 0
+theme = ExtResource("12_idt47")
+
+[connection signal="pressed" from="Game/HBoxContainer/Button" to="GameManager" method="Exit"]

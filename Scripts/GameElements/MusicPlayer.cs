@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.MusicNotes;
 
 namespace PianoTrainer.Scripts.GameElements;
 using static TimeUtils;
@@ -18,20 +18,34 @@ public enum PlayState
 
 public struct MusicPlayerState()
 {
-    public HashSet<byte> DesiredKeys { get; set; } = [];
+    public HashSet<byte> Target { get; set; } = [];
     public int NextGroup { get; set; } = 1;
     public int Group { get; set; } = 0;
     public int GroupDeltatime { get; set; } = 0;
-    public int AccumulatedGroupTime { get; set; } = 0;
+    public int AccumulatedTime { get; set; } = 0;
 }
 
 // Handles the music flow and user guidance
 public class MusicPlayer
 {
+    public static MusicPlayer Instance
+    {
+        get
+        {
+            instance ??= new();
+            return instance;
+        }
+    }
+
+    private static MusicPlayer instance;
+
+    public event Action<MusicPlayerState> OnTargetChanged;
+    public event Action OnStopped;
     public List<TimedNoteGroup> Notes { get; set; } = [];
 
-    public float TotalSeconds { get => totalTimeMilis * MsToSeconds; }
-    public int TimeMilis { get => State.AccumulatedGroupTime + (int)TimeSinceLastKey; }
+    public float ScrollMs { get; set; } = 0;
+    public float TotalSeconds { get => totalTimeMilis * MS_TO_SEC; }
+    public float TimeMilis { get => State.AccumulatedTime + (int)TimeSinceLastKey + ScrollMs; }
 
     public int TimeToNextKey { get => State.GroupDeltatime - (int)TimeSinceLastKey; }
     public float TimeSinceLastKey { get; private set; } = 0;
@@ -41,24 +55,11 @@ public class MusicPlayer
 
     public MusicPlayerState State { get; private set; } = new();
 
-    public event Action<MusicPlayerState> OnTargetChanged;
-    public event Action OnStopped;
-
     private int totalTimeMilis = 0;
     public HashSet<byte> NonreadyKeys { get; private set; } = [];
     private bool complete = false;
 
     public PlayState PlayingState { get; private set; } = PlayState.Stopped;
-
-    private static MusicPlayer instance;
-    public static MusicPlayer Instance
-    {
-        get
-        {
-            instance ??= new();
-            return instance;
-        }
-    }
 
     private MusicPlayer() { }
 
@@ -91,8 +92,9 @@ public class MusicPlayer
 
     public void Stop()
     {
-        Pause();
+        PlayingState = PlayState.Stopped;
         State = new();
+        OnStopped.Invoke();
     }
 
     public void SetCursor(int groupIndex)
@@ -102,8 +104,8 @@ public class MusicPlayer
 
         State = new()
         {
-            AccumulatedGroupTime = prevGroup.Time,
-            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
+            AccumulatedTime = prevGroup.Time,
+            Target = group.Notes.Select(x => x.Key).ToHashSet(),
             GroupDeltatime = group.Time - prevGroup.Time,
 
             Group = groupIndex,
@@ -130,8 +132,8 @@ public class MusicPlayer
 
         State = new()
         {
-            AccumulatedGroupTime = prevGroup.Time,
-            DesiredKeys = group.Notes.Select(x => x.Key).ToHashSet(),
+            AccumulatedTime = prevGroup.Time,
+            Target = group.Notes.Select(x => x.Key).ToHashSet(),
             GroupDeltatime = group.Time - prevGroup.Time,
 
             Group = State.NextGroup,
@@ -149,7 +151,7 @@ public class MusicPlayer
         if (PlayingState != PlayState.Playing) return;
         NonreadyKeys = NonreadyKeys.Intersect(pressedKeys).ToHashSet();
 
-        if (complete || State.DesiredKeys.Except(pressedKeys.Except(NonreadyKeys)).Any()) return;
+        if (complete || State.Target.Except(pressedKeys.Except(NonreadyKeys)).Any()) return;
 
         complete = true;
         NonreadyKeys = new(pressedKeys);
@@ -161,6 +163,6 @@ public class MusicPlayer
     public void Update(float dT)
     {
         if (PlayingState != PlayState.Playing) return;
-        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SecondsToMs, State.GroupDeltatime);
+        TimeSinceLastKey = Math.Min(TimeSinceLastKey + dT * SEC_TO_MS, State.GroupDeltatime);
     }
 }

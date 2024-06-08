@@ -5,6 +5,8 @@ namespace PianoTrainer.Scripts.Menu;
 
 internal partial class Menu : Control
 {
+    private static readonly GameSettings settings = GameSettings.Instance;
+
     [Export] private ItemList itemList;
     [Export] private Texture2D icon;
     [Export] private TextEdit SongPath;
@@ -12,8 +14,6 @@ internal partial class Menu : Control
     [Export] private FileDialog fileDialog;
 
     private string[] midis;
-
-    private static readonly GameSettings settings = GameSettings.Instance;
 
     public void OnItemSelect(int idx)
     {

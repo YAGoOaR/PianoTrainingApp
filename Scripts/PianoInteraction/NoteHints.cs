@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using PianoTrainer.Scripts.GameElements;
-using PianoTrainer.Scripts.Devices;
 
 namespace PianoTrainer.Scripts.PianoInteraction;
 
@@ -11,9 +10,7 @@ namespace PianoTrainer.Scripts.PianoInteraction;
 public class NoteHints
 {
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-
-    private static PlayerSettings PlayerSettings { get => GameSettings.Instance.PlayerSettings; }
-    private readonly PianoKeyLighting lights = new();
+    private static readonly PlayerSettings settings = GameSettings.Instance.PlayerSettings;
 
     private static NoteHints instance;
     public static NoteHints Instance
@@ -24,6 +21,8 @@ public class NoteHints
             return instance;
         }
     }
+
+    private readonly PianoKeyLighting lights = new();
 
     private NoteHints()
     {
@@ -41,11 +40,11 @@ public class NoteHints
     {
         lights.Reset();
 
-        List<byte> keys = new(state.DesiredKeys);
+        List<byte> keys = new(state.Target);
 
         Task lightupNotes = LateNotePressHint(keys, musicPlayer.TimeToNextKey);
 
-        bool isLate() => lightupNotes.IsCompleted || musicPlayer.TimeToNextKey < PlayerSettings.LateHintOutdateTime;
+        bool isLate() => lightupNotes.IsCompleted || musicPlayer.TimeToNextKey < settings.LateHintOutdateTime;
         bool isStateChanged() => musicPlayer.State.Group != state.Group;
 
         Task.Run(() => EarlyNotePressHint(isLate, isStateChanged, keys));
@@ -54,26 +53,26 @@ public class NoteHints
     // Permanent light hint
     private async Task LateNotePressHint(List<byte> keys, int timeToPress)
     {
-        await Task.Delay(Math.Max(0, timeToPress - PlayerSettings.KeyTimeOffset));
+        await Task.Delay(Math.Max(0, timeToPress - settings.KeyTimeOffset));
         lights.SetKeys(keys);
     }
 
     // Blinking light hint
     private async Task EarlyNotePressHint(Func<bool> isLate, Func<bool> notesOutdated, List<byte> keys)
     {
-        await Task.Delay(Math.Max(0, musicPlayer.TimeToNextKey - PlayerSettings.BlinkStartOffset));
+        await Task.Delay(Math.Max(0, musicPlayer.TimeToNextKey - settings.BlinkStartOffset));
 
         while (!isLate() && !notesOutdated())
         {
-            var interval = musicPlayer.TimeToNextKey > PlayerSettings.BlinkFastStartOffset
-                ? PlayerSettings.BlinkSlowInterval
-                : PlayerSettings.BlinkInterval;
+            var interval = musicPlayer.TimeToNextKey > settings.BlinkFastStartOffset
+                ? settings.BlinkSlowInterval
+                : settings.BlinkInterval;
 
             foreach (var k in keys)
             {
                 lights.AddBlink(k, interval);
             }
-            await Task.Delay(PlayerSettings.BlinkInterval + interval + lights.TickTime);
+            await Task.Delay(settings.BlinkInterval + interval + lights.TickTime);
         }
     }
 }

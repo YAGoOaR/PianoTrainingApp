@@ -1,24 +1,21 @@
 
 using Godot;
 using PianoTrainer.Scripts.Devices;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.MusicNotes;
 using System.Collections.Generic;
-using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
+using static PianoTrainer.Scripts.MusicNotes.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 
 // Piano key setup and visualizing key state changes
 public partial class PianoKeyboard : PianoEffects
 {
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+
     [Export] private Theme[] themes;
 
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-
-    public float NoteGap { get; private set; } = 0;
-
-    readonly List<Panel> noteRects = [];
-
-    readonly Queue<NoteMessage> changes = [];
+    private readonly List<Panel> noteRects = [];
+    private readonly Queue<NoteMessage> changes = [];
 
     public override void _Ready()
     {
@@ -32,15 +29,15 @@ public partial class PianoKeyboard : PianoEffects
     {
         for (byte key = 0; key < KeyboardRange; key++)
         {
-            var holder = NoteFrames[key];
+            var frame = NoteFrames[key];
             bool black = IsBlack(key);
 
             Panel noteRect = new()
             {
                 Theme = GetNoteTheme(black, false),
             };
-            holder.AddChild(noteRect);
-            holder.MoveChild(noteRect, 0);
+            frame.AddChild(noteRect);
+            frame.MoveChild(noteRect, 0);
 
             noteRect.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
@@ -55,11 +52,11 @@ public partial class PianoKeyboard : PianoEffects
         while (changes.Count > 0)
         {
             var (midiIndex, activated) = changes.Dequeue();
-            byte key = MIDIIndexToKey(midiIndex);
+            byte key = MIDIIndexToPianoKey(midiIndex);
             bool isBlack = IsBlack(key);
 
             bool keyHasEffect = (
-                musicPlayer.State.DesiredKeys.Contains(midiIndex) ||
+                musicPlayer.State.Target.Contains(midiIndex) ||
                 musicPlayer.NonreadyKeys.Contains(midiIndex)
             );
 

@@ -1,6 +1,6 @@
 ﻿
 using Commons.Music.Midi;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.MusicNotes;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -8,12 +8,10 @@ using System.Diagnostics;
 namespace PianoTrainer.Scripts.Devices;
 
 // Defines MIDI messages to work with the piano
-public class LightsMIDIInterface(IMidiOutput piano)
+public static class LightsMIDIInterface
 {
-    private readonly IMidiOutput piano = piano;
-
     // Midi message to control CASIO LK-S250 key lights.
-    public bool SendProprietary(NoteMessage msg)
+    public static bool SendNoteChange(IMidiOutput piano, NoteMessage msg)
     {
         try
         {
@@ -28,7 +26,7 @@ public class LightsMIDIInterface(IMidiOutput piano)
     }
 
     // Midi message that informs piano that light messages are incoming. Must be sent periodically.
-    public bool SendHold()
+    public static bool SendHold(IMidiOutput piano)
     {
         try
         {

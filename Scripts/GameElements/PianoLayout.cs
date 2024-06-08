@@ -1,6 +1,6 @@
 ﻿using Godot;
 using System.Collections.Generic;
-using static PianoTrainer.Scripts.PianoInteraction.PianoKeys;
+using static PianoTrainer.Scripts.MusicNotes.PianoKeys;
 
 namespace PianoTrainer.Scripts.GameElements;
 
@@ -10,9 +10,9 @@ public abstract partial class PianoLayout : Control
     private static readonly GSettings settings = GameSettings.Instance.Settings;
 
     public static int KeyboardRange { get => settings.PianoKeyCount; }
-    private static int WhiteKeyCount { get => KeyboardRange / keysInOctave * octaveWhites + 1; }
+    private static int WhiteKeyCount { get => KeyboardRange / KEYS_IN_OCTAVE * OCTAVE_WHITES + 1; }
 
-    public static Vector2 BlackRatio { get; } = new(1 / 2f, 2 / 3f);
+    private static Vector2 BlackRatio { get; } = new(1 / 2f, 2 / 3f);
 
     private static readonly float leftKeyOffset = 1 - BlackRatio.X * 2 / 3;
     private static readonly float midKeyOffset = 1 - BlackRatio.X / 2;
@@ -22,6 +22,20 @@ public abstract partial class PianoLayout : Control
 
     public override void _Ready()
     {
+        for (byte key = 0; key < KeyboardRange; key++)
+        {
+            bool black = IsBlack(key);
+
+            Control note = new() { ZIndex = black ? ZIndex : ZIndex - 1 };
+            AddChild(note);
+
+            NoteFrames.Add(note);
+        }
+        Resized += Resize;
+    }
+
+    protected virtual void Resize()
+    {
         Vector2 WhiteSize = new(Size.X / WhiteKeyCount, Size.Y);
         Vector2 BlackSize = WhiteSize * BlackRatio;
 
@@ -29,27 +43,22 @@ public abstract partial class PianoLayout : Control
         {
             bool black = IsBlack(key);
 
-            Control note = new()
-            {
-                Position = (GetWhiteIndex(key) + GetOffset(key)) * Vector2.Right * WhiteSize.X,
-                Size = black ? BlackSize : WhiteSize,
-                ZIndex = black ? ZIndex : ZIndex - 1,
-            };
-            AddChild(note);
+            var note = NoteFrames[key];
 
-            NoteFrames.Add(note);
+            note.Position = (GetWhiteIndex(key) + GetOffset(key)) * Vector2.Right * WhiteSize.X;
+            note.Size = black ? BlackSize : WhiteSize;
         }
     }
 
     public static int GetWhiteIndex(byte key)
     {
-        var keyInOctave = key % keysInOctave;
-        var octave = (key - keyInOctave) / keysInOctave;
+        var keyInOctave = key % KEYS_IN_OCTAVE;
+        var octave = (key - keyInOctave) / KEYS_IN_OCTAVE;
 
-        return octave * octaveWhites + GetWhiteKeyIndex(keyInOctave);
+        return octave * OCTAVE_WHITES + GetClosestWhiteKey(keyInOctave);
     }
 
-    private static float GetOffset(byte key) => (key % keysInOctave) switch
+    private static float GetOffset(byte key) => (key % KEYS_IN_OCTAVE) switch
     {
         1 or 6 => leftKeyOffset,
         3 or 10 => rightKeyOffset,

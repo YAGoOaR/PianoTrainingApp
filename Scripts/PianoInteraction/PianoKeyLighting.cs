@@ -4,48 +4,45 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using PianoTrainer.Scripts.PianoInteraction;
+using PianoTrainer.Scripts.Devices;
 
-namespace PianoTrainer.Scripts.Devices;
+namespace PianoTrainer.Scripts.PianoInteraction;
 
 // Handles hint light blinking jobs
 public class PianoKeyLighting
 {
-    public event Action PreTick;
-    private event Action<List<byte>> DesiredStateUpdate;
-
-    private readonly LightState lightsState = DeviceManager.Instance.DefaultLights.Ligths;
-
-    public List<byte> _blinks = [];
     public List<byte> Blinks
     {
-        get => _blinks;
+        get => blinks;
         set
         {
-            _blinks = value;
-            DesiredStateUpdate?.Invoke(value);
+            blinks = value;
+            Update?.Invoke(value);
         }
     }
-
-    public List<byte> _activeNotes = [];
-
     public List<byte> ActiveNotes
     {
-        get => _activeNotes;
+        get => activeNotes;
         set
         {
-            _activeNotes = value;
-            DesiredStateUpdate?.Invoke(value);
+            activeNotes = value;
+            Update?.Invoke(value);
         }
     }
+
+    private event Action<List<byte>> Update;
+
+    private readonly LightState lights = DeviceManager.Instance.DefaultLights.Ligths;
+    private readonly Thread tickThread;
+
+    private List<byte> blinks = [];
+    private List<byte> activeNotes = [];
 
     public int TickTime { get; } = 25;
 
     private int rollCycle = 0;
 
-    private readonly Thread tickThread;
-
-    public bool stop = false;
+    private bool stop = false;
 
     public PianoKeyLighting()
     {
@@ -58,7 +55,7 @@ public class PianoKeyLighting
             }
         });
         tickThread.Start();
-        DesiredStateUpdate += OnDesiredStateUpdate;
+        Update += OnUpdate;
         ClearKeys();
     }
 
@@ -71,21 +68,19 @@ public class PianoKeyLighting
     {
         ActiveNotes = keys;
 
-        lock (lightsState)
+        lock (lights)
         {
             foreach (byte key in keys)
             {
-                lightsState.SetLight(key);
+                lights.SetLight(key);
             }
         }
     }
 
-    private void OnDesiredStateUpdate(List<byte> state) => rollCycle = 0;
+    private void OnUpdate(List<byte> state) => rollCycle = 0;
 
     public void OnTick()
     {
-        PreTick?.Invoke();
-
         List<byte> finalState = [.. ActiveNotes, .. Blinks];
 
         byte maxKeys = LightState.maxKeysDisplayed;
@@ -96,15 +91,15 @@ public class PianoKeyLighting
 
             var activeLights = Rotate(selected, rollCycle).Take(maxKeys).ToList();
 
-            lock (lightsState)
+            lock (lights)
             {
-                lightsState.SetMultipleLights(activeLights);
+                lights.SetMultipleLights(activeLights);
             }
             rollCycle = rollCycle >= finalState.Count ? 0 : rollCycle + 1;
         }
         else
         {
-            lightsState.SetMultipleLights(finalState);
+            lights.SetMultipleLights(finalState);
         }
     }
 
@@ -114,7 +109,7 @@ public class PianoKeyLighting
 
         await Task.Delay(blinkTime);
 
-        lock (lightsState)
+        lock (lights)
         {
             Blinks = Blinks.Where(x => x != key).ToList();
         }
@@ -122,16 +117,16 @@ public class PianoKeyLighting
 
     public void Dispose()
     {
-        lightsState.ResetKeys();
+        lights.ResetKeys();
         stop = true;
         Reset();
     }
 
-    public void ClearKeys() => lightsState.ResetKeys();
+    public void ClearKeys() => lights.ResetKeys();
 
     public void Reset()
     {
-        lightsState.ResetKeys();
+        lights.ResetKeys();
         ActiveNotes = [];
         Blinks = [];
     }
