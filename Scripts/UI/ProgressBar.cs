@@ -6,12 +6,10 @@ namespace PianoTrainer.Scripts.GameElements;
 // Progress of the music flow
 public partial class ProgressBar : Control
 {
+    private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
+
     [Export] private Label progressLabel;
     [Export] private ColorRect progressRect;
-
-    private readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
-
-    private bool active = false;
 
     private void SetProgressRectBounds(ColorRect rect, float tStart, float tEnd, float totalTime)
     {

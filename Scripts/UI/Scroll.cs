@@ -9,8 +9,6 @@ public partial class Scroll : Control
 {
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
-    public float TimeSpan { get; private set; } = GameSettings.Instance.PlayerSettings.TimeSpan;
-
     [Export] private float scrollDamping = 3f;
     [Export] private float epsilon = 0.01f;
     [Export] private float minFriction = 2.5f;

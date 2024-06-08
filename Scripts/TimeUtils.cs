@@ -14,7 +14,6 @@ internal class TimeUtils
 
     // Beats per minute to seconds per beat
     public static double BPM2BeatTime(double beatsPerMinute) => 1 / beatsPerMinute * MINUTE;
-    public static float BPM2BeatTime(float beatsPerMinute) => 1 / beatsPerMinute * MINUTE;
 
     // Transforms MIDI message time component to seconds
     public static int GetContextDeltaTime(int tempo, int deltaTimeSpec, int deltaTime) => (int)(tempo * MS_TO_SEC * deltaTime / deltaTimeSpec);

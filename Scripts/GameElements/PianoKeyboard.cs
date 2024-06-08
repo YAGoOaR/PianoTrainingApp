@@ -12,8 +12,6 @@ public partial class PianoKeyboard : PianoEffects
 {
     private static readonly MusicPlayer musicPlayer = MusicPlayer.Instance;
 
-    public float NoteGap { get; private set; } = 0;
-
     [Export] private Theme[] themes;
 
     private readonly List<Panel> noteRects = [];

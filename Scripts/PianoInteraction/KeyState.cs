@@ -10,11 +10,9 @@ namespace PianoTrainer.Scripts.PianoInteraction;
 public class KeyState(byte minKey, byte maxKey)
 {
     public event Action<NoteMessage> KeyChange;
-    public byte MinKey { get; } = minKey;
-    public byte MaxKey { get; } = maxKey;
     public HashSet<byte> State { get; } = [];
 
-    public bool HasKey(byte key) => key >= MinKey && key <= MaxKey;
+    public bool HasKey(byte key) => key >= minKey && key <= maxKey;
 
     protected bool UpdateState(NoteMessage keyChange)
     {
