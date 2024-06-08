@@ -23,25 +23,40 @@ public static class MIDIUtils
         return msg.Event.StatusByte == byte.MaxValue && msg.Event.Msb == MIDI_SET_TEMPO_MESSAGE;
     }
 
-    public static TimedNoteMessage ToTimedNotes(MidiMessage m, int tempo, int deltaTimeSpec) => new(
+    public static List<MidiMessage> MergeTracks(IList<MidiTrack> tracks)
+    {
+        var messageQueues = tracks.Select(x => new Queue<MidiMessage>(x.Messages)).ToList();
+        var timeAccumulators = messageQueues.Select(x => 0).ToArray();
+        var mergedTimeAccumulator = 0;
+
+        List<MidiMessage> allNotes = [];
+
+        while (messageQueues.Any(x => x.Count > 0))
+        {
+            var (idx, queue) = messageQueues
+                .Select((x, i) => (i, x))
+                .OrderBy(
+                    x => x.x.Count > 0
+                        ? timeAccumulators[x.i] + x.x.First().DeltaTime
+                        : int.MaxValue
+                )
+                .First();
+
+            var msg = queue.Dequeue();
+
+            var timeDelta = msg.DeltaTime + timeAccumulators[idx] - mergedTimeAccumulator;
+            timeAccumulators[idx] += msg.DeltaTime;
+            mergedTimeAccumulator += timeDelta;
+
+            allNotes.Add(new(timeDelta, msg.Event));
+        }
+
+        return allNotes;
+    }
+
+    public static TimedNoteMessage MIDIMessagesToNotes(MidiMessage m, int tempo, int deltaTimeSpec) => new(
         Key: m.Event.Msb,
         State: IsNotePressed(m),
         Time: GetContextDeltaTime(tempo, deltaTimeSpec, m.DeltaTime)
     );
-
-    public static List<TimedNoteGroup> AddTimePadding(List<TimedNoteGroup> keyGroups, int startTimePadding)
-    {
-        if (keyGroups.Count > 0)
-        {
-            var (firstMsg, rest) = (keyGroups.First(), keyGroups[1..]);
-            var endTimePadding = keyGroups.Last().Notes.Select(x => x.Duration).Max();
-            return [
-                new(0, []),
-                new(startTimePadding, firstMsg.Notes, firstMsg.MaxDuration),
-                .. rest,
-                new(endTimePadding, [])
-            ];
-        }
-        return keyGroups;
-    }
 }

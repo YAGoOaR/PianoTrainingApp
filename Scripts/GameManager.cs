@@ -2,6 +2,7 @@
 using Godot;
 using PianoTrainer.Scripts.Devices;
 using PianoTrainer.Scripts.GameElements;
+using PianoTrainer.Scripts.MIDI;
 using PianoTrainer.Scripts.PianoInteraction;
 using System.Threading.Tasks;
 
